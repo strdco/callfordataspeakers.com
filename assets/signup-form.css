@@ -1,0 +1,136 @@
+/* Subscription form header */
+
+.indicates-required {
+    text-align: right;
+    font-size: 8pt;
+}
+
+.asterisk {
+    font-weight: bold;
+    color: #ff0000;
+}
+
+.mc-field-group {
+    margin-top: 5px;
+}
+
+
+/* Input fields */
+
+.mc-field-group label {
+    width: 200px;
+    display: inline-block;
+}
+
+.mc-field-group input {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #a0a0a0;
+    border-radius: 4px;
+}
+
+.mc-field-group input[type='email'] {
+    font-size: 10pt;
+    margin: 2px;
+    padding: 6px;
+    width: 50%;
+}
+
+.mc-field-group input[type='text'] {
+    font-size: 10pt;
+    margin: 2px;
+    padding: 6px;
+    width: 50%;
+}
+
+.mc-field-group input[type='url'] {
+    font-size: 10pt;
+    margin: 2px;
+    padding: 6px;
+    width: 50%;
+}
+
+div.datefield {
+    display: inline-block;
+}
+
+.mc-field-group input.datepart {
+    width: 2em;
+    display: inline-block;
+}
+
+.mc-field-group .yearfield input.datepart {
+    width: 4em;
+    display: inline-block;
+}
+
+.small-meta {
+    color: #808080;
+}
+
+/* Error message as applied by the validation script */
+#mc_embed_signup form input.mce_inline_error {
+    border-color: #c00000;
+    background-color: rgb(220,0,0,0.25);
+}
+
+#mc_embed_signup form div.mce_inline_error {
+    font-weight: normal;
+    color: #000000;
+    background-color: #ff9000;
+}
+
+/* Remove the bullets for the group checkboxes */
+.input-group ul {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+/* Turn each checkbox item into a "floaty" box */
+
+.input-group ul li {
+    display: inline-block;
+    margin: 3px;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-right: 6px;
+    padding-bottom: 3px;
+    background-color: rgb(128,128,128,0.25);
+    border-radius: 4px;
+}
+
+/* Slightly bigger checkboxes */
+
+.mc-field-group input[type='checkbox'] {
+    width: 1.25em;
+    height: 1.25em;
+    margin: 6px;
+    vertical-align: middle;
+}
+
+/* Labels for checkboxes cannot be limited in width */
+
+.mc-field-group.input-group label {
+    width: inherit;
+}
+
+
+
+
+
+
+/* Big, orange subscribe button */
+
+#mc-embedded-subscribe.button {
+    margin-left: 2px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background-color: #ff9000;
+    padding: 12px;
+    color: #ffffff;
+    outline: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000000;
+    border-radius: 6px;
+}
