@@ -30,7 +30,7 @@ a:any-link {
 /* Panels and divs */
 
 .background-accent {
-    background-color: rgb(224,200,255,0.2);
+    background-color: rgb(255,255,255,0.1);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -42,7 +42,7 @@ a:any-link {
     width: 60%;
     top: 10%;
     height: 80%;
-    background-color: rgb(255,255,255,0.85);
+    background-color: rgb(255,255,255,0.9);
 
     overflow-y: auto;
 
@@ -51,7 +51,7 @@ a:any-link {
     padding-right: 20px;
     padding-bottom: 0px;
 
-    box-shadow: 0 0 50px 0px rgb(0,0,0,0.25);
+    box-shadow: 0 0 50px 0px rgb(0,0,0,0.5);
 }
 
 /* Tabstrip items */
@@ -96,10 +96,10 @@ a:any-link {
 }
 
 .tabstrip .tab.selected {
-    background-color: #ff9000;
-    color: #ffffff;
-    box-shadow: 0 0px 50px 5px rgb(255,160,0,0.5);
-    border-color: #ffe080;
+    background-color: #C6D633;
+    color: #000000;
+    box-shadow: 0 0px 50px 3px rgb(198,214,51,0.5);
+    border-color: #F6FF70;
 }
 
 /* Pages */
@@ -121,8 +121,8 @@ a:any-link {
 
 a:any-link {
     color: inherit;
-    text-decoration-color: #ff9000;
-    text-decoration-thickness: 2px;
+    text-decoration-color: #C6D633;
+    text-decoration-thickness: 3px;
 }
 
 /* Footer */
@@ -139,8 +139,8 @@ a:any-link {
 }
 
 .footer a:any-link {
-    color: #c0d0ff;
-    text-decoration-color: #c0d0ff;
+    color: #c0c0c0;
+    text-decoration-color: #c0c0c0;
     text-decoration-thickness: 1px;
 }
 
