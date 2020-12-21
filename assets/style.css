@@ -72,7 +72,7 @@ a:any-link {
     display: inline-block;
     min-width: 200px;
     min-height: 20px;
-    height: 2em;
+    height: 1em;
     border-top-style: solid;
     border-top-width: 1px;
     border-top-color: #ffffff;
@@ -93,6 +93,7 @@ a:any-link {
     cursor: pointer;
     outline: none;
     font-size: 12pt;
+    text-decoration: none;
 }
 
 .tabstrip .tab.selected {

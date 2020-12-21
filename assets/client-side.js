@@ -3,14 +3,14 @@ var checkedOrganizerRegionCount=0;
 
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
-
+/*
     // Add a click event to each tab:
     var tabs=document.getElementsByClassName("tab");
 
     Array.prototype.forEach.call(tabs, function(tab) {
         tab.onclick=tabClicked;
     });
-
+*/
 
 
     // Add a click event to each region checkbox on the event page,
