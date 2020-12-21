@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const validUrl=/^(http|https):\/\/.{1,}\..{1,}/gi;
 
 
 
@@ -7,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
+const url = require('url');
 const https = require('https');
 
 // Other modules:
@@ -87,7 +89,8 @@ var connectionString = {
                keepAlive     : true, /*
                isolationLevel: 'SERIALIZABLE',
                connectionIsolationLevel : 'SERIALIZABLE', */
-               appName       : 'callfordataspeakers.com' // host name of the web server
+               appName       : 'callfordataspeakers.com', // host name of the web server
+               validateBulkLoadParameters: true // whatever it takes to stop the nagging.
         } 
     };
 
@@ -163,33 +166,35 @@ app.get('/event', function (req, res, next) {
 
 
 
-
 /*-----------------------------------------------------------------------------
   Register a new event request, send a request email to moderator:
 -----------------------------------------------------------------------------*/
 
-app.post('/request', function (req, res, next) {
+app.all('/request', function (req, res, next) {
+
+    queryParams = querystring.parse(url.parse(req.url).query);
+
+    jQueryIdentifier=queryParams.c;
 
     // HSTS
     if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
 
-    var formName=req.body.FNAME+' '+req.body.LNAME;
-    var formEmail=req.body.EMAIL;
-    var formEventName=req.body.EVENT;
-    var formEventVenue=req.body.VENUE;
+    var formName=(queryParams.FNAME || req.body.FNAME)+' '+(queryParams.LNAME || req.body.LNAME);
+    var formEmail=req.body.EMAIL || queryParams.EMAIL;
+    var formEventName=req.body.EVENT || queryParams.EVENT;
+    var formEventVenue=req.body.VENUE || queryParams.VENUE;
     var formEventDate;
     try {
         formEventDate=new Date(
-            req.body["EVENTDATE[year]"]+'-'+
-            req.body["EVENTDATE[month]"]+'-'+
-            req.body["EVENTDATE[day]"]+' 00:00:00+00:00').toISOString();
+            (queryParams["EVENTDATE[year]"] || req.body["EVENTDATE[year]"])+'-'+
+            (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
+            (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
     } catch(err) {
         res.status(400);
         return;
     }
-    var formEventURL=req.body.URL;
-    var formEventRegions=req.body.REGION;
-
+    var formEventURL=queryParams.URL || req.body.URL;
+    var formEventRegions=(queryParams.REGION || req.body.REGION).join(",");
 
 
 
@@ -203,7 +208,6 @@ app.post('/request', function (req, res, next) {
             return;
     }
     else {
-
 
 
 
@@ -241,7 +245,7 @@ app.post('/request', function (req, res, next) {
                         sendCampaign('Organizers', 'Moderators', 'New campaign request', false, false, templateSections);
 
                         res.status(200).send(
-                            'jQuery19007968987507031464_1608589753492('+
+                            jQueryIdentifier+'('+
                             JSON.stringify({
                                 "result": "success",  //error
                                 "msg": "Thank you. A moderator will review your request."
