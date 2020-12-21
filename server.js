@@ -172,12 +172,22 @@ app.get('/event', function (req, res, next) {
 
 app.all('/request', function (req, res, next) {
 
-    queryParams = querystring.parse(url.parse(req.url).query);
-
-    jQueryIdentifier=queryParams.c;
-
     // HSTS
     if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+
+
+    // Parse query string parameters:
+    queryParams = querystring.parse(url.parse(req.url).query);
+
+    // For some reason, this is returned to the caller:
+    jQueryIdentifier=queryParams.c;
+
+    // Honey trap triggered: this is a bot
+    if (queryParams.free_hunny) {
+        res.status(400);
+        return;
+    }
+
 
     var formName=(queryParams.FNAME || req.body.FNAME)+' '+(queryParams.LNAME || req.body.LNAME);
     var formEmail=req.body.EMAIL || queryParams.EMAIL;
