@@ -13,6 +13,8 @@ const https = require('https');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const mailchimp = require("@mailchimp/mailchimp_marketing");
+
 // The web server itself:
 const app = express();
 app.use(bodyParser.urlencoded({
@@ -32,6 +34,27 @@ app.use((err, req, res, callback) => {
     callback();
 });
   
+// Mailchimp configuration
+mailchimp.setConfig({
+    apiKey: process.env.mcapikey,
+    server: process.env.mcapikey.split("-")[1],
+});
+
+
+
+/*
+async function pingMailchimp() {
+    const response = await mailchimp.ping.get();
+    console.log('Mailchimp API status: '+response.health_status);
+}
+
+pingMailchimp();
+*/
+
+
+
+
+
 
 
 
@@ -88,7 +111,7 @@ app.listen(serverPort, () => console.log('Listening.\n'));
 
 
 /*-----------------------------------------------------------------------------
-  Default page:
+  Default page: Speaker registration
 -----------------------------------------------------------------------------*/
 
 app.get('/', function (req, res, next) {
@@ -105,7 +128,33 @@ app.get('/', function (req, res, next) {
         }
     };
 
-    res.status(200).send(createHTML('index.html', {}));
+    res.status(200).send(createHTML('speaker.html', {}));
+});
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------
+  Default page: Event request
+-----------------------------------------------------------------------------*/
+
+app.get('/event', function (req, res, next) {
+
+    // HSTS
+    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+
+    var options = {
+        root: __dirname + '/',
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+
+    res.status(200).send(createHTML('event.html', {}));
 });
 
 
@@ -115,57 +164,90 @@ app.get('/', function (req, res, next) {
 
 
 
-
-
-
-
-
 /*-----------------------------------------------------------------------------
-  Register a new URL and send a verification link:
+  Register a new event request, send a request email to moderator:
 -----------------------------------------------------------------------------*/
 
-app.post('/create-campaign', function (req, res, next) {
+app.post('/request', function (req, res, next) {
 
     // HSTS
     if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
 
-    if(req.body.name==''  || req.body.email=='' ||
-       req.body.regions=='' || req.body.regions.split(",").length>2 ||
-       req.body.venue=='' || req.body.date==''  ||
-       !req.body.url.match(validUrl)) {
+    var formName=req.body.FNAME+' '+req.body.LNAME;
+    var formEmail=req.body.EMAIL;
+    var formEventName=req.body.EVENT;
+    var formEventVenue=req.body.VENUE;
+    var formEventDate;
+    try {
+        formEventDate=new Date(
+            req.body["EVENTDATE[year]"]+'-'+
+            req.body["EVENTDATE[month]"]+'-'+
+            req.body["EVENTDATE[day]"]+' 00:00:00+00:00').toISOString();
+    } catch(err) {
+        res.status(400);
+        return;
+    }
+    var formEventURL=req.body.URL;
+    var formEventRegions=req.body.REGION;
+
+
+
+
+    if(!formName  || !formEmail || !formEventName ||
+       !formEventVenue || !formEventDate  ||
+       formEventRegions.split(",").length>2 ||
+       !formEventURL.match(validUrl)) {
+
+            console.log("Pretty clever, huh.");
             res.status(400);
+            return;
     }
     else {
 
 
+
+
         sqlQuery(connectionString,
 
-            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL;',
+            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL;',
 
-            [   { "name": 'Name',    "type": Types.NVarChar, "value": req.body.name },
-                { "name": 'Email',   "type": Types.NVarChar, "value": req.body.email },
-                { "name": 'Regions', "type": Types.NVarChar, "value": req.body.regions },
-                { "name": 'Venue',   "type": Types.NVarChar, "value": req.body.venue },
-                { "name": 'Date',    "type": Types.Date,     "value": req.body.date },
-                { "name": 'URL',     "type": Types.NVarChar, "value": req.body.url }],
+            [   { "name": 'Name',    "type": Types.NVarChar, "value": formName },
+                { "name": 'Email',   "type": Types.NVarChar, "value": formEmail },
+                { "name": 'EventName', "type": Types.NVarChar, "value": formEventName },
+                { "name": 'Regions', "type": Types.NVarChar, "value": formEventRegions },
+                { "name": 'Venue',   "type": Types.NVarChar, "value": formEventVenue },
+                { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
+                { "name": 'URL',     "type": Types.NVarChar, "value": formEventURL }],
 
                 function(recordset) {
                     if (recordset) {
 
-                        var token=recordset[0].Token;
+                        // Create an email to all moderators, requesting event approval:
+                        var approveButton='<a class="mcnButton" title="Approve" href="https://callfordataspeakers.com/approve/'+recordset[0].Token+'" '+
+                                                'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
+                                                'text-decoration:none;color:#000000;">Approve</a>';
 
-                        (async function () {
-                            console.log('Sending slack message');
-                            try {
-                                const slackResponse = await sendSlackMessage(req.body.webhook, payload);
-                                res.status(200).json({ "message": slackResponse });
-                                console.log('Message response', slackResponse);
-                            } catch (e) {
-                                console.log(e);
-                                res.status(500).json({ "message": "There was a problem." });
-                            }
-                            })();
+                        var templateSections={
+                            "name": formName,
+                            "event_email": formEmail,
+                            "event_regions": formEventRegions,
+                            "event_name": formEventName,
+                            "event_venue": formEventVenue,
+                            "event_date": formEventDate,
+                            "event_url": formEventURL,
+                            "event_approve": approveButton
+                        };
 
+                        sendCampaign('Organizers', 'Moderators', 'New campaign request', false, false, templateSections);
+
+                        res.status(200).send(
+                            'jQuery19007968987507031464_1608589753492('+
+                            JSON.stringify({
+                                "result": "success",  //error
+                                "msg": "Thank you. A moderator will review your request."
+                            })+')'
+                        );
+                        
                     } else {
                         console.log('ERROR: Couldn\'t create the campain record in the database.');
                         res.status(500);
@@ -257,6 +339,127 @@ function createHTML(templateFile, values) {
     // DONE.
     return(htmlTemplate);
 }
+
+
+
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------
+  Canned Mailchimp template campaign:
+-----------------------------------------------------------------------------*/
+
+async function sendCampaign (listName, segmentName, templateName, enableTracking, tweet, templateSections) {
+
+    var organizerListId;
+    var segmentId;
+    var templateId;
+    var campaignId;
+
+    try {
+        // Find the "Organizers" list (audience):
+        var allLists = await mailchimp.lists.getAllLists();
+
+        Array.prototype.forEach.call(allLists.lists, list => {
+            if (list.name==listName) {
+                organizerListId=list.id;
+                listNo=allLists.total_items;
+            }
+        });
+
+        if (organizerListId) {
+            // Find the "Moderators" segment:
+            var allSegments = await mailchimp.lists.listSegments(organizerListId);
+
+            Array.prototype.forEach.call(allSegments.segments, segment => {
+                if (segment.name==segmentName) {
+                    segmentId=segment.id;
+                }
+            });
+        }
+
+        if (segmentId) {
+            // Find the template:
+            var allTemplates = await mailchimp.templates.list();
+
+            Array.prototype.forEach.call(allTemplates.templates, template => {
+                if (template.name==templateName) {
+                    templateId=template.id;
+                }
+            });
+        }
+
+        if (templateId) {
+            // Create the campaign:
+            var campaignParameters = {
+                "type": "regular",
+                "recipients": {
+                    "list_id": organizerListId,
+                    "segment_opts": {
+                        "saved_segment_id": segmentId
+                    }
+                },
+                "settings": {
+                    "subject_line": "New campaign request",
+                    "preview_text": "Preview text goes here",
+                    "title": "Title goes here",
+                    "from_name": "Call for Data Speakers",
+                    "reply_to": "hello@callfordataspeakers.com",
+                    //"to_name": "",
+                    "authenticate": true,
+                    "auto_footer": false,
+                    "auto_tweet": tweet,
+                    "template_id": templateId
+                },
+                "tracking": {
+                    "opens": enableTracking,
+                    "html_clicks": enableTracking,
+                    "text_clicks": enableTracking,
+                    "goal_tracking": enableTracking,
+                    "ecomm360": false
+                },
+                "content_type": "template"
+                /* TODO:
+                ,
+                "social_card": {
+                    ...
+                } */
+            };
+            var campaign = await mailchimp.campaigns.create(campaignParameters);
+            campaignId = campaign.id;
+
+            console.log(campaign);
+        }
+
+        if (campaignId) {
+
+            if (templateSections) {
+                // Set template field values for the campaign:
+                var updateInstructions={
+                    "template": {
+                        "id": templateId,
+                        "sections": templateSections
+                    }
+                };
+                await mailchimp.campaigns.setContent(campaignId, updateInstructions);
+            }
+
+            // Send the campaign:
+            await mailchimp.campaigns.send(campaignId);
+            console.log('Campaign sent.');
+        }
+    } catch (err) {
+        console.log(err);
+        alert('There was a problem.');
+    }
+}
+
+
+
+
 
 
 

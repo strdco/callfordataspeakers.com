@@ -11,6 +11,7 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
     CREATE TABLE CallForDataSpeakers.Campaigns (
         Token           uniqueidentifier NOT NULL,
         [Name]          nvarchar(200) NOT NULL,
+        EventName       nvarchar(400) NOT NULL,
         Email           nvarchar(400) NOT NULL,
         Regions         nvarchar(200) NOT NULL,
         Venue           nvarchar(1000) NOT NULL,
@@ -28,14 +29,15 @@ GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
     @Name           nvarchar(200),
     @Email          nvarchar(400),
+    @EventName      nvarchar(400),
     @Regions        nvarchar(200),
     @Venue          nvarchar(1000),
     @Date           date,
     @URL            nvarchar(1000)
 AS
 
-INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], Email, Regions, Venue, [Date], [URL], Created)
+INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, Email, Regions, Venue, [Date], [URL], Created)
 OUTPUT inserted.Token
-SELECT NEWID() AS Token, @Name, @Email, @Regions, @Venue, @Date, @URL, SYSDATETIME() AS Created;
+SELECT NEWID() AS Token, @Name, @EventName, @Email, @Regions, @Venue, @Date, @URL, SYSDATETIME() AS Created;
 
 GO

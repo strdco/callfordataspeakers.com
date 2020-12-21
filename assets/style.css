@@ -42,7 +42,7 @@ a:any-link {
     width: 60%;
     top: 10%;
     height: 80%;
-    background-color: rgb(255,255,255,0.9);
+    background-color: rgb(255,255,255,0.95);
 
     overflow-y: auto;
 
@@ -151,4 +151,17 @@ a:any-link {
     font-size: 20pt;
     background-color: rgb(64, 64, 64, 0.5);
     color: #ffffff;
+}
+
+.info-bubble {
+    background-color: rgb(198,214,51,0.2);
+    border-color: rgb(198,214,51,1);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 6px;
+    margin-bottom: 3px;
+    padding: 7px;
+    display: inline-block;
 }

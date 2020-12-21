@@ -1,7 +1,7 @@
 /* Subscription form header */
 
 .indicates-required {
-    text-align: right;
+    text-align: center;
     font-size: 8pt;
 }
 
@@ -36,14 +36,9 @@
     width: 50%;
 }
 
-.mc-field-group input[type='text'] {
-    font-size: 10pt;
-    margin: 2px;
-    padding: 6px;
-    width: 50%;
-}
-
-.mc-field-group input[type='url'] {
+.mc-field-group input[type='text'],
+.mc-field-group input[type='number'],
+.mc-field-group input[type='url']  {
     font-size: 10pt;
     margin: 2px;
     padding: 6px;
@@ -57,6 +52,12 @@ div.datefield {
 .mc-field-group input.datepart {
     width: 2em;
     display: inline-block;
+}
+
+.mc-field-group input[type=number]::-webkit-inner-spin-button, 
+.mc-field-group input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
 }
 
 .mc-field-group .yearfield input.datepart {
@@ -75,9 +76,18 @@ div.datefield {
 }
 
 #mc_embed_signup form div.mce_inline_error {
-    font-weight: normal;
+    background-color: rgb(198,214,51,0.2);
     color: #000000;
-    background-color: #C6D633;
+    font-weight: normal;
+    border-color: rgb(198,214,51,1);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 6px;
+    margin-bottom: 3px;
+    padding: 2px;
+    display: inline-block;
 }
 
 /* Remove the bullets for the group checkboxes */
@@ -119,7 +129,7 @@ div.datefield {
 
 
 
-/* Big, orange subscribe button */
+/* Big, colorful subscribe button */
 
 #mc-embedded-subscribe.button {
     margin-left: 2px;
@@ -134,3 +144,19 @@ div.datefield {
     border-color: #000000;
     border-radius: 6px;
 }
+
+/* Popup message for inline success/failure messages. */
+
+.response {
+    background-color: rgb(198,214,51,0.2);
+    border-color: rgb(198,214,51,1);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    margin-left: 10px;
+    margin-top: 6px;
+    margin-bottom: 3px;
+    padding: 7px;
+    display: inline-block;
+}
+
