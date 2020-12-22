@@ -143,6 +143,7 @@ div.datefield {
     border-width: 1px;
     border-color: #000000;
     border-radius: 6px;
+    cursor: pointer;
 }
 
 #mc-embedded-subscribe.submitted {
