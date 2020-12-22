@@ -183,7 +183,7 @@ app.all('/request', function (req, res, next) {
     // Very basic form validation:
     if(!formName  || !formEmail || !formEventName ||
        !formEventVenue || !formEventDate  ||
-       formEventRegions.split(",").length>2 ||
+       formEventRegions.split(",").length>3 ||
        !formEventURL.match(validUrl)) {
             console.log("Pretty clever, huh.");
             res.status(400).send('Not like this.');
