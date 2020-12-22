@@ -283,6 +283,14 @@ app.all('/request', function (req, res, next) {
 -----------------------------------------------------------------------------*/
 
 app.get('/approve/:token', function (req, res, next) {
+    res.status(200).send(createHTML('message.html', {
+        "subject": "Approving...",
+        "message": "Hang on..",
+        "script": '<script src="/assets/approve.js"></script>'
+    }));
+});
+
+app.get('/approve/:token/do', function (req, res, next) {
 
     // HSTS
     if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
