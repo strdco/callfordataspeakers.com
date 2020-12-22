@@ -18,7 +18,6 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         [Date]          date NOT NULL,
         [URL]           nvarchar(1000) NOT NULL,
         Created         datetime2(3) NOT NULL,
-        Approved        datetime2(3) NULL,
         [Sent]          datetime2(3) NULL,
         CONSTRAINT PK_Campaigns PRIMARY KEY CLUSTERED (Token)
     );
@@ -39,5 +38,16 @@ AS
 INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, Email, Regions, Venue, [Date], [URL], Created)
 OUTPUT inserted.Token
 SELECT NEWID() AS Token, @Name, @EventName, @Email, @Regions, @Venue, @Date, @URL, SYSDATETIME() AS Created;
+
+GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
+    @Token          uniqueidentifier
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET [Sent]=SYSDATETIME()
+OUTPUT inserted.[Name], inserted.EventName, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL]
+WHERE Token=@Token
+  AND [Sent] IS NULL;
 
 GO
