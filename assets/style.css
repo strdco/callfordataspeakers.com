@@ -166,3 +166,23 @@ a:any-link {
     padding: 7px;
     display: inline-block;
 }
+
+.top-left-banner {
+    background-color: #8C212B;
+    color: #ffffff;
+    padding-top: 1em;
+    padding-bottom: 2em;
+    text-align: center;
+    font-size: 12pt;
+    font-weight: bold;
+    position: absolute;
+    top: 50px;
+    left: -100px;
+    width: 400px;
+    height: 10px;
+    transform: rotate(-45deg);
+    border-style: solid;
+    border-color: #ffffff;
+    border-width: 2px;
+    text-transform: uppercase;
+}
