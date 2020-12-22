@@ -145,6 +145,12 @@ div.datefield {
     border-radius: 6px;
 }
 
+#mc-embedded-subscribe.submitted {
+    background-color: #f0f0f0;
+    color: #808080;
+    border-color: #808080;
+}
+
 /* Popup message for inline success/failure messages. */
 
 .response {

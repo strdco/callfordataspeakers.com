@@ -3,15 +3,17 @@ var checkedOrganizerRegionCount=0;
 
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
-/*
-    // Add a click event to each tab:
-    var tabs=document.getElementsByClassName("tab");
 
-    Array.prototype.forEach.call(tabs, function(tab) {
-        tab.onclick=tabClicked;
-    });
-*/
-
+    var button=document.getElementById("mc-embedded-subscribe");
+    if (button) {
+        button.onclick=function(e) {
+            // Let the form be submitted before we actually disable the button. :)
+            setTimeout(function() {
+                e.target.classList.add("submitted");
+                e.target.disabled=true;
+            }, 200);
+        }
+    }
 
     // Add a click event to each region checkbox on the event page,
     // to make sure the organizer doesn't select more than two
