@@ -3,7 +3,7 @@ IF (SCHEMA_ID('CallForDataSpeakers') IS NULL)
 
 
 GO
-GRANT EXECUTE ON SCHEMA::CallForDataSpeakers TO CallForDataSpeakers;
+GRANT EXECUTE, SELECT ON SCHEMA::CallForDataSpeakers TO CallForDataSpeakers;
 
 
 GO
@@ -51,5 +51,14 @@ SET [Sent]=SYSDATETIME()
 OUTPUT inserted.[Name], inserted.EventName, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
 WHERE Token=@Token
   AND [Sent] IS NULL;
+
+GO
+CREATE OR ALTER VIEW CallForDataSpeakers.Feed
+AS
+
+SELECT EventName, Regions, Email, Venue, [Date], [URL], Created
+FROM CallForDataSpeakers.Campaigns
+WHERE [Date]>DATEADD(day, -90, SYSDATETIME());
+  AND [Sent] IS NOT NULL
 
 GO

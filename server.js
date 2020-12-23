@@ -384,6 +384,38 @@ app.get('/approve/:token/do', function (req, res, next) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Approve an event request, send campaign to speakers:
+-----------------------------------------------------------------------------*/
+
+app.get('/api/events', function (req, res, next) {
+
+    httpHeaders(res);
+
+    // Approve the campaign in the database and retrieve the event information:
+    sqlQuery(connectionString,
+        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Created FROM CallForDataSpeakers.Feed;', [],
+
+            async function(recordset) {
+
+                res.status(200).json(recordset);
+                return;
+            });
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*-----------------------------------------------------------------------------
   Other related assets, like client-side JS, CSS, images, whatever:
