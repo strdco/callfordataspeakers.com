@@ -171,6 +171,7 @@ app.all('/request', function (req, res, next) {
         return;
     }
     var formEventURL=queryParams.URL || req.body.URL;
+    var formEventInfo=queryParams.INFO || req.body.INFO;
 
     // If you select a single region, it's a string, but with multiple regions, the
     // variable turns into an array. So if it's an array, we need to turn it back
@@ -193,14 +194,15 @@ app.all('/request', function (req, res, next) {
 
         // Save the everything to the SQL Server table:
         sqlQuery(connectionString,
-            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL;',
+            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL, @Information=@Information;',
             [   { "name": 'Name',    "type": Types.NVarChar, "value": formName },
                 { "name": 'Email',   "type": Types.NVarChar, "value": formEmail },
                 { "name": 'EventName', "type": Types.NVarChar, "value": formEventName },
                 { "name": 'Regions', "type": Types.NVarChar, "value": formEventRegions },
                 { "name": 'Venue',   "type": Types.NVarChar, "value": formEventVenue },
                 { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
-                { "name": 'URL',     "type": Types.NVarChar, "value": formEventURL }],
+                { "name": 'URL',     "type": Types.NVarChar, "value": formEventURL },
+                { "name": 'Information', "type": Types.NVarChar, "value": formEventInfo }],
 
                 // The stored procedure will return a uniqueidentifier (Token), used to identify
                 // each event request:
@@ -222,6 +224,7 @@ app.all('/request', function (req, res, next) {
                             "event_venue": formEventVenue,
                             "event_date": formEventDate,
                             "event_url": formEventURL,
+                            "event_info": formEventInfo,
                             "event_approve": approveButton
                         };
 
@@ -336,6 +339,7 @@ app.get('/approve/:token/do', function (req, res, next) {
                         "event_venue": recordset[0].Venue,
                         "name": recordset[0].Name,
                         "event_email": recordset[0].Email,
+                        "event_info": recordset[0].Information,
                         "event_button": eventButton
                     };
 

@@ -17,6 +17,7 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Venue           nvarchar(1000) NOT NULL,
         [Date]          date NOT NULL,
         [URL]           nvarchar(1000) NOT NULL,
+        Information     nvarchar(max) NULL,
         Created         datetime2(3) NOT NULL,
         [Sent]          datetime2(3) NULL,
         CONSTRAINT PK_Campaigns PRIMARY KEY CLUSTERED (Token)
@@ -32,12 +33,13 @@ CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
     @Regions        nvarchar(200),
     @Venue          nvarchar(1000),
     @Date           date,
-    @URL            nvarchar(1000)
+    @URL            nvarchar(1000),
+    @Information    nvarchar(max)
 AS
 
-INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, Email, Regions, Venue, [Date], [URL], Created)
+INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, Email, Regions, Venue, [Date], [URL], Information, Created)
 OUTPUT inserted.Token
-SELECT NEWID() AS Token, @Name, @EventName, @Email, @Regions, @Venue, @Date, @URL, SYSDATETIME() AS Created;
+SELECT NEWID() AS Token, @Name, @EventName, @Email, @Regions, @Venue, @Date, @URL, @Information, SYSDATETIME() AS Created;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
@@ -46,7 +48,7 @@ AS
 
 UPDATE CallForDataSpeakers.Campaigns
 SET [Sent]=SYSDATETIME()
-OUTPUT inserted.[Name], inserted.EventName, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL]
+OUTPUT inserted.[Name], inserted.EventName, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
 WHERE Token=@Token
   AND [Sent] IS NULL;
 
