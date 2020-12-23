@@ -2,8 +2,6 @@
 
 const validUrl=/^(http|https):\/\/.{1,}\..{1,}/gi;
 
-// The "preload" directive also enables the site to be pinned (HSTS with Preload)
-const hstsPreloadHeader = 'max-age=31536000; includeSubDomains; preload'
 
 
 
@@ -102,8 +100,7 @@ app.listen(serverPort, () => console.log('READY.'));
 
 app.get('/', function (req, res, next) {
 
-    // HSTS
-    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+    httpHeaders(res);
 
     // Serve up assets/speaker.html:
     res.status(200).send(createHTML('speaker.html', {}));
@@ -120,8 +117,7 @@ app.get('/', function (req, res, next) {
 
 app.get('/event', function (req, res, next) {
 
-    // HSTS
-    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+    httpHeaders(res);
 
     // Serve up assets/event.html:
     res.status(200).send(createHTML('event.html', {}));
@@ -139,8 +135,7 @@ app.get('/event', function (req, res, next) {
 
 app.all('/request', function (req, res, next) {
 
-    // HSTS
-    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+    httpHeaders(res);
 
     // Parse query string parameters:
     queryParams = querystring.parse(url.parse(req.url).query);
@@ -295,8 +290,7 @@ app.get('/approve/:token', function (req, res, next) {
 
 app.get('/approve/:token/do', function (req, res, next) {
 
-    // HSTS
-    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+    httpHeaders(res);
 
     // The part of the URL that reflects the token:
     var token=req.params.token;
@@ -397,8 +391,7 @@ app.get('/approve/:token/do', function (req, res, next) {
 
 app.get('/assets/:asset', function (req, res, next) {
 
-    // HSTS
-    if (req.secure) { res.header('Strict-Transport-Security', hstsPreloadHeader); }
+    httpHeaders(res);
 
     var options = {
         root: __dirname + '/assets/',
@@ -750,3 +743,28 @@ function sqlQuery(connectionString, statement, parameters, next) {
 
 
 
+function httpHeaders(res) {
+    // The "preload" directive also enables the site to be pinned (HSTS with Preload)
+    const hstsPreloadHeader = 'max-age=31536000; includeSubDomains; preload'
+    res.header('Strict-Transport-Security', hstsPreloadHeader); // HTTP Strict Transport Security with preload
+
+    // Limits use of external script/css/image resources
+    res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://s3.amazonaws.com/downloads.mailchimp.com/;");
+
+    // Don't allow this site to be embedded in a frame; helps mitigate clickjacking attacks
+    res.header('X-Frame-Options', 'sameorigin');
+
+    // Prevent MIME sniffing; instruct client to use the declared content type
+    res.header('X-Content-Type-Options', 'nosniff');
+
+    // Don't send a referrer to a linked page, to avoid transmitting sensitive information
+    res.header('Referrer-Policy', 'no-referrer');
+
+    // Limit access to local devices
+    res.header('Permissions-Policy', "camera=(), display-capture=(), microphone=(), geolocation=(), usb=()"); // replaces Feature-Policy
+  //res.header('Feature-Policy', "camera 'none'; microphone 'none'; usb 'none'");
+
+    // TODO: Permissions-Policy
+
+    return;
+}

@@ -1,0 +1,3 @@
+# To report a security issue, please contact us.
+Contact: security@strd.co
+Contact: https://strd.co/contact
