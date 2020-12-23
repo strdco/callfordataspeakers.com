@@ -385,7 +385,7 @@ app.get('/approve/:token/do', function (req, res, next) {
 
 
 /*-----------------------------------------------------------------------------
-  Approve an event request, send campaign to speakers:
+  REST API-ish to list events:
 -----------------------------------------------------------------------------*/
 
 app.get('/api/events', function (req, res, next) {
@@ -394,7 +394,7 @@ app.get('/api/events', function (req, res, next) {
 
     // Approve the campaign in the database and retrieve the event information:
     sqlQuery(connectionString,
-        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Created FROM CallForDataSpeakers.Feed;', [],
+        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Information, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
 
             async function(recordset) {
 
@@ -404,7 +404,18 @@ app.get('/api/events', function (req, res, next) {
 
 });
 
+/*-----------------------------------------------------------------------------
+  List events:
+-----------------------------------------------------------------------------*/
 
+app.get('/list', function (req, res, next) {
+
+    httpHeaders(res);
+
+    res.status(200).send(createHTML('list.html', {}));
+    return;
+
+});
 
 
 

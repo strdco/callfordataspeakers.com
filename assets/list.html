@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="utf-8" http-equiv="encoding"/>
+
+
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Call for Data Speakers">
+    <meta name="description" content="Subscribe to upcoming data platform conferences, or announce your conference to a world of data platform speakers">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://callfordataspeakers.com/">
+    <meta property="og:title" content="Call for Data Speakers">
+    <meta property="og:description" content="Subscribe to upcoming data platform conferences, or announce your conference to a world of data platform speakers">
+    <meta property="og:image" content="https://callfordataspeakers.com/assets/social-preview.jpeg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://callfordataspeakers.com/">
+    <meta property="twitter:title" content="Call for Data Speakers">
+    <meta property="twitter:description" content="Subscribe to upcoming data platform conferences, or announce your conference to a world of data platform speakers">
+    <meta property="twitter:image" content="https://callfordataspeakers.com/assets/social-preview.jpeg">
+
+
+
+
+    <link rel="shortcut icon" href="/assets/favicon.png" type="image/png">
+    <link rel="icon" href="/assets/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/assets/style.css"/>
+    <link rel="stylesheet" href="/assets/signup-form.css"/>
+
+    <script src="/assets/client-side.js"></script>
+
+    <title>Call for Data Speakers</title>
+</head>
+<body>
+
+    <div class="background-accent">
+        <span class="footer">Background image credit: <a href="https://unsplash.com/photos/2xaF4TbjXT0" target="_blank">Jonas Jacobsson on Unsplash</a></span>
+        <div class="top-left-banner">In beta</div>
+    </div>
+
+    <div class="main-panel">
+        <div class="tabstrip" role="tablist">
+            <a href="/" class="tab" id="tab1" tabindex="0" role="tab">Speaker</a>
+            <a href="/event" class="tab" id="tab2" tabindex="0" role="tab">Event request</a>
+            <a href="/list" class="tab selected" id="tab3" tabindex="0" role="tab">List of events</a>
+        </div>
+
+
+
+
+
+
+        <div id="page2" class="page selected" role="tabpanel">
+            <h1>List of events</h1>
+
+            <p>
+                Here are all approved events (event dates &ge;90 days ago) in the database.
+            </p>
+
+            <p>
+                <table id="eventstbl">
+                    <tr>
+                        <th>Date</th>
+                        <th>Event name</th>
+                        <th>Region</th>
+                    </tr>
+                </table>
+            </p>
+
+            <p>
+                You can programmatically retrieve this list using Powershell or any other REST client:
+
+                <code>
+                    Invoke-RestMethod -Uri "http://callfordataspeakers.com/api/events" -Method "GET"
+                </code>
+            </p>
+
+
+            <p class="fineprint">
+                This site is built and operated by the friendly people at
+                <a href="https://strd.co/" target="_blank">Structured Concepts</a>,
+                for use by the data platform community.
+            </p>
+            <p class="fineprint">
+                Be the first to <a href="https://twitter.com/dataspeakers" target="_blank">follow @dataspeakers on Twitter</a>!
+            </p>
+            <p class="fineprint">
+                This stuff is open-source. Want to contribute? Head over to the
+                <a href="https://github.com/strdco/callfordataspeakers.com" target="_blank">Github page</a>.
+            </p>
+
+        </div>
+
+
+
+
+
+
+    </div>
+
+
+</body>
+</html>

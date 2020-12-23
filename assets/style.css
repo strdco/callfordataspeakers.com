@@ -9,6 +9,7 @@ body {
     background-size: cover;
 
     font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-size: 10pt;
 }
 
 /* Helper classes */
@@ -20,7 +21,7 @@ body {
 /* Base elements */
 
 h1 {
-    font-size: 30pt;
+    font-size: 24pt;
 }
 
 a:any-link {
@@ -145,7 +146,41 @@ a:any-link {
     text-decoration-thickness: 1px;
 }
 
+/* Events table */
+
+table#eventstbl {
+    font-size: 10pt;
+    text-align: left;
+    padding: 1em;
+    padding-bottom: 2em;
+}
+
+table#eventstbl th,
+table#eventstbl td {
+    min-width: 120px;
+    padding-right: 3em;
+}
+
+table#eventstbl th {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #808080;
+}
+
+table#eventstbl td a:any-link {
+    text-decoration-color: #000000;
+    text-decoration-thickness: 1px;
+}
+
 /* Other */
+
+code {
+    margin: 1em;
+    padding: 1em;
+    display: block;
+    background-color: rgb(64,64,64,0.15);
+    margin-bottom: 2em;
+}
 
 .coming-soon {
     padding: 100px;
