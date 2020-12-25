@@ -24,10 +24,6 @@ h1 {
     font-size: 24pt;
 }
 
-a:any-link {
-    color: #000080;
-}
-
 /* Panels and divs */
 
 .background-accent {
@@ -42,15 +38,16 @@ a:any-link {
     left: 20%;
     width: 60%;
     top: 10%;
-    height: 80%;
-    background-color: rgb(255,255,255,0.95);
+    max-height: 80%;
+   /* height: 80%; */
+    background-color: rgb(255,255,255,0.96);
 
     overflow-y: auto;
 
-    border-radius: 20px;
+    border-radius: 10px;
     padding-left: 20px;
     padding-right: 20px;
-    padding-bottom: 0px;
+    padding-bottom: 20px;
 
     box-shadow: 0 0 50px 0px rgb(0,0,0,0.5);
 }
@@ -66,12 +63,12 @@ a:any-link {
     border-bottom-width: 1px;
     border-bottom-color: #c0c0c0;
     margin-bottom: 10px;
-    background-color: rgb(128,128,128,0.75);
+    background-color: #a0a0a0;
 }
 
 .tabstrip .tab {
     display: inline-block;
-    min-width: 200px;
+    min-width: 150px;
     min-height: 20px;
     height: 1em;
     border-top-style: solid;
@@ -85,12 +82,12 @@ a:any-link {
     border-left-style: solid;
     border-bottom-style: none;
     border-right-style: none;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-left: 2em;
+    padding-right: 1em;
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
     background-color: #c0c0c0;
-    color: #606060;
+    color: #000000;
     cursor: pointer;
     outline: none;
     font-size: 12pt;
@@ -122,9 +119,9 @@ a:any-link {
 }
 
 a:any-link {
-    color: inherit;
-    text-decoration-color: #C6D633;
-    text-decoration-thickness: 3px;
+    color: #8C212B;
+    text-decoration-color: #8C212B;
+    text-decoration-thickness: 1px;
 }
 
 /* Footer */
@@ -165,11 +162,6 @@ table#eventstbl th {
     border-bottom-style: solid;
     border-bottom-width: 1px;
     border-bottom-color: #808080;
-}
-
-table#eventstbl td a:any-link {
-    text-decoration-color: #000000;
-    text-decoration-thickness: 1px;
 }
 
 /* Other */

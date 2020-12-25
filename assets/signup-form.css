@@ -18,21 +18,22 @@
 /* Input fields */
 
 .mc-field-group label {
-    width: 200px;
+    width: 170px;
     display: inline-block;
 }
 
 .mc-field-group input {
-    border-style: solid;
-    border-width: 1px;
-    border-color: #a0a0a0;
-    border-radius: 4px;
+    border-style: none;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: #808080;
+    background-color: inherit;
 }
 
 .mc-field-group input[type='email'] {
     font-size: 10pt;
-    margin: 2px;
-    padding: 6px;
+    margin: 1px;
+    padding: 8px;
     width: 50%;
 }
 
@@ -40,8 +41,8 @@
 .mc-field-group input[type='number'],
 .mc-field-group input[type='url']  {
     font-size: 10pt;
-    margin: 2px;
-    padding: 6px;
+    margin: 1px;
+    padding: 8px;
     width: 50%;
 }
 
@@ -100,13 +101,16 @@ div.datefield {
 
 .input-group ul li {
     display: inline-block;
-    margin: 3px;
+    margin: 4px;
     padding-left: 5px;
     padding-top: 3px;
     padding-right: 10px;
     padding-bottom: 3px;
-    background-color: rgb(128,128,128,0.25);
-    border-radius: 4px;
+    background-color: rgb(200,200,200,0.25);
+    border-style: solid;
+    border-color: rgb(128,128,128,0.5);
+    border-width: 1px;
+    border-radius: 3px;
 }
 
 /* Slightly bigger checkboxes */
@@ -122,6 +126,7 @@ div.datefield {
 
 .mc-field-group.input-group label {
     width: inherit;
+    min-width: 100px;
 }
 
 
