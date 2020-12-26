@@ -427,6 +427,66 @@ app.get('/list', function (req, res, next) {
 
 
 
+/*-----------------------------------------------------------------------------
+  List events:
+-----------------------------------------------------------------------------*/
+
+app.get('/api/sync-mailchimp', async function (req, res, next) {
+
+    try {
+        var subscriberCount = await getSubscriberCount('Speakers');
+        res.status(200).json(subscriberCount);
+    } catch(err) {
+        res.status(500);
+    }
+    console.log('Done');
+
+});
+
+async function getSubscriberCount(listName) {
+    var listId;
+    var groupId;
+    var subscriberCount;
+    var regions=[];
+
+    // Find the "Speakers" list (the audience):
+    var allLists = await mailchimp.lists.getAllLists();
+    Array.prototype.forEach.call(allLists.lists, list => {
+        if (list.name==listName) {
+            listId=list.id;
+            subscriberCount=list.stats.member_count;
+        }
+    });
+
+    // Find the "Regions" group:
+    var allGroups = await mailchimp.lists.getListInterestCategories(listId);
+    Array.prototype.forEach.call(allGroups.categories, group => {
+        if (group.title=='Region') {
+            groupId=group.id;
+        }
+    });
+
+    // Fetch all regions:
+    var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId);
+    Array.prototype.forEach.call(allGroupMembers.interests, member => {
+        regions.push({
+            "name": member.name,
+            "subscriber_count": member.subscriber_count
+        });
+    });
+
+    // Write to file
+    fs.writeFileSync(__dirname + '/assets/subscriber-count.json', JSON.stringify(regions));
+
+    // Return the results:
+    return(regions);
+
+}
+
+
+
+
+
 
 /*-----------------------------------------------------------------------------
   Other related assets, like client-side JS, CSS, images, whatever:
@@ -526,7 +586,6 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
         Array.prototype.forEach.call(allLists.lists, list => {
             if (list.name==listName) {
                 listId=list.id;
-                listNo=allLists.total_items;
             }
         });
 
@@ -807,8 +866,6 @@ function httpHeaders(res) {
     // Limit access to local devices
     res.header('Permissions-Policy', "camera=(), display-capture=(), microphone=(), geolocation=(), usb=()"); // replaces Feature-Policy
   //res.header('Feature-Policy', "camera 'none'; microphone 'none'; usb 'none'");
-
-    // TODO: Permissions-Policy
 
     return;
 }

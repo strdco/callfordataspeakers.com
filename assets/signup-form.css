@@ -126,9 +126,21 @@ div.datefield {
 
 .mc-field-group.input-group label {
     width: inherit;
-    min-width: 100px;
+    min-width: 125px;
 }
 
+/* Subscriber count in the region boxes */
+
+.mc-field-group.input-group label span.subscriber-count {
+    display: inline-block;
+    background-color: #d0d0d0;
+    border-radius: 2em;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-left: 10px;
+}
 
 
 

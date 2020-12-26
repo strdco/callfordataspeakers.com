@@ -18,6 +18,35 @@ window.onload = function yeahyeah() {
     }
 
 
+    if (document.location.pathname=='/event') {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/assets/subscriber-count.json');
+        xhr.send();
+    
+        xhr.onload = function() {
+            if (xhr.status == 200) {
+                try {
+                    var groups=JSON.parse(xhr.response);
+                    
+                    Array.prototype.forEach.call(document.getElementsByTagName('label'), function(label) {
+                        groups.forEach(group => {
+                            if (label.innerText.replace('-', '').replace(' ', '').toUpperCase()==group.name.toUpperCase().replace('-', '').replace(' ', '')) {
+                                var span=document.createElement('span');
+                                span.className='subscriber-count';
+                                span.innerText=group.subscriber_count;
+                                label.appendChild(span);
+                            }
+                        });
+                    });
+                } catch(err) {
+                    // No big deal.
+                    console.log(err);
+                }
+            }
+        }
+    }
+
+
 
     // If this is the "List Events" page, populate the table using the REST API:
     var eventstbl=document.getElementById("eventstbl");

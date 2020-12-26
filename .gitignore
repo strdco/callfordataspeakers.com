@@ -1,6 +1,9 @@
 # MacOS
 .DS_Store
 
+# Application-specific
+assets/subscriber-count.json
+
 # Logs
 logs
 *.log
