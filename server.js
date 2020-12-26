@@ -467,7 +467,7 @@ async function getSubscriberCount(listName) {
     });
 
     // Fetch all regions:
-    var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId);
+    var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
     Array.prototype.forEach.call(allGroupMembers.interests, member => {
         regions.push({
             "name": member.name,
@@ -631,7 +631,7 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
                 var memberList=[];
 
                 // 2b. Find all matching regions:
-                var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId);
+                var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
 
                 Array.prototype.forEach.call(allGroupMembers.interests, member => {
                     console.log(member.name+'?');
