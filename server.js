@@ -725,6 +725,7 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
                     }
                 };
                 await mailchimp.campaigns.setContent(campaignId, updateInstructions);
+                console.log('Campaign updated.');
             }
 
             // Update the campaign with the template values:
@@ -734,7 +735,7 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
         }
     } catch (err) {
         console.log(err);
-        alert('There was a problem.');
+        res.status(500).send("There was a problem");
     }
 }
 

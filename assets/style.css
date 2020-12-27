@@ -150,7 +150,8 @@ table#eventstbl {
 table#eventstbl th,
 table#eventstbl td {
     min-width: 120px;
-    padding-right: 3em;
+    padding-right: 1em;
+    white-space: nowrap;
 }
 
 table#eventstbl th {
