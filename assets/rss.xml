@@ -12,7 +12,7 @@
 
     <channel>
         <title>callfordataspeakers.com</title>
-        <atom:link href="https://callfordataspeakers.com/feed/" rel="self" type="application/rss+xml" />
+        <atom:link href="https://callfordataspeakers.com/feed" rel="self" type="application/rss+xml" />
         <link>https://callfordataspeakers.com</link>
         <description>Calls for Speakers for upcoming data platform conferences.</description>
         <lastBuildDate><%=lastBuildDate%></lastBuildDate>

@@ -437,13 +437,15 @@ app.get('/feed', async function (req, res, next) {
 
             async function(recordset) {
 
+                var lastBuildDate=new Date(Date.now())
+
                 recordset.forEach(item => {
 
                     items+='<item>\n'+
                             '<title>'+item.EventName+'</title>\n'+
                             '<link>'+item.URL+'</link>\n'+
                             '<dc:creator>Call for Data Speakers</dc:creator>\n'+
-                            '<pubDate>' + item.Created + '</pubDate>\n'+
+                            '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n'+
                             '<category>Call for Speakers</category>\n'+
                             '<guid isPermaLink="false">'+item.uid+'</guid>\n'+
                             '<description><![CDATA['+item.EventName+']]></description>\n'+
@@ -457,7 +459,10 @@ app.get('/feed', async function (req, res, next) {
                 });
 
                 res.type('application/rss+xml; charset=UTF-8');
-                res.status(200).send(createHTML('rss.xml', { "items": items }));
+                res.status(200).send(createHTML('rss.xml', {
+                        "lastBuildDate": lastBuildDate.toUTCString(),
+                        "items": items
+                    }));
                 return;
             
             });
