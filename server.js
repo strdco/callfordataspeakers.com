@@ -441,6 +441,8 @@ app.get('/feed', async function (req, res, next) {
 
                 recordset.forEach(item => {
 
+                    var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });            
+
                     items+='<item>\n'+
                             '<title>'+item.EventName+'</title>\n'+
                             '<link>'+item.URL+'</link>\n'+
@@ -450,7 +452,8 @@ app.get('/feed', async function (req, res, next) {
                             '<guid isPermaLink="false">'+item.uid+'</guid>\n'+
                             '<description><![CDATA['+item.EventName+']]></description>\n'+
                             '<content:encoded><![CDATA['+
-
+                                item.EventName+' is coming to you on '+eventDate+'<br/>\n'+
+                                'The <a href="'+item.URL+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
                             '<media:content url="https://callfordataspeakers.com/assets/callfordataspeakers-logo.png" medium="image">\n'+
                                 '<media:title type="html">dhmacher</media:title>\n'+
