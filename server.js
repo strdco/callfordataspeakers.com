@@ -425,6 +425,48 @@ app.get('/list', function (req, res, next) {
 
 
 
+/*-----------------------------------------------------------------------------
+  RSS feed:
+-----------------------------------------------------------------------------*/
+
+app.get('/feed', async function (req, res, next) {
+
+    var items='';
+    sqlQuery(connectionString,
+        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Information, Created, DATEDIFF_BIG(second, {d \'1970-01-01\'}, Created) AS uid FROM CallForDataSpeakers.Feed ORDER BY Created DESC;', [],
+
+            async function(recordset) {
+
+                recordset.forEach(item => {
+
+                    items+='<item>\n'+
+                            '<title>'+item.EventName+'</title>\n'+
+                            '<link>'+item.URL+'</link>\n'+
+                            '<dc:creator>Call for Data Speakers</dc:creator>\n'+
+                            '<pubDate>' + item.Created + '</pubDate>\n'+
+                            '<category>Call for Speakers</category>\n'+
+                            '<guid isPermaLink="false">'+item.uid+'</guid>\n'+
+                            '<description><![CDATA['+item.EventName+']]></description>\n'+
+                            '<content:encoded><![CDATA['+
+
+                                ']]></content:encoded>\n'+
+                            '<media:content url="https://callfordataspeakers.com/assets/callfordataspeakers-logo.png" medium="image">\n'+
+                                '<media:title type="html">dhmacher</media:title>\n'+
+                            '</media:content>\n'+
+                        '</item>\n\n'
+                });
+
+                res.type('application/rss+xml; charset=UTF-8');
+                res.status(200).send(createHTML('rss.xml', { "items": items }));
+                return;
+            
+            });
+});
+
+
+
+
+
 
 
 /*-----------------------------------------------------------------------------
