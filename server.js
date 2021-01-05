@@ -171,9 +171,10 @@ app.all('/request', function (req, res, next) {
     // If you select a single region, it's a string, but with multiple regions, the
     // variable turns into an array. So if it's an array, we need to turn it back
     // into a comma-delimited string again.
-    var formEventRegions=(queryParams.REGION || req.body.REGION);    
+
+    var formEventRegions=(queryParams.REGION || req.body.REGION);
     if (typeof formEventRegions!='string') {
-        formEventRegions=formEventRegions.join(", ");
+        formEventRegions=formEventRegions.join(",");
     }
 
     // Very basic form validation:
@@ -305,6 +306,9 @@ app.get('/approve/:token/do', function (req, res, next) {
 
                     // formatting the event date; example: Tuesday, December 22, 2020"
                     var eventDateString=recordset[0].Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    
+                    var eventInfoString=recordset[0].Information;
+                    if (eventInfoString===null) { eventInfoString=''; }
 
                     // If the only region is "Virtual", this is a virtual event.
                     // If there are other regions, but they include "Virtual", this is a hybrid event.
@@ -333,7 +337,7 @@ app.get('/approve/:token/do', function (req, res, next) {
                         "event_venue": recordset[0].Venue,
                         "name": recordset[0].Name,
                         "event_email": recordset[0].Email,
-                        "event_info": recordset[0].Information,
+                        "event_info": eventInfoString,
                         "event_button": eventButton
                     };
 
