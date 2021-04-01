@@ -1,6 +1,6 @@
 # callfordataspeakers.com
 
-## What problem we're trying to solve
+## The problem we're trying to solve
 
 Until the demise of PASS, whenever a new SQL Saturday conference was announced, a
 Call for Speakers email would go out to all subscribed former SQL Saturday speakers
