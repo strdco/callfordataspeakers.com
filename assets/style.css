@@ -191,6 +191,8 @@ code {
 }
 
 .top-left-banner {
+    display: none;
+
     background-color: #8C212B;
     color: #ffffff;
     padding-top: 1em;
