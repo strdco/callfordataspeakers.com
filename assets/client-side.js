@@ -64,7 +64,7 @@ window.onload = function yeahyeah() {
                     var tr=document.createElement('tr');
 
                     var td1=document.createElement('td');
-                    td1.innerText = new Date(row.Date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    td1.innerText = new Date(row.Date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
                     tr.appendChild(td1);
 
                     var td2=document.createElement('td');
