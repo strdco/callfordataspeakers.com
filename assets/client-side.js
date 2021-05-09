@@ -51,6 +51,8 @@ window.onload = function yeahyeah() {
     // If this is the "List Events" page, populate the table using the REST API:
     var eventstbl=document.getElementById("eventstbl");
     if (eventstbl) {
+        var tbody = eventstbl.getElementsByTagName("tbody")[0];
+
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/api/events');
         xhr.send();
@@ -79,7 +81,7 @@ window.onload = function yeahyeah() {
                     td3.innerText=row.Venue;
                     tr.appendChild(td3);
 
-                    eventstbl.appendChild(tr);
+                    tbody.appendChild(tr);
                 });
             }
         }
