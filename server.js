@@ -567,6 +567,27 @@ app.get('/assets/:asset', function (req, res, next) {
     });
 });
 
+app.get('/:asset', function (req, res, next) {
+
+    httpHeaders(res);
+
+    var options = {
+        root: __dirname + '/assets/',
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+
+    res.sendFile(req.params.asset, options, function(err) {
+        if (err) {
+            res.send(err);
+            return;
+        }
+    });
+});
+
 
 
 
