@@ -16,7 +16,7 @@ organizers to send a one-time Call for Speakers mailing to those speakers.
 
 ## Front-end web
 
-The frontend is built on Node.js, hosted as an Azure WebApp behind a Cloudfront CDN.
+The frontend is built on Node.js, hosted as an Azure WebApp behind a Cloudflare CDN.
 
 I'm an old-school developer, so I don't feel comfortable using lots of scaffolding and
 libraries. This means the code is simpler, but it unfortunately also means it isn't
