@@ -12,6 +12,7 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Token           uniqueidentifier NOT NULL,
         [Name]          nvarchar(200) NOT NULL,
         EventName       nvarchar(400) NOT NULL,
+        EventType       nvarchar(400) NULL,
         Email           nvarchar(400) NOT NULL,
         Regions         nvarchar(200) NOT NULL,
         Venue           nvarchar(1000) NOT NULL,
@@ -30,6 +31,7 @@ CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
     @Name           nvarchar(200),
     @Email          nvarchar(400),
     @EventName      nvarchar(400),
+    @EventType      nvarchar(400)=NULL,
     @Regions        nvarchar(200),
     @Venue          nvarchar(1000),
     @Date           date,
@@ -37,9 +39,9 @@ CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
     @Information    nvarchar(max)
 AS
 
-INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, Email, Regions, Venue, [Date], [URL], Information, Created)
+INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, EventType, Email, Regions, Venue, [Date], [URL], Information, Created)
 OUTPUT inserted.Token
-SELECT NEWID() AS Token, @Name, @EventName, @Email, @Regions, @Venue, @Date, @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
+SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
@@ -48,7 +50,7 @@ AS
 
 UPDATE CallForDataSpeakers.Campaigns
 SET [Sent]=SYSDATETIME()
-OUTPUT inserted.[Name], inserted.EventName, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
+OUTPUT inserted.[Name], inserted.EventName, inserted.EventType, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
 WHERE Token=@Token
   AND [Sent] IS NULL;
 
@@ -56,7 +58,7 @@ GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed
 AS
 
-SELECT EventName, Regions, Email, Venue, [Date], [URL], Information, Created
+SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Created
 FROM CallForDataSpeakers.Campaigns
 WHERE [Date]>DATEADD(day, -90, SYSDATETIME())
   AND [Sent] IS NOT NULL;
