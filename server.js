@@ -177,6 +177,13 @@ app.all('/request', function (req, res, next) {
         formEventRegions=formEventRegions.join(",");
     }
 
+    // Same type of logic for event type as for event region above.
+
+    var formEventType=(queryParams.TYPE || req.body.TYPE || "");
+    if (typeof formEventType!='string') {
+        formEventType=formEventType.join(", ");
+    }
+
     // Very basic form validation:
     if(!formName  || !formEmail || !formEventName ||
        !formEventVenue || !formEventDate  ||
@@ -190,10 +197,11 @@ app.all('/request', function (req, res, next) {
 
         // Save the everything to the SQL Server table:
         sqlQuery(connectionString,
-            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL, @Information=@Information;',
+            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL, @Information=@Information;',
             [   { "name": 'Name',    "type": Types.NVarChar, "value": formName },
                 { "name": 'Email',   "type": Types.NVarChar, "value": formEmail },
                 { "name": 'EventName', "type": Types.NVarChar, "value": formEventName },
+                { "name": 'EventType', "type": Types.NVarChar, "value": formEventType },
                 { "name": 'Regions', "type": Types.NVarChar, "value": formEventRegions },
                 { "name": 'Venue',   "type": Types.NVarChar, "value": formEventVenue },
                 { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
@@ -217,6 +225,7 @@ app.all('/request', function (req, res, next) {
                             "event_email": formEmail,
                             "event_regions": formEventRegions,
                             "event_name": formEventName,
+                            "event_type": formEventType,
                             "event_venue": formEventVenue,
                             "event_date": formEventDate,
                             "event_url": formEventURL,
@@ -225,10 +234,10 @@ app.all('/request', function (req, res, next) {
                         };
 
                         // Here's where we send the campaign:
-                        sendCampaign('Organizers',                                                      // Audience
+                        sendCampaign(process.env.organizer_audience,                                    // Audience
                                     'Moderators',                                                       // Segment name
                                     '',
-                                    'New campaign request',                                             // Template name
+                                    process.env.request_template,                                       // Template name
                                     false,                                                              // Tracking
                                     false,                                                              // Tweet
                                     templateSections,                                                   // Values template fields
@@ -335,6 +344,7 @@ app.get('/approve/:token/do', function (req, res, next) {
                         "event_date": eventDateString,
                         "event_virtual": eventVirtualString,
                         "event_venue": recordset[0].Venue,
+                        "event_type": recordset[0].EventType,
                         "name": recordset[0].Name,
                         "event_email": recordset[0].Email,
                         "event_info": eventInfoString,
@@ -342,10 +352,10 @@ app.get('/approve/:token/do', function (req, res, next) {
                     };
 
                     // Send the Mailchimp campaign to all our subscribers:
-                    sendCampaign('Speakers',                    // Audience
+                    sendCampaign(process.env.speaker_audience,  // Audience
                                 '',
                                 recordset[0].Regions,           // Region group members
-                                'Call for speakers',            // Template name
+                                process.env.campaign_template,  // Template name
                                 true,                           // Tracking
                                 true,                           // Tweet
                                 templateSections,               // Values to template fields
@@ -398,7 +408,7 @@ app.get('/api/events', function (req, res, next) {
 
     // Approve the campaign in the database and retrieve the event information:
     sqlQuery(connectionString,
-        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Information, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
+        'SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
 
             async function(recordset) {
 
@@ -437,7 +447,7 @@ app.get('/feed', async function (req, res, next) {
 
     var items='';
     sqlQuery(connectionString,
-        'SELECT EventName, Regions, Email, Venue, [Date], [URL], Information, Created, DATEDIFF_BIG(second, {d \'1970-01-01\'}, Created) AS uid FROM CallForDataSpeakers.Feed ORDER BY Created DESC;', [],
+        'SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Created, DATEDIFF_BIG(second, {d \'1970-01-01\'}, Created) AS uid FROM CallForDataSpeakers.Feed ORDER BY Created DESC;', [],
 
             async function(recordset) {
 
@@ -488,7 +498,7 @@ app.get('/feed', async function (req, res, next) {
 app.get('/api/sync-mailchimp', async function (req, res, next) {
 
     try {
-        var subscriberCount = await getSubscriberCount('Speakers');
+        var subscriberCount = await getSubscriberCount(process.env.speaker_audience);
         res.status(200).json(subscriberCount);
     } catch(err) {
         res.status(500);
