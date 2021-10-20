@@ -19,14 +19,14 @@ window.onload = function yeahyeah() {
 
 
     if (document.location.pathname=='/event') {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/assets/subscriber-count.json');
-        xhr.send();
+        var xhr1 = new XMLHttpRequest();
+        xhr1.open('GET', '/assets/subscriber-count.json');
+        xhr1.send();
     
-        xhr.onload = function() {
-            if (xhr.status == 200) {
+        xhr1.onload = function() {
+            if (xhr1.status == 200) {
                 try {
-                    var groups=JSON.parse(xhr.response);
+                    var groups=JSON.parse(xhr1.response);
                     
                     Array.prototype.forEach.call(document.getElementsByTagName('label'), function(label) {
                         groups.forEach(group => {
@@ -47,20 +47,41 @@ window.onload = function yeahyeah() {
     }
 
 
+    var p_counter=document.body.querySelector('.fineprint#counter');
+    if (p_counter) {
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open('GET', '/assets/campaign-count.json');
+        xhr2.send();
+    
+        xhr2.onload = function() {
+            if (xhr2.status == 200) {
+                try {
+                    var stats=JSON.parse(xhr2.response);
+                    p_counter.innerHTML= 'We\'ve sent '+stats.emails+' call for speaker emails for '+stats.campaigns+' events so far!';
+                } catch(err) {
+                    // Who cares.
+                    console.log(err);
+                }
+            }
+        }
+
+    }
+
+
+
 
     // If this is the "List Events" page, populate the table using the REST API:
     var eventstbl=document.getElementById("eventstbl");
     if (eventstbl) {
         var tbody = eventstbl.getElementsByTagName("tbody")[0];
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/api/events');
-        xhr.send();
+        var xhr3 = new XMLHttpRequest();
+        xhr3.open('GET', '/api/events');
+        xhr3.send();
 
-        xhr.onload = function() {
-            if (xhr.status == 200) {
-                var rs = JSON.parse(xhr.response);
-                console.log(rs);
+        xhr3.onload = function() {
+            if (xhr3.status == 200) {
+                var rs = JSON.parse(xhr3.response);
 
                 rs.forEach(row => {
                     var tr=document.createElement('tr');

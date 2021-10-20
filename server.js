@@ -498,7 +498,12 @@ app.get('/feed', async function (req, res, next) {
 app.get('/api/sync-mailchimp', async function (req, res, next) {
 
     try {
+        // Update subscriber count:
         var subscriberCount = await getSubscriberCount(process.env.speaker_audience);
+
+        // Update campaign/email count:
+        getCampaignCount(process.env.speaker_audience);
+
         res.status(200).json(subscriberCount);
     } catch(err) {
         res.status(500);
@@ -545,6 +550,37 @@ async function getSubscriberCount(listName) {
     // Return the results:
     return(regions);
 
+}
+
+async function getCampaignCount(listName) {
+    var offset=0;
+    var pageSize=1000;
+    var done=false;
+
+    var campaignCount=0;
+    var emailCount=0;
+
+    while (!done) {
+        // Fetch a page of campaigns:
+        var allCampaigns = await mailchimp.campaigns.list({ "count": pageSize, "offset": offset });
+
+        if (allCampaigns.campaigns.length>0) {
+            Array.prototype.forEach.call(allCampaigns.campaigns, campaign => {
+                if (campaign.recipients.list_name==listName) {
+                    campaignCount++;
+                    emailCount+=campaign.emails_sent;
+                }
+            });
+
+            // Set the next page to fetch:
+            offset+=pageSize;
+            if (allCampaigns.campaigns.length<pageSize) { done=true; }
+        } else {
+            done=true;
+        }
+    }
+
+    fs.writeFileSync(__dirname + '/assets/campaign-count.json', JSON.stringify({ "campaigns": campaignCount, "emails": emailCount }));
 }
 
 

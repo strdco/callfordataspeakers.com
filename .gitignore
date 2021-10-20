@@ -3,6 +3,7 @@
 
 # Application-specific
 assets/subscriber-count.json
+assets/campaign-count.json
 
 # Logs
 logs

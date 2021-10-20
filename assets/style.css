@@ -97,8 +97,7 @@ h1 {
     overflow-y: auto;
     padding-left: 20px;
     padding-right: 20px;
-    padding-bottom: 20px;
-    border-top-right-radius: 10px;
+    padding-bottom: 0px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 }
@@ -110,8 +109,26 @@ h1 {
 /* Fine print */
 
 .fineprint {
+    width: 100%;
     font-size: 9pt;
     color: #303030;
+    background-color: rgb(128, 128, 128, 0.1);
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 5px;
+    padding-bottom: 15px;
+}
+
+.fineprint#counter {
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: rgb(64,64,64,0.5);
+    margin-top: 20px;
+    padding-top: 20px;
+    font-weight: bold;
 }
 
 a:any-link {
@@ -202,7 +219,8 @@ code {
     margin: 1em;
     padding: 1em;
     display: block;
-    background-color: rgb(64,64,64,0.15);
+    background-color: #1E6B53;
+    color: #ffffff;
     margin-bottom: 2em;
 }
 
