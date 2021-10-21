@@ -2,16 +2,23 @@ body {
     height: 100vh;
     padding: 0;
     margin: 0;
-    background-color: #c0c0c0;
-    background: url('./jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg');
-    background-attachment: fixed;
-    background-position: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
-
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    background-color: #e0e0e0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 10pt;
 }
+
+/* Text selection */
+
+::selection {
+    background: #C6D633; /* WebKit/Blink Browsers */
+    color: #000000;
+}
+::-moz-selection {
+    background: #C6D633; /* Gecko Browsers */
+    color: #000000;
+}
+
+
 
 /* Helper classes */
 
@@ -22,22 +29,30 @@ body {
 /* Base elements */
 
 h1 {
+    text-transform: uppercase;
     font-size: 24pt;
+    color: rgb(48, 48, 48);
 }
 
 /* Panels and divs */
 
 .background-accent {
-    background-color: rgb(255,255,255,0.1);
     position: absolute;
     width: 100%;
     height: 100%;
+
+    background: url('./jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg');
+    background-attachment: fixed;
+    background-position: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.1;
 }
 
 .main-panel {
     position: absolute;
     left: 5%;
-    max-width: 90%;
+    max-width: 1000px;
     min-width: 620px;
     top: 5%;
     max-height: 90%;
@@ -47,59 +62,83 @@ h1 {
 /* Tabstrip items */
 
 .tabstrip {
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-bottom-color: #808080;
+    display: flex;
+    align-items: flex-end;
+    background: url('./jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg');
+    border-style: solid;
+    border-width: 1px;
+    border-color: #404040 #808080 #ffffff #404040;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     overflow-x: hidden;
+    height: 20em;
 }
 
 .tabstrip .tab {
     display: inline-block;
-    min-width: 150px;
-    min-height: 20px;
-    height: 1em;
-    border-top-style: solid;
-    border-top-width: 1px;
-    border-top-color: #ffffff;
-    border-left-style: solid;
-    border-left-width: 1px;
-    border-left-color: #ffffff;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    border-left-style: solid;
-    border-bottom-style: none;
-    border-right-style: none;
+    position: relative;
+    border-color: rgb(0, 0, 0, 0.5);
+    border-width: 1px;
+    border-style: none solid solid solid;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
     padding-left: 2em;
     padding-right: 1em;
     padding-top: 0.75em;
     padding-bottom: 0.75em;
-    background-color: #e0e0e0;    
-    color: #000000;
+    background-color: rgb(20, 22, 5, 0.75);
+    color: #f0f0f0;
     cursor: pointer;
     outline: none;
-    font-size: 12pt;
+    font-size: 10pt;
     text-decoration: none;
-    margin-right: 0px;
+    margin-right: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+    transform: rotate(180deg);
+    writing-mode: vertical-rl;
+    height: 11em;
+    z-index: 10;
+}
+
+.tabstrip .tab:hover {
+    border-color: #F6FF70;
+    background-color: rgb(198,214,51,0.25);
 }
 
 .tabstrip .tab.selected {
     background-color: #C6D633;
     color: #000000;
-    box-shadow: 0 0px 80px 5px rgb(198,214,51,0.5);
+    box-shadow: 0 0px 30px 1px rgb(198,214,51,0.5);
     border-color: #F6FF70;
+    height: 12em;
+    z-index: 11;
+}
+
+.tabstrip h1 {
+    display: inline;
+    background-color: rgb(0, 0, 0, 0.35);
+    color: #ffffff;
+    padding: 10px;
+    margin-bottom: 3em;
+    margin-left: 2.5em;
+    border-style: none;
+    width: unset;
 }
 
 /* Pages */
 
 .page {
     display: none;
-    background-color: rgb(255,255,255,0.96);
+    background-color: rgb(248, 248, 248);
     overflow-y: auto;
+    padding-top: 20px;
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 0px;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
+    max-width: 1000px;
 }
 
 .page.selected {
@@ -165,6 +204,14 @@ table#eventstbl {
     padding-bottom: 2em;
 }
 
+table#eventstbl tr:hover td {
+    background-color: #C6D633;
+}
+
+table#eventstbl tr:hover td a {
+    color: #000000;
+}
+
 table#eventstbl th,
 table#eventstbl td {
     min-width: 120px;
@@ -179,7 +226,13 @@ table#eventstbl th {
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
+    .main-panel {
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
     table#eventstbl {
         width: 100%;
     }
@@ -246,7 +299,6 @@ code {
 
 .top-left-banner {
     display: none;
-
     background-color: #8C212B;
     color: #ffffff;
     padding-top: 1em;
