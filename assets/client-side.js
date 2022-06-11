@@ -21,7 +21,7 @@ window.onload = function yeahyeah() {
                 if (checkedRegionCount>0) {
                     button.classList.remove("submitted");
                     button.disabled=false;
-                } else {
+                } else if (document.location.pathname=='/event') {
                     button.classList.add("submitted");
                     button.disabled=true;
                 }
@@ -48,8 +48,10 @@ window.onload = function yeahyeah() {
             }
         });
 
-        button.classList.add("submitted");
-        button.disabled=true;
+        if (document.location.pathname=='/event') {
+            button.classList.add("submitted");
+            button.disabled=true;
+        }
 
     }
 
