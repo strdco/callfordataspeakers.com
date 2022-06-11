@@ -1,5 +1,5 @@
-var checkedOrganizerRegionCount=0;
-
+var checkedRegionCount=0;
+var checkedPhysicalRegionCount=0;
 
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
@@ -8,16 +8,53 @@ window.onload = function yeahyeah() {
     // disable the button when clicked, to avoid duplicate submissions.
     var button=document.getElementById("mc-embedded-subscribe");
     if (button) {
+
+        // Function to re-enable the Submit button in case it was disabled.
+        // Used when the user tries to correct an error, in order to allow
+        // the user to retry submitting the form.
+        function reEnableSubmit() {
+
+            // Set a delay to allow the counter event to fire and update the counter
+            // value before proceeding with this event. This feels like a terrible pattern,
+            // but don't hate me. Send me a pull request instead.
+            setTimeout(function() {
+                if (checkedRegionCount>0) {
+                    button.classList.remove("submitted");
+                    button.disabled=false;
+                } else {
+                    button.classList.add("submitted");
+                    button.disabled=true;
+                }
+            }, 10);
+        }
+
+        // On submit, disable the button to prevent double-clicks and other mayhem.
         button.onclick=function(e) {
             // Let the form be submitted before we actually disable the button. :)
             setTimeout(function() {
                 e.target.classList.add("submitted");
                 e.target.disabled=true;
-            }, 200);
+            }, 50);
         }
+
+        // Add an event listener to each <input> element on the page. If it changes,
+        // and the Submit button is disabled, make sure to re-enable the Submit button.
+        var allInputs=document.getElementsByTagName('input');
+        Array.prototype.forEach.call(allInputs, function(input) {
+            if (input.type=='checkbox') {
+                input.addEventListener("click", reEnableSubmit);
+            } else {
+                input.addEventListener("change", reEnableSubmit);
+            }
+        });
+
+        button.classList.add("submitted");
+        button.disabled=true;
+
     }
 
 
+    // If this is the event page, collect the subscriber count for each region:
     if (document.location.pathname=='/event') {
         var xhr1 = new XMLHttpRequest();
         xhr1.open('GET', '/assets/subscriber-count.json');
@@ -47,7 +84,9 @@ window.onload = function yeahyeah() {
     }
 
 
-    var p_counter=document.body.querySelector('.fineprint#counter');
+    // If there's a "counter" element in the footer (or anywhere on the page), collect
+    // the number of campaigns and emails sent and update the counter text:
+    var p_counter=document.body.querySelector('#counter');
     if (p_counter) {
         var xhr2 = new XMLHttpRequest();
         xhr2.open('GET', '/assets/campaign-count.json');
@@ -120,8 +159,8 @@ window.onload = function yeahyeah() {
     Array.prototype.forEach.call(maxTwo, function(e) {
         var inputs=e.getElementsByTagName("input");
         Array.prototype.forEach.call(inputs, function(input) {
-            if (input.type=='checkbox' && input.value!='Virtual') {
-                input.onclick=organizerRegionCheckboxClicked;
+            if (input.type=='checkbox') {
+                input.onclick=regionCheckboxClicked;
             }
         });
     });
@@ -129,35 +168,32 @@ window.onload = function yeahyeah() {
 }
 
 /* Make sure the event organizer doesn't check more than two regions. */
-function organizerRegionCheckboxClicked(e) {
-    if (e.srcElement.checked) {
-        checkedOrganizerRegionCount++;
-    } else {
-        checkedOrganizerRegionCount--;
+function regionCheckboxClicked(e) {
+
+    // If we clicked on a physical region, update the counter..
+    if (e.srcElement.value!='Virtual') {
+        if (e.srcElement.checked) {
+            checkedPhysicalRegionCount++;
+            checkedRegionCount++;
+        } else {
+            checkedPhysicalRegionCount--;
+            checkedRegionCount--;
+        }
+
+        // ... and make sure we haven't selected more than two physical regions:
+        if (checkedPhysicalRegionCount>2) {
+            e.srcElement.checked=false;
+            checkedPhysicalRegionCount--;
+            checkedRegionCount--;
+        }
     }
 
-    if (checkedOrganizerRegionCount>2) {
-        e.srcElement.checked=false;
-        checkedOrganizerRegionCount--;
+    // The total number of regions includes the "Virtual" region:
+    if (e.srcElement.value=='Virtual') {
+        if (e.srcElement.checked) {
+            checkedRegionCount++;
+        } else {
+            checkedRegionCount--;
+        }
     }
-}
-
-/* When clicking a tab */
-function tabClicked(e) {
-    var tab=e.srcElement;
-    var page=document.getElementById(e.srcElement.id.replace("tab", "page"));
-
-    document.getElementsByClassName("tab selected")[0].classList.remove("selected");
-    tab.classList.add("selected");
-
-    // Tab 1: Speaker registration
-    if (tab.id=='tab1') {
-        document.location='/';
-    }
-
-    // Tab 2: Event registration
-    if (tab.id=='tab2') {
-        document.location='/event';
-    }
-
 }
