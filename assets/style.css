@@ -1,10 +1,32 @@
+
+/* Base elements */
+
 body {
-    height: 100vh;
-    padding: 0;
+    padding: 50px;
     margin: 0;
-    background-color: #e0e0e0;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 10pt;
+    height: 100%;
+
+    --yellow: #c6d633;
+    --yellow-footer: rgba(198, 214, 51, 0.75);
+    --yellow-translucent: rgba(198, 214, 51, 0.25);
+
+    --logo-size: 60px;
+
+    background-image:
+      linear-gradient(
+        rgba(0, 0, 0, 0.6),
+        rgba(0, 0, 0, 0.8),
+        rgba(0, 0, 0, 0.6)),
+      url("/jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg");
+
+    background-size: auto;
+
+    font-family: "Helvetica Neue", "Helvetica", "Arial";
+}
+
+h1 {
+    text-transform: uppercase;
+    font-size: 24pt;
 }
 
 /* Text selection */
@@ -18,7 +40,107 @@ body {
     color: #000000;
 }
 
+/* The logo */
 
+h1.callfordataspeakers {
+    border-style: solid;
+    border-color: #000000;
+    border-width: calc(0.05 * var(--logo-size));
+    border-radius: var(--logo-size);
+    background-color: var(--yellow);
+    padding: calc(0.3 * var(--logo-size))
+      calc(0 * var(--logo-size))
+      calc(0.15 * var(--logo-size))
+      calc(0.5 * var(--logo-size));
+    display: block;
+    width: calc(7 * var(--logo-size));
+    height: calc(0.75 * var(--logo-size));
+    font-size: calc(0.5 * var(--logo-size));
+    text-align: center;
+    justify-content: center;
+    margin-bottom: calc(0.75 * var(--logo-size));
+    text-transform: lowercase;
+}
+
+/* Shouty logo icon: */
+h1.callfordataspeakers::after {
+    position: relative;
+    display: block;
+    left: calc(-0.3 * var(--logo-size));
+    top: calc(-0.8 * var(--logo-size));
+    width: var(--logo-size);
+    height: var(--logo-size);
+    background-color: var(--yellow);
+    content: "";
+    background-image: url("/callfordataspeakers-logo.png");
+    background-size: var(--logo-size) var(--logo-size);
+    border-radius: 100%;
+}
+
+/* Clickable link in the logo header: */
+h1.callfordataspeakers a {
+    color: #000000;
+    text-decoration: none;
+}
+
+h1.callfordataspeakers a:hover {
+    text-decoration: underline;
+}
+
+/* Menu tabs */
+
+.menu-item {
+    margin-left: 4em;
+    display: inline-block;
+    background-color: var(--yellow-translucent);
+    border-style: solid solid solid solid;
+    border-color: var(--yellow-translucent) var(--yellow-footer) #000000 var(--yellow);
+    border-width: 1px 1px 0 1px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Everything _except_ the first tab */
+.menu-item ~ .menu-item {
+    margin-left: inherit;
+}
+
+.menu-item.menu-item-selected {
+    border-color: #000000;
+    background-color: var(--yellow);
+    border-bottom-color: var(--yellow);
+    box-shadow: 0 0px 30px 1px rgb(198,214,51,0.75);
+    z-index: 100;
+}
+
+.menu-item a {
+    display: inline-block;
+    color: var(--yellow);
+    text-decoration: none;
+    padding: 1rem 2rem 0.5rem 2rem;
+}
+
+.menu-item.menu-item-selected a {
+    color: #000000;
+}
+
+.menu-item a:hover {
+    text-decoration: underline;
+}
+
+.main {
+    display: block;
+    background: rgba(255, 255, 255, 0.9);
+    border-style: solid none solid none;
+    border-width: 1px;
+    border-color: #000000;
+    min-height: 100px;
+    color: #000000;
+    font-size: 11pt;
+    margin-left: -50px;
+    margin-right: -50px;
+    padding: 2em 2em 2em 50px;
+}
 
 /* Helper classes */
 
@@ -26,173 +148,36 @@ body {
     display: none;
 }
 
-/* Base elements */
-
-h1 {
-    text-transform: uppercase;
-    font-size: 24pt;
-    color: rgb(48, 48, 48);
-}
-
-/* Panels and divs */
-
-.background-accent {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    background: url('./jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg');
-    background-attachment: fixed;
-    background-position: fixed;
-    background-repeat: no-repeat;
-    background-size: cover;
-    opacity: 0.1;
-}
-
-.main-panel {
-    position: absolute;
-    left: 5%;
-    max-width: 1000px;
-    min-width: 620px;
-    top: 5%;
-    max-height: 90%;
-    box-shadow: 0px 30px 30px -10px rgb(0,0,0,0.25);
-}
-
-/* Tabstrip items */
-
-.tabstrip {
-    display: flex;
-    align-items: flex-end;
-    background: url('./jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg');
-    border-style: solid;
-    border-width: 1px;
-    border-color: #404040 #808080 #ffffff #404040;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    overflow-x: hidden;
-    height: 20em;
-}
-
-.tabstrip .tab {
-    display: inline-block;
-    position: relative;
-    border-color: rgb(0, 0, 0, 0.5);
-    border-width: 1px;
-    border-style: none solid solid solid;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
-    padding-left: 2em;
-    padding-right: 1em;
-    padding-top: 0.75em;
-    padding-bottom: 0.75em;
-    background-color: rgb(20, 22, 5, 0.75);
-    color: #f0f0f0;
-    cursor: pointer;
-    outline: none;
-    font-size: 10pt;
-    text-decoration: none;
-    margin-right: 4px;
-    text-transform: uppercase;
-    font-weight: bold;
-    transform: rotate(180deg);
-    writing-mode: vertical-rl;
-    height: 11em;
-    z-index: 10;
-}
-
-.tabstrip .tab:hover {
-    border-color: #F6FF70;
-    background-color: rgb(198,214,51,0.25);
-}
-
-.tabstrip .tab.selected {
-    background-color: #C6D633;
-    color: #000000;
-    box-shadow: 0 0px 30px 1px rgb(198,214,51,0.5);
-    border-color: #F6FF70;
-    height: 12em;
-    z-index: 11;
-}
-
-.tabstrip h1 {
-    display: inline;
-    background-color: rgb(0, 0, 0, 0.35);
-    color: #ffffff;
-    padding: 10px;
-    margin-bottom: 3em;
-    margin-left: 2.5em;
-    border-style: none;
-    width: unset;
-}
-
-/* Pages */
-
-.page {
-    display: none;
-    background-color: rgb(248, 248, 248);
-    overflow-y: auto;
-    padding-top: 20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 0px;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    max-width: 1000px;
-}
-
-.page.selected {
-    display: block;
-}
-
 /* Fine print */
 
 .fineprint {
     width: 100%;
     font-size: 9pt;
-    color: #303030;
-    background-color: rgb(128, 128, 128, 0.1);
+    color: #b0b0b0;
+    background-color: rgb(0, 0, 0, 0.25);
     margin-top: 0;
-    margin-bottom: 0;
-    margin-left: -20px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 5px;
-    padding-bottom: 15px;
+    margin-bottom: -50px;
+    margin-left: -50px;
+    margin-right: -50px;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 25px;
+    padding-bottom: 25px;
 }
 
-.fineprint#counter {
-    border-top-style: solid;
-    border-top-width: 1px;
-    border-top-color: rgb(64,64,64,0.5);
-    margin-top: 20px;
-    padding-top: 20px;
+.fineprint #counter {
     font-weight: bold;
 }
 
-a:any-link {
-    color: #8C212B;
-    text-decoration-color: #8C212B;
-    text-decoration-thickness: 1px;
+.fineprint a:any-link {
+    color: var(--yellow);
+    text-decoration: none;
 }
 
-/* Footer */
-
-.footer {
-    position: absolute;
-    right: 2%;
-    bottom: 2%;
-    background-color: rgb(64,64,64,0.75);
-    border-radius: 3px;
-    padding: 10px;
-    color: #e0e0e0;
-    font-size: 9pt;
-}
-
-.footer a:any-link {
-    color: #c0c0c0;
-    text-decoration-color: #c0c0c0;
-    text-decoration-thickness: 1px;
+.fineprint a:hover {
+    text-decoration: underline;
+/*  text-decoration-thickness: 1px; */
+    text-decoration-color: var(--yellow);
 }
 
 /* Events table */
@@ -205,7 +190,7 @@ table#eventstbl {
 }
 
 table#eventstbl tr:hover td {
-    background-color: #C6D633;
+    background-color: #C6D633 !important;
 }
 
 table#eventstbl tr:hover td a {
@@ -223,6 +208,10 @@ table#eventstbl th {
     border-bottom-style: solid;
     border-bottom-width: 1px;
     border-bottom-color: #808080;
+}
+
+table#eventstbl a:any-link {
+    color: #000000;
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
@@ -265,55 +254,29 @@ table#eventstbl th {
     }
 }
 
-
 /* Other */
 
 code {
     margin: 1em;
     padding: 1em;
     display: block;
-    background-color: #1E6B53;
-    color: #ffffff;
+    background-color: #d0d0d0; /* #1E6B53; */
+    color: #000000;
     margin-bottom: 2em;
+    border-radius: 4px;
 }
 
-.coming-soon {
-    padding: 100px;
-    font-size: 20pt;
-    background-color: rgb(64, 64, 64, 0.5);
-    color: #ffffff;
+code.powershell {
+    background-color: rgb(1, 36, 86);
+    color: #f0f0f0;
 }
 
-.info-bubble {
-    background-color: rgb(198,214,51,0.2);
-    border-color: rgb(198,214,51,1);
-    border-width: 2px;
-    border-style: solid;
-    border-radius: 5px;
-    margin-left: 10px;
-    margin-top: 6px;
-    margin-bottom: 3px;
-    padding: 7px;
-    display: inline-block;
+code a:any-link {
+    color: inherit;
+    text-decoration: none;
 }
 
-.top-left-banner {
-    display: none;
-    background-color: #8C212B;
-    color: #ffffff;
-    padding-top: 1em;
-    padding-bottom: 2em;
-    text-align: center;
-    font-size: 12pt;
-    font-weight: bold;
-    position: absolute;
-    top: 50px;
-    left: -100px;
-    width: 400px;
-    height: 10px;
-    transform: rotate(-45deg);
-    border-style: solid;
-    border-color: #ffffff;
-    border-width: 2px;
-    text-transform: uppercase;
+code a:hover {
+    text-decoration: underline;
+    text-decoration-color: #000000;
 }

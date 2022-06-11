@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<html lang="en">
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
     <meta content="utf-8" http-equiv="encoding"/>
-    <meta name="viewport" content="width=device-width, initial-scale=0.5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary Meta Tags -->
     <meta name="title" content="Call for Data Speakers">
@@ -38,76 +38,67 @@
 </head>
 <body>
 
-    <span class="footer">Background image credit: <a href="https://unsplash.com/photos/2xaF4TbjXT0" rel="noopener" target="_blank">Jonas Jacobsson on Unsplash</a></span>
-    <div class="background-accent">
-        <div class="top-left-banner">In beta</div>
+    <h1 class="callfordataspeakers"><a href="https://callfordataspeakers.com/">Call for Data Speakers</a></h1>
+
+    <div class="menu-item"><a href="/">Speaker</a></div>
+    <div class="menu-item"><a href="/event">Event request</a></div>
+    <div class="menu-item menu-item-selected"><a href="/list">List of events</a></div>
+
+    <div class="main">
+
+        <h1>List of events</h1>
+
+        <p>
+            Here are all approved events (event dates &ge;90 days ago) in the database.
+        </p>
+
+        <p>
+            <table id="eventstbl">
+                <tr>
+                    <th>Date</th>
+                    <th>Event name</th>
+                    <th>Region</th>
+                </tr>
+            </table>
+        </p>
+
+        <p>
+            You can programmatically retrieve this list using Powershell or any other REST client:
+
+            <code class="powershell">
+                Invoke-RestMethod -Uri "http://callfordataspeakers.com/api/events" -Method "GET"
+            </code>
+        </p>
+
+        <p>
+            ... and/or, subscribe to the RSS feed:
+
+            <code>
+                <a href="https://callfordataspeakers.com/feed">https://callfordataspeakers.com/feed</a>
+            </code>
+        </p>
+
     </div>
 
-    <div class="main-panel">
-        <div class="tabstrip" role="tablist">
-            <a href="/" class="tab" id="tab1" tabindex="0" role="tab">Speaker</a>
-            <a href="/event" class="tab" id="tab2" tabindex="0" role="tab">Event request</a>
-            <a href="/list" class="tab selected" id="tab3" tabindex="0" role="tab">List of events</a>
-            <h1>Call for Data Speakers.</h1>
-        </div>
 
 
 
+    <div class="fineprint">
 
+        <p id="counter"></p>
 
+        <p> Privacy: We will only use your information to email you about calls for speakers for upcoming data platform
+            conferences. Your data is stored and processed by Mailchimp for the purpose of fulfilling the service.
+            You can choose to unsubscribe at any time, using the link in the email. This site is built and operated
+            by the friendly people at <a href="https://strd.co/" rel="noopener" target="_blank">Structured Concepts</a>, for use by
+            the data platform community.
+        </p>
 
-        <div id="page2" class="page selected" role="tabpanel">
-            <h1>List of events</h1>
-
-            <p>
-                Here are all approved events (event dates &ge;90 days ago) in the database.
-            </p>
-
-            <p>
-                <table id="eventstbl">
-                    <tr>
-                        <th>Date</th>
-                        <th>Event name</th>
-                        <th>Region</th>
-                    </tr>
-                </table>
-            </p>
-
-            <p>
-                You can programmatically retrieve this list using Powershell or any other REST client:
-
-                <code>
-                    Invoke-RestMethod -Uri "http://callfordataspeakers.com/api/events" -Method "GET"
-                </code>
-            </p>
-
-            <p>
-                ... and/or, subscribe to the RSS feed:
-
-                <code>
-                    https://callfordataspeakers.com/feed
-                </code>
-            </p>
-
-            <p class="fineprint" id="counter">
-            </p>
-            <p class="fineprint">
-                This site is built and operated by the friendly people at
-                <a href="https://strd.co/" rel="noopener" target="_blank">Structured Concepts</a>,
-                for use by the data platform community.
-            </p>
-            <p class="fineprint">
-                <a href="https://twitter.com/dataspeakers" rel="noopener" target="_blank">Follow @dataspeakers on Twitter</a>!
-                This stuff is open-source. Want to contribute? Head over to the
-                <a href="https://github.com/strdco/callfordataspeakers.com" rel="noopener" target="_blank">Github page</a>.
-            </p>
-
-        </div>
-
-
-
-
-
+        <p>
+            <a href="https://twitter.com/dataspeakers" rel="noopener" target="_blank">Follow @dataspeakers on Twitter</a>!
+            This stuff is open-source. Want to contribute? Head over to the
+            <a href="https://github.com/strdco/callfordataspeakers.com" rel="noopener" target="_blank">Github page</a>.
+        </p>
 
     </div>
 

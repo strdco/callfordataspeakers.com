@@ -151,16 +151,16 @@ app.all('/request', function (req, res, next) {
     }
 
     // Could be GET or POST, so we'll check both:
-    var formName=(queryParams.FNAME || req.body.FNAME)+' '+(queryParams.LNAME || req.body.LNAME);
+    var formName=(queryParams.FNAME || req.body.FNAME)+' '+(queryParams.LNAME || req.body.LNAME);
     var formEmail=req.body.EMAIL || queryParams.EMAIL;
     var formEventName=req.body.EVENT || queryParams.EVENT;
     var formEventVenue=req.body.VENUE || queryParams.VENUE;
     var formEventDate;
     try {
         formEventDate=new Date(
-            (queryParams["EVENTDATE[year]"] || req.body["EVENTDATE[year]"])+'-'+
-            (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
-            (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
+            (queryParams["EVENTDATE[year]"] || req.body["EVENTDATE[year]"])+'-'+
+            (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
+            (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
     } catch(err) {
         res.status(400);
         return;
