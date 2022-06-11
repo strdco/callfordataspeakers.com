@@ -7,8 +7,12 @@ body {
     height: 100%;
 
     --yellow: #c6d633;
+    --black: #000000;
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
+
+    --dark: rgba(0, 0, 0, 0.25);
+    --bright: rgba(255, 255, 255, 0.9);
 
     --logo-size: 60px;
 
@@ -32,19 +36,19 @@ h1 {
 /* Text selection */
 
 ::selection {
-    background: #C6D633; /* WebKit/Blink Browsers */
-    color: #000000;
+    background: var(--yellow); /* WebKit/Blink Browsers */
+    color: var(--black);
 }
 ::-moz-selection {
-    background: #C6D633; /* Gecko Browsers */
-    color: #000000;
+    background: var(--yellow); /* Gecko Browsers */
+    color: var(--black);
 }
 
 /* The logo */
 
 h1.callfordataspeakers {
     border-style: solid;
-    border-color: #000000;
+    border-color: var(--black);
     border-width: calc(0.05 * var(--logo-size));
     border-radius: var(--logo-size);
     background-color: var(--yellow);
@@ -79,7 +83,7 @@ h1.callfordataspeakers::after {
 
 /* Clickable link in the logo header: */
 h1.callfordataspeakers a {
-    color: #000000;
+    color: var(--black);
     text-decoration: none;
 }
 
@@ -94,7 +98,7 @@ h1.callfordataspeakers a:hover {
     display: inline-block;
     background-color: var(--yellow-translucent);
     border-style: solid solid solid solid;
-    border-color: var(--yellow-translucent) var(--yellow-footer) #000000 var(--yellow);
+    border-color: var(--yellow-translucent) var(--yellow-footer) var(--black) var(--yellow);
     border-width: 1px 1px 0 1px;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
@@ -106,10 +110,10 @@ h1.callfordataspeakers a:hover {
 }
 
 .menu-item.menu-item-selected {
-    border-color: #000000;
+    border-color: var(--black);
     background-color: var(--yellow);
     border-bottom-color: var(--yellow);
-    box-shadow: 0 0px 30px 1px rgb(198,214,51,0.75);
+    box-shadow: 0 0px 30px 1px var(--yellow-footer);
     z-index: 100;
 }
 
@@ -121,7 +125,7 @@ h1.callfordataspeakers a:hover {
 }
 
 .menu-item.menu-item-selected a {
-    color: #000000;
+    color: var(--black);
 }
 
 .menu-item a:hover {
@@ -130,12 +134,12 @@ h1.callfordataspeakers a:hover {
 
 .main {
     display: block;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--bright);
     border-style: solid none solid none;
     border-width: 1px;
-    border-color: #000000;
+    border-color: var(--black);
     min-height: 100px;
-    color: #000000;
+    color: var(--black);
     font-size: 11pt;
     margin-left: -50px;
     margin-right: -50px;
@@ -154,7 +158,7 @@ h1.callfordataspeakers a:hover {
     width: 100%;
     font-size: 9pt;
     color: #b0b0b0;
-    background-color: rgb(0, 0, 0, 0.25);
+    background-color: var(--dark);
     margin-top: 0;
     margin-bottom: -50px;
     margin-left: -50px;
@@ -190,11 +194,11 @@ table#eventstbl {
 }
 
 table#eventstbl tr:hover td {
-    background-color: #C6D633 !important;
+    background-color: var(--yellow) !important;
 }
 
 table#eventstbl tr:hover td a {
-    color: #000000;
+    color: var(--black);
 }
 
 table#eventstbl th,
@@ -207,11 +211,11 @@ table#eventstbl td {
 table#eventstbl th {
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    border-bottom-color: #808080;
+    border-bottom-color: #b0b0b0;
 }
 
 table#eventstbl a:any-link {
-    color: #000000;
+    color: var(--black);
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
@@ -261,7 +265,7 @@ code {
     padding: 1em;
     display: block;
     background-color: #d0d0d0; /* #1E6B53; */
-    color: #000000;
+    color: var(--black);
     margin-bottom: 2em;
     border-radius: 4px;
 }
@@ -278,5 +282,5 @@ code a:any-link {
 
 code a:hover {
     text-decoration: underline;
-    text-decoration-color: #000000;
+    text-decoration-color: var(--black);
 }
