@@ -972,9 +972,15 @@ function httpHeaders(res) {
     const hstsPreloadHeader = 'max-age=31536000; includeSubDomains; preload'
     res.header('Strict-Transport-Security', hstsPreloadHeader); // HTTP Strict Transport Security with preload
 
-    // Limits use of external script/css/image resources
-    // Mailchimp made me add the 'unsafe-eval' and 'unsafe-inline' stuff. :(
-    res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
+    // Don't apply the CSP header to image/script/css assets, and not to API calls:
+    if (['png', 'jpg', 'jpeg', 'gif', 'css', 'js', 'json'].indexOf(res.req.originalUrl.split(".").reverse()[0].toLowerCase())==-1 &&
+        res.req.originalUrl.toLowerCase().indexOf('/api/')==-1) {
+
+        // Limits use of external script/css/image resources
+        // Mailchimp made me add the 'unsafe-eval' and 'unsafe-inline' stuff. :(
+        console.log('CSP header!');
+        res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
+    }
 
     // Don't allow this site to be embedded in a frame; helps mitigate clickjacking attacks
     res.header('X-Frame-Options', 'sameorigin');
