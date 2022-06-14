@@ -21,7 +21,8 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Information     nvarchar(max) NULL,
         Created         datetime2(3) NOT NULL,
         [Sent]          datetime2(3) NULL,
-        CONSTRAINT PK_Campaigns PRIMARY KEY CLUSTERED (Token)
+        CONSTRAINT PK_Campaigns PRIMARY KEY NONCLUSTERED (Token),
+        CONSTRAINT UQ_Campaigns UNIQUE CLUSTERED (EventName, Token)
     );
 
 
