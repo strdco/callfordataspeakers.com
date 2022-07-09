@@ -223,6 +223,10 @@ table td {
     white-space: nowrap;
 }
 
+table#precontbl td {
+    white-space: normal;
+}
+
 table th {
     border-bottom-style: solid;
     border-bottom-width: 1px;
@@ -235,7 +239,7 @@ table a:any-link {
 
 table span.badge {
     display: inline-block;
-    margin: 0 3px 0 0;
+    margin: 1px 3px 1px 0;
     padding-left: 3px;
     padding-top: 1px;
     padding-right: 3px;
