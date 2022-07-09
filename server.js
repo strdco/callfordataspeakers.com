@@ -431,6 +431,19 @@ app.get('/list', function (req, res, next) {
 
 });
 
+/*-----------------------------------------------------------------------------
+  List precon speakers:
+-----------------------------------------------------------------------------*/
+
+app.get('/precon', function (req, res, next) {
+
+    httpHeaders(res);
+
+    res.status(200).send(createHTML('precon.html', {}));
+    return;
+
+});
+
 
 
 
@@ -755,13 +768,13 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
                 var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
 
                 Array.prototype.forEach.call(allGroupMembers.interests, member => {
-                    console.log(member.name+'?');
+                    if (showDebugInfo) { console.log(member.name+'?'); }
                     // Is this member in the list of regions?
                     if (regions.split(",").includes(member.name.toUpperCase().replace('-', '').replace(' ', ''))) {
-                        console.log('Yup.');
+                        if (showDebugInfo) { console.log('Yup.'); }
                         memberList.push(member.id);
                     } else {
-                        console.log('Nope.');
+                        if (showDebugInfo) { console.log('Nope.'); }
                     }
                 });
 
@@ -978,7 +991,6 @@ function httpHeaders(res) {
 
         // Limits use of external script/css/image resources
         // Mailchimp made me add the 'unsafe-eval' and 'unsafe-inline' stuff. :(
-        console.log('CSP header!');
         res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
     }
 

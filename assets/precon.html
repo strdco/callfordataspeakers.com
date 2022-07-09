@@ -42,41 +42,31 @@
 
     <div class="menu-item"><a href="/">Speaker</a></div>
     <div class="menu-item"><a href="/event">Event request</a></div>
-    <div class="menu-item menu-item-selected"><a href="/list">List of events</a></div>
-    <div class="menu-item"><a href="/precon">Precon speakers</a></div>
+    <div class="menu-item"><a href="/list">List of events</a></div>
+    <div class="menu-item menu-item-selected"><a href="/precon">Precon speakers</a></div>
 
     <div class="main">
 
-        <h1>List of events</h1>
+        <h1>List of precon speakers</h1>
 
         <p>
-            Here are all approved events (event dates &ge;90 days ago) in the database.
+            The following speakers are interested in presenting paid pre-conference/training day sessions.
+            To be added to this list, please <a href="https://github.com/dataplat/DataSpeakers/issues"
+                rel="noopener" target="_blank">create an issue</a> on Github.
         </p>
 
         <p>
-            <table id="eventstbl">
+            <input id="search" placeholder="Filter using comma-delimited keywords">
+        </p>
+
+        <p>
+            <table id="precontbl">
                 <tr>
-                    <th>Date</th>
-                    <th>Event name</th>
-                    <th>Region</th>
+                    <th>Name</th>
+                    <th>Topics</th>
+                    <th>Regions</th>
                 </tr>
             </table>
-        </p>
-
-        <p>
-            You can programmatically retrieve this list using Powershell or any other REST client:
-
-            <code class="powershell">
-                Invoke-RestMethod -Uri "https://callfordataspeakers.com/api/events" -Method "GET"
-            </code>
-        </p>
-
-        <p>
-            ... and/or, subscribe to the RSS feed:
-
-            <code>
-                <a href="https://callfordataspeakers.com/feed">https://callfordataspeakers.com/feed</a>
-            </code>
         </p>
 
     </div>
