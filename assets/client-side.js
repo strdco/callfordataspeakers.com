@@ -197,7 +197,7 @@ window.onload = function yeahyeah() {
                     tr.appendChild(td1);
 
                     var td2=document.createElement('td');
-                    row.topics.toLowerCase().split(',').forEach(topic => {
+                    row.topics.toLowerCase().split(',').sort().forEach(topic => {
                         var span=document.createElement('span');
                         span.classList.add('badge');
                         span.classList.add('topic');
