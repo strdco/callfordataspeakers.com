@@ -42,41 +42,38 @@
 
     <div class="menu-item"><a href="/">Speaker</a></div>
     <div class="menu-item"><a href="/event">Event request</a></div>
-    <div class="menu-item menu-item-selected"><a href="/list">List of events</a></div>
-    <div class="menu-item"><a href="/precon">Precon speakers</a></div>
+    <div class="menu-item"><a href="/list">List of events</a></div>
+    <div class="menu-item menu-item-selected"><a href="/precon">Precon speakers</a></div>
 
     <div class="main">
 
-        <h1>List of events</h1>
+        <h1>List of precon speakers</h1>
 
         <p>
-            Here are all approved events (event dates &ge;90 days ago) in the database.
+            If you are an event owner and you would like to locate pre-conference and training day speakers for particular topics, you may not have the contacts to be able to find them. The following speakers are interested in presenting paid pre-conference/training day sessions. You can view their sessions and get in touch with them via their Sessionize profile page using the links below.  <br>
+            The list below can be filtered by clicking any of the Topic or Region buttons or using the search bar. <br>
+        </p>
+        <h2>Adding yourself to the resource</h2>
+        <p>
+            We would love to add <u>you</u> to this list. We particularly want to encourage newer and less well-known speakers to add themselves. If you wish to add yourself, please <a href="https://github.com/dataplat/DataSpeakers" rel="noopener" target="_blank">create an issue</a> on Github, fill in the form and the web-page will be automatically updated.
+        </p>
+        <h2>Promote the resource</h2>
+        <p>
+            This resource will only be useful if event owners and potential speakers are aware of it so we would be grateful if you share this resource via social media.
         </p>
 
         <p>
-            <table id="eventstbl">
+            <input id="search" placeholder="Filter using comma-delimited keywords">
+        </p>
+
+        <p>
+            <table id="precontbl">
                 <tr>
-                    <th>Date</th>
-                    <th>Event name</th>
-                    <th>Region</th>
+                    <th>Name</th>
+                    <th>Topics</th>
+                    <th>Regions</th>
                 </tr>
             </table>
-        </p>
-
-        <p>
-            You can programmatically retrieve this list using Powershell or any other REST client:
-
-            <code class="powershell">
-                Invoke-RestMethod -Uri "https://callfordataspeakers.com/api/events" -Method "GET"
-            </code>
-        </p>
-
-        <p>
-            ... and/or, subscribe to the RSS feed:
-
-            <code>
-                <a href="https://callfordataspeakers.com/feed">https://callfordataspeakers.com/feed</a>
-            </code>
         </p>
 
     </div>

@@ -33,6 +33,10 @@ h1 {
     font-size: 24pt;
 }
 
+a:any-link {
+    color: #000000;
+}
+
 /* Text selection */
 
 ::selection {
@@ -184,38 +188,68 @@ h1.callfordataspeakers a:hover {
     text-decoration-color: var(--yellow);
 }
 
+/* Search bar */
+
+input#search {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(0, 0, 0, 0.5);
+    border-radius: 0.5em;
+    padding: 0.5em 1em 0.5em 1em;
+    width: 50%;
+}
+
 /* Events table */
 
-table#eventstbl {
+table {
     font-size: 10pt;
     text-align: left;
     padding: 1em;
     padding-bottom: 2em;
 }
 
-table#eventstbl tr:hover td {
+table tr:hover td {
     background-color: var(--yellow) !important;
 }
 
-table#eventstbl tr:hover td a {
+table tr:hover td a {
     color: var(--black);
 }
 
-table#eventstbl th,
-table#eventstbl td {
+table th,
+table td {
     min-width: 120px;
     padding-right: 1em;
     white-space: nowrap;
 }
 
-table#eventstbl th {
+table#precontbl td {
+    white-space: normal;
+}
+
+table th {
     border-bottom-style: solid;
     border-bottom-width: 1px;
     border-bottom-color: #b0b0b0;
 }
 
-table#eventstbl a:any-link {
+table a:any-link {
     color: var(--black);
+}
+
+table span.badge {
+    display: inline-block;
+    margin: 1px 3px 1px 0;
+    padding-left: 3px;
+    padding-top: 1px;
+    padding-right: 3px;
+    padding-bottom: 1px;
+    background-color: rgb(0, 0, 0, 0.05);
+    color: #000000;
+    border-style: solid;
+    border-color: #a0a0a0;
+    border-width: 1px;
+    border-radius: 3px;
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
@@ -226,34 +260,34 @@ table#eventstbl a:any-link {
         width: 100%;
     }
 
-    table#eventstbl {
+    table {
         width: 100%;
     }
 
-    table#eventstbl th {
+    table th {
         display: none;
     }
 
-    table#eventstbl tr {
+    table tr {
         display: block;
     }
 
-    table#eventstbl td {
+    table td {
         display: block;
     }
 
-    table#eventstbl tr:nth-child(odd) td {
+    table tr:nth-child(odd) td {
         background-color: #f0f0f0;
     }
 
-    table#eventstbl td:first-of-type {
+    table td:first-of-type {
         padding-top: 0.5em;
         border-top-style: solid;
         border-top-color: #c0c0c0;
         border-top-width: 1px;
     }
 
-    table#eventstbl td:last-of-type {
+    table td:last-of-type {
         padding-bottom: 0.5em;
     }
 }
