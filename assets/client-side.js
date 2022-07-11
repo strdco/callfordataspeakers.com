@@ -217,6 +217,20 @@ window.onload = function yeahyeah() {
                         td3.appendChild(span);
                     });
                     tr.appendChild(td3);
+
+                    var td4=document.createElement('td');
+                    row.language.split(',').forEach(lang => {
+                        lang = lang.trim();
+
+                        var span=document.createElement('span');
+                        span.classList.add('badge');
+                        span.classList.add('language');
+                        span.innerText=lang.substring(0, 1).toUpperCase()+
+                                       lang.substring(1, 99).toLowerCase();
+                        span.addEventListener('click', clickKeyword);
+                        td4.appendChild(span);
+                    });
+                    tr.appendChild(td4);
                 } catch(e) {
                     console.log(e);
 
