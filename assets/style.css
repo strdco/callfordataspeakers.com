@@ -199,7 +199,7 @@ input#search {
     width: 50%;
 }
 
-/* Events table */
+/* Events/Precon table */
 
 table {
     font-size: 10pt;
@@ -225,6 +225,15 @@ table td {
 
 table#precontbl td {
     white-space: normal;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+table#precontbl td:first-of-type {
+    white-space: nowrap;
 }
 
 table th {
@@ -239,17 +248,22 @@ table a:any-link {
 
 table span.badge {
     display: inline-block;
-    margin: 1px 3px 1px 0;
-    padding-left: 3px;
+    margin: 1px 8px 1px 0;
+    padding-left: 4px;
     padding-top: 1px;
-    padding-right: 3px;
+    padding-right: 4px;
     padding-bottom: 1px;
     background-color: rgb(0, 0, 0, 0.05);
     color: #000000;
     border-style: solid;
-    border-color: #a0a0a0;
+    border-color: #b0b0b0;
     border-width: 1px;
     border-radius: 3px;
+    cursor: pointer;
+}
+
+table span.badge:hover {
+    background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
