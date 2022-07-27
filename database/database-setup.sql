@@ -21,6 +21,7 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Information     nvarchar(max) NULL,
         Created         datetime2(3) NOT NULL,
         [Sent]          datetime2(3) NULL,
+        Cfs_Closes      datetime2(0) NULL,
         CONSTRAINT PK_Campaigns PRIMARY KEY NONCLUSTERED (Token),
         CONSTRAINT UQ_Campaigns UNIQUE CLUSTERED (EventName, Token)
     );
@@ -54,6 +55,16 @@ SET [Sent]=SYSDATETIME()
 OUTPUT inserted.[Name], inserted.EventName, inserted.EventType, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
 WHERE Token=@Token
   AND [Sent] IS NULL;
+
+GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_CfsClose
+    @Token          uniqueidentifier,
+    @Cfs_Closes     datetime2(0)
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET Cfs_Closes=@Cfs_Closes
+WHERE Token=@Token;
 
 GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed

@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const querystring = require('querystring');
 const url = require('url');
+const https = require('https');
 
 // Other modules:
 const express = require('express');
@@ -525,6 +526,10 @@ app.get('/api/sync-mailchimp', async function (req, res, next) {
 
 });
 
+
+
+
+
 async function getSubscriberCount(listName) {
     var listId;
     var groupId;
@@ -597,6 +602,84 @@ async function getCampaignCount(listName) {
 }
 
 
+
+
+
+app.get('/api/sync-sessionize', async function (req, res, next) {
+    await updateCfsCloseDates(res);
+});
+
+async function updateCfsCloseDates(res) {
+
+    sqlQuery(connectionString,
+        'SELECT Token, [URL], Cfs_Closes '+
+        'FROM CallForDataSpeakers.Campaigns '+
+        'WHERE [Date]>SYSUTCDATETIME() AND [URL] LIKE \'https://sessionize.com/_%\';', [],
+        function(recordset) {
+            console.log(recordset);
+
+            recordset.forEach(async function(record) {
+                // Construct the Sessionize iCal URL using the CFS URL:
+                var url=record.URL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/');
+
+                // Get the iCal file from Sessionize
+                var iCal = await getCalendar(url);
+
+                // Parse the iCal file to get the "end date" value, and format that value
+                // so we can update the database record with it.
+                var utcTime = iCal.split('\r\n').find(row => row.indexOf('DTEND:')>-1).substring(6, 22); // YYYYMMDDTHHMMSSZ
+                var formattedUtcTime = utcTime.substring(0,  4)+'-'+utcTime.substring( 4,  6)+'-'+utcTime.substring( 6,  8)+' '+
+                                       utcTime.substring(9, 11)+':'+utcTime.substring(11, 13)+':'+utcTime.substring(13, 15); // YYYY-MM-DD HH:MM:SS
+
+                sqlQuery(connectionString,
+                    'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes;',
+                    [   { "name": 'Token',      "type": Types.NVarChar, "value": record.Token },
+                        { "name": 'Cfs_Closes', "type": Types.NVarChar, "value": formattedUtcTime }],
+
+                    function(recordset) {});
+
+            });
+    });
+
+    res.status(200).send('OK');
+}
+
+        
+
+async function getCalendar(url) {
+    const options = {
+        method: 'GET'
+    };
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(url, options, (res) => {
+            if (res.statusCode>204) {
+                return reject(new Error('status='+res.statusCode));
+            }
+
+            const body = [];
+            res.on('data', (chunk) => body.push(chunk));
+            res.on('end', () => {
+                //context.log(Buffer.concat(body).toString());
+
+                var resBlob;
+                resBlob = Buffer.concat(body).toString();
+                resolve(resBlob);
+            });
+        })
+
+        req.on('error', (err) => {
+            reject(err);
+        })
+
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request time out'));
+        })
+
+        req.end();
+    });
+}
 
 
 
