@@ -8,6 +8,8 @@ body {
 
     --yellow: #c6d633;
     --black: #000000;
+    --red: #8C212B;
+    --green: #1E6B53;
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
 
@@ -264,6 +266,29 @@ table span.badge {
 
 table span.badge:hover {
     background-color: rgba(255, 255, 255, 0.5);
+}
+
+table .cfs-closes-in {
+    display: inline-block;
+    margin: 1px 8px 1px 10px;
+    padding-left: 4px;
+    padding-top: 0px;
+    padding-right: 4px;
+    padding-bottom: 0px;
+    border-radius: 3px;
+    background-color: var(--green);
+    color: #ffffff;
+    font-size: 90%;
+}
+
+table .cfs-closes-in.soon {
+    background-color: var(--yellow);
+    color: #000000;
+}
+
+table .cfs-closes-in.closed {
+    background-color: var(--red);
+    color: #ffffff;
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */

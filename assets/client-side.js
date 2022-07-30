@@ -132,6 +132,25 @@ window.onload = function yeahyeah() {
 
                     var td1=document.createElement('td');
                     td1.innerText = new Date(row.Date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+                    // Add an information badge for when the Cfs closes:
+                    if (row.Cfs_Closes!=null) {
+                        var span=document.createElement('span');
+                        span.className='cfs-closes-in';
+                        span.title=new Date(row.Cfs_Closes).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+                        var closesInDays=(new Date(row.Cfs_Closes)-new Date())/(1000*3600*24);
+                        if (closesInDays<0) {
+                            span.classList.add('closed');
+                            span.innerText='Closed';
+                        } else if (closesInDays<3) {
+                            span.classList.add('soon');
+                            span.innerText=Math.round(closesInDays*24).toString()+' hours';
+                        } else {
+                            span.innerText=Math.round(closesInDays).toString()+' days';
+                        }
+                        td1.appendChild(span);
+                    }
                     tr.appendChild(td1);
 
                     var td2=document.createElement('td');
