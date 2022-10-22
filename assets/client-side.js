@@ -3,6 +3,7 @@ var checkedPhysicalRegionCount=0;
 var searchInput;
 var searchTimeout;
 var preconSpeakers;
+var eventList;
 
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
@@ -59,11 +60,11 @@ window.onload = function yeahyeah() {
     }
 
 
-    // If this is the event page, collect the subscriber count for each region:
+    // If this is the event page
     if (document.location.pathname=='/event') {
+
+        // ... collect the subscriber count for each region:
         var xhr1 = new XMLHttpRequest();
-        xhr1.open('GET', '/assets/subscriber-count.json');
-        xhr1.send();
     
         xhr1.onload = function() {
             if (xhr1.status == 200) {
@@ -86,6 +87,34 @@ window.onload = function yeahyeah() {
                 }
             }
         }
+
+        xhr1.open('GET', '/assets/subscriber-count.json');
+        xhr1.send();
+
+        // ... and collect a list of existing events, in order to prevent duplicate
+        // event registrations:
+        var xhr3 = new XMLHttpRequest();
+
+        xhr3.onload = function() {
+            if (xhr3.status == 200) {
+                eventList = JSON.parse(xhr3.response);
+            }
+        };
+
+        xhr3.open('GET', '/api/events');
+        xhr3.send();
+
+        // Add an "onchange" event to the URL field to trigger the validation
+        document.querySelector('form input[type="url"]').addEventListener("change", function(e) {
+
+            // Is this URL already found in the event list?
+            var url=e.target.value.toLowerCase();
+            if (eventList.find(event => event.URL.toLowerCase() === url)) {
+                window.alert('This event URL has already been published in a call for speakers. Under the terms of this service, you can only announce each event once.');
+                e.target.value='';
+            }
+        });
+
     }
 
 
@@ -94,8 +123,6 @@ window.onload = function yeahyeah() {
     var p_counter=document.body.querySelector('#counter');
     if (p_counter) {
         var xhr2 = new XMLHttpRequest();
-        xhr2.open('GET', '/assets/campaign-count.json');
-        xhr2.send();
     
         xhr2.onload = function() {
             if (xhr2.status == 200) {
@@ -109,6 +136,8 @@ window.onload = function yeahyeah() {
             }
         }
 
+        xhr2.open('GET', '/assets/campaign-count.json');
+        xhr2.send();
     }
 
 
@@ -120,8 +149,6 @@ window.onload = function yeahyeah() {
         var tbody = eventstbl.getElementsByTagName("tbody")[0];
 
         var xhr3 = new XMLHttpRequest();
-        xhr3.open('GET', '/api/events');
-        xhr3.send();
 
         xhr3.onload = function() {
             if (xhr3.status == 200) {
@@ -170,6 +197,8 @@ window.onload = function yeahyeah() {
             }
         }
 
+        xhr3.open('GET', '/api/events');
+        xhr3.send();
     }
 
 
@@ -183,7 +212,7 @@ window.onload = function yeahyeah() {
         searchInput=document.getElementById("search");
 
         function clickKeyword(e) {
-            var s=e.srcElement.innerText;
+            var s=e.target.innerText;
             if (searchInput.value.toLowerCase().indexOf(s)==-1) {
                 searchInput.value+=(searchInput.value ? ', ' : '')+s;
             }
@@ -289,8 +318,6 @@ window.onload = function yeahyeah() {
         searchInput.addEventListener("keyup", searchChangedEvent);
 
         var xhr3 = new XMLHttpRequest();
-        xhr3.open('GET', 'https://raw.githubusercontent.com/dataplat/DataSpeakers/main/website/speaker-list.json');
-        xhr3.send();
 
         xhr3.onload = function() {
             if (xhr3.status == 200) {
@@ -299,6 +326,8 @@ window.onload = function yeahyeah() {
             }
         }
 
+        xhr3.open('GET', 'https://raw.githubusercontent.com/dataplat/DataSpeakers/main/website/speaker-list.json');
+        xhr3.send();
     }
 
 
@@ -328,8 +357,8 @@ window.onload = function yeahyeah() {
 function regionCheckboxClicked(e) {
 
     // If we clicked on a physical region, update the counter..
-    if (e.srcElement.value!='Virtual') {
-        if (e.srcElement.checked) {
+    if (e.target.value!='Virtual') {
+        if (e.target.checked) {
             checkedPhysicalRegionCount++;
             checkedRegionCount++;
         } else {
@@ -339,15 +368,15 @@ function regionCheckboxClicked(e) {
 
         // ... and make sure we haven't selected more than two physical regions:
         if (checkedPhysicalRegionCount>2) {
-            e.srcElement.checked=false;
+            e.target.checked=false;
             checkedPhysicalRegionCount--;
             checkedRegionCount--;
         }
     }
 
     // The total number of regions includes the "Virtual" region:
-    if (e.srcElement.value=='Virtual') {
-        if (e.srcElement.checked) {
+    if (e.target.value=='Virtual') {
+        if (e.target.checked) {
             checkedRegionCount++;
         } else {
             checkedRegionCount--;
