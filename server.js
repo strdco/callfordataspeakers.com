@@ -660,7 +660,7 @@ async function getCalendar(url) {
             const body = [];
             res.on('data', (chunk) => body.push(chunk));
             res.on('end', () => {
-                //context.log(Buffer.concat(body).toString());
+                //console.log(Buffer.concat(body).toString());
 
                 var resBlob;
                 resBlob = Buffer.concat(body).toString();
@@ -960,7 +960,54 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
 
 
 
+async function postToMastodon(message) {
 
+    return new Promise((resolve, reject) => {
+
+        const options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        };
+
+        const postReq = https.request(
+                'https://'+process.env.mastodon_server+'/api/v1/statuses?access_token='+encodeURIComponent(process.env.mastodon_access_token),
+                options,
+                (res) => {
+            if (res.statusCode>204) {
+                return reject(new Error('mastodon_status='+res.statusCode));
+            }
+
+            const body = [];
+            res.on('data', (chunk) => body.push(chunk));
+            res.on('end', () => {
+              //console.log(Buffer.concat(body).toString());
+
+                var resBlob;
+                try {
+                    resBlob = JSON.parse(Buffer.concat(body).toString());
+                } catch {
+                    //
+                }
+                resolve(resBlob);
+            });
+        })
+
+        postReq.on('error', (err) => {
+            reject(err);
+        })
+
+        postReq.on('timeout', () => {
+            postReq.destroy();
+            reject(new Error('Request time out'));
+        })
+
+        postReq.write('status='+encodeURIComponent(message), 'UTF-8');
+        postReq.end();
+    });
+
+
+
+}
 
 
 
