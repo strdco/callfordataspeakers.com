@@ -81,3 +81,8 @@ Security contact information is available at the universally accepted URL `/secu
 
 I am not what you would call a web developer, so any help would be appreciated if you
 see anything that needs fixing.
+
+## Mastodon
+
+This project has a Mastodon account that you can follow:
+<a rel="me" href="https://dataplatform.social/@callforspeakers">@callforspeakers@dataplatform.social</a>.
