@@ -41,7 +41,7 @@ app.use((err, req, res, callback) => {
     res.sendStatus(500);
     callback();
 });
-  
+
 // Tedious: used to connect to SQL Server:
 const Connection = require('tedious').Connection;
 const Request = require('tedious').Request;
@@ -215,7 +215,7 @@ app.all('/request', function (req, res, next) {
                     if (recordset) {
 
                         // Create an email to all moderators, requesting event approval:
-                        var approveButton='<a class="mcnButton" title="Approve" href="https://callfordataspeakers.com/approve/'+recordset[0].Token+'" '+
+                        var approveButton='<a class="mcnButton" title="Approve" href="https://'+req.hostname+'/approve/'+recordset[0].Token+'" '+
                                                 'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                                 'text-decoration:none;color:#000000;">Approve</a>';
 
@@ -483,7 +483,7 @@ app.get('/feed', async function (req, res, next) {
                                 item.EventName+' is coming to you on '+eventDate+'<br/>\n'+
                                 'The <a href="'+item.URL+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
-                            '<media:content url="https://callfordataspeakers.com/assets/callfordataspeakers-logo.png" medium="image">\n'+
+                            '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
                                 '<media:title type="html">dhmacher</media:title>\n'+
                             '</media:content>\n'+
                         '</item>\n\n'
