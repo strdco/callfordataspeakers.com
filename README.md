@@ -84,5 +84,5 @@ see anything that needs fixing.
 
 ## Mastodon
 
-This project has a Mastodon account that you can follow:
-<a rel="me" href="https://dataplatform.social/@callforspeakers">@callforspeakers@dataplatform.social</a>.
+This project has a Mastodon account. You can follow:
+<a rel="me" href="https://dataplatform.social/@callforspeakers">callforspeakers on dataplatform.social</a>.
