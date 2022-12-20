@@ -41,7 +41,7 @@ app.use((err, req, res, callback) => {
     res.sendStatus(500);
     callback();
 });
-  
+
 // Tedious: used to connect to SQL Server:
 const Connection = require('tedious').Connection;
 const Request = require('tedious').Request;
@@ -215,7 +215,7 @@ app.all('/request', function (req, res, next) {
                     if (recordset) {
 
                         // Create an email to all moderators, requesting event approval:
-                        var approveButton='<a class="mcnButton" title="Approve" href="https://callfordataspeakers.com/approve/'+recordset[0].Token+'" '+
+                        var approveButton='<a class="mcnButton" title="Approve" href="https://'+req.hostname+'/approve/'+recordset[0].Token+'" '+
                                                 'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                                 'text-decoration:none;color:#000000;">Approve</a>';
 
@@ -365,7 +365,16 @@ app.get('/approve/:token/do', function (req, res, next) {
                                 'hello@callfordataspeakers.com')        // Reply-to
                                  
                         // Success:
-                        .then(() => {
+                        .then((cfsCampaignId) => {
+
+                            // Post to Mastodon (if one is configured in the
+                            // environment variables)
+                            if (process.env.mastodon_access_token) {
+                                postToMastodon('Call for speakers: '+recordset[0].EventName+
+                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
+                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
+                            }
+        
                             res.status(200).send(createHTML('message.html', {
                                 "subject": "Campaign sent",
                                 "message": "Your campaign has been scheduled and will be sent out."
@@ -483,7 +492,7 @@ app.get('/feed', async function (req, res, next) {
                                 item.EventName+' is coming to you on '+eventDate+'<br/>\n'+
                                 'The <a href="'+item.URL+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
-                            '<media:content url="https://callfordataspeakers.com/assets/callfordataspeakers-logo.png" medium="image">\n'+
+                            '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
                                 '<media:title type="html">dhmacher</media:title>\n'+
                             '</media:content>\n'+
                         '</item>\n\n'
@@ -660,7 +669,7 @@ async function getCalendar(url) {
             const body = [];
             res.on('data', (chunk) => body.push(chunk));
             res.on('end', () => {
-                //context.log(Buffer.concat(body).toString());
+                //console.log(Buffer.concat(body).toString());
 
                 var resBlob;
                 resBlob = Buffer.concat(body).toString();
@@ -950,17 +959,67 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
             await mailchimp.campaigns.send(campaignId);
             console.log('Campaign sent.');
         }
+
     } catch (err) {
         console.log(err);
         res.status(500).send("There was a problem");
     }
+
+    return(campaignId);
 }
 
 
 
 
 
+async function postToMastodon(message) {
 
+    return new Promise((resolve, reject) => {
+
+        const options = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        };
+
+        const postReq = https.request(
+                'https://'+process.env.mastodon_server+'/api/v1/statuses?access_token='+encodeURIComponent(process.env.mastodon_access_token),
+                options,
+                (res) => {
+            if (res.statusCode>204) {
+                return reject(new Error('mastodon_status='+res.statusCode));
+            }
+
+            const body = [];
+            res.on('data', (chunk) => body.push(chunk));
+            res.on('end', () => {
+              //console.log(Buffer.concat(body).toString());
+
+                var resBlob;
+                try {
+                    resBlob = JSON.parse(Buffer.concat(body).toString());
+                } catch {
+                    //
+                }
+                resolve(resBlob);
+            });
+        })
+
+        postReq.on('error', (err) => {
+            reject(err);
+        })
+
+        postReq.on('timeout', () => {
+            postReq.destroy();
+            reject(new Error('Request time out'));
+        })
+
+        postReq.write('status='+encodeURIComponent(message), 'UTF-8');
+        postReq.end();
+    });
+
+
+
+}
 
 
 
