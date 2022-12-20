@@ -365,7 +365,16 @@ app.get('/approve/:token/do', function (req, res, next) {
                                 'hello@callfordataspeakers.com')        // Reply-to
                                  
                         // Success:
-                        .then(() => {
+                        .then((cfsCampaignId) => {
+
+                            // Post to Mastodon (if one is configured in the
+                            // environment variables)
+                            if (process.env.mastodon_access_token) {
+                                postToMastodon('Call for speakers: '+recordset[0].EventName+
+                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
+                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
+                            }
+        
                             res.status(200).send(createHTML('message.html', {
                                 "subject": "Campaign sent",
                                 "message": "Your campaign has been scheduled and will be sent out."
@@ -950,10 +959,13 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
             await mailchimp.campaigns.send(campaignId);
             console.log('Campaign sent.');
         }
+
     } catch (err) {
         console.log(err);
         res.status(500).send("There was a problem");
     }
+
+    return(campaignId);
 }
 
 
