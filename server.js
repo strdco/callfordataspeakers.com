@@ -620,10 +620,15 @@ app.get('/api/sync-sessionize', async function (req, res, next) {
 
 async function updateCfsCloseDates(res) {
 
+    // Check the closing dates for Sessionize CfS where
+    // 1) there isn't one yet (new event), or
+    // 2) it's Sunday (check all of them once a week, in case they change)
     sqlQuery(connectionString,
         'SELECT Token, [URL], Cfs_Closes '+
         'FROM CallForDataSpeakers.Campaigns '+
-        'WHERE [Date]>SYSUTCDATETIME() AND [URL] LIKE \'https://sessionize.com/_%\';', [],
+        'WHERE [Date]>SYSUTCDATETIME() '+
+        '  AND [URL] LIKE \'https://sessionize.com/_%\' '+
+        '  AND (DATENAME(dw, SYSUTCDATETIME()) LIKE \'Sun%\' OR Cfs_Closes IS NULL);', [],
         function(recordset) {
             console.log(recordset);
 
