@@ -158,7 +158,29 @@ window.onload = function yeahyeah() {
                     var tr=document.createElement('tr');
 
                     var td1=document.createElement('td');
-                    td1.innerText = new Date(row.Date).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    var fromDate=new Date(row.Date);
+                    var toDate=new Date(row.EndDate);
+                    if (toDate-new Date(0)==0) { toDate=fromDate; }
+
+                    if (toDate==fromDate) {
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    }
+                    else {
+                        // Same year, same month:
+                        if (toDate.getFullYear()==fromDate.getFullYear() && toDate.getMonth()==fromDate.getMonth()) {
+                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+fromDate.getUTCDate()+', ', ' '+fromDate.getUTCDate()+'-'+toDate.getUTCDate()+', ');
+                        }
+                        // Same year, spans multiple months:
+                        else if (toDate.getFullYear()==fromDate.getFullYear()) {
+                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '')+' - '+
+                                            toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                        }
+                        // Not even same year:
+                        else {
+                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })+' - '+
+                                            toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                        }
+                    }
 
                     // Add an information badge for when the Cfs closes:
                     if (row.Cfs_Closes!=null) {
