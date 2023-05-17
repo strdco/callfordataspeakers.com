@@ -27,6 +27,13 @@
     margin-top: 5px;
 }
 
+.mc-field-group.size1of2 {
+    display: inline-block;
+}
+
+.mc-field-group.size1of2 .datefield {
+    padding-right: 2em;
+}
 
 /* Input fields */
 

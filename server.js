@@ -156,6 +156,7 @@ app.all('/request', function (req, res, next) {
     var formEmail=req.body.EMAIL || queryParams.EMAIL;
     var formEventName=req.body.EVENT || queryParams.EVENT;
     var formEventVenue=req.body.VENUE || queryParams.VENUE;
+
     var formEventDate;
     try {
         formEventDate=new Date(
@@ -166,6 +167,16 @@ app.all('/request', function (req, res, next) {
         res.status(400);
         return;
     }
+
+    var formEventEndDate;
+    try {
+        formEventEndDate=new Date(
+            (queryParams["EVENTENDDATE[year]"] || req.body["EVENTENDDATE[year]"])+'-'+
+            (queryParams["EVENTENDDATE[month]"] || req.body["EVENTENDDATE[month]"])+'-'+
+            (queryParams["EVENTENDDATE[day]"] || req.body["EVENTENDDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
+    } catch(err) {
+    }
+
     var formEventURL=queryParams.URL || req.body.URL;
     var formEventInfo=queryParams.INFO || req.body.INFO;
 
@@ -198,7 +209,7 @@ app.all('/request', function (req, res, next) {
 
         // Save the everything to the SQL Server table:
         sqlQuery(connectionString,
-            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @URL=@URL, @Information=@Information;',
+            'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
             [   { "name": 'Name',    "type": Types.NVarChar, "value": formName },
                 { "name": 'Email',   "type": Types.NVarChar, "value": formEmail },
                 { "name": 'EventName', "type": Types.NVarChar, "value": formEventName },
@@ -206,6 +217,7 @@ app.all('/request', function (req, res, next) {
                 { "name": 'Regions', "type": Types.NVarChar, "value": formEventRegions },
                 { "name": 'Venue',   "type": Types.NVarChar, "value": formEventVenue },
                 { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
+                { "name": 'EndDate', "type": Types.Date,     "value": formEventEndDate },
                 { "name": 'URL',     "type": Types.NVarChar, "value": formEventURL },
                 { "name": 'Information', "type": Types.NVarChar, "value": formEventInfo }],
 
@@ -228,7 +240,7 @@ app.all('/request', function (req, res, next) {
                             "event_name": formEventName,
                             "event_type": formEventType,
                             "event_venue": formEventVenue,
-                            "event_date": formEventDate,
+                            "event_date": formEventDate + (formEventEndDate ? ' -> ' + formEventEndDate : ''),
                             "event_url": formEventURL,
                             "event_info": formEventInfo,
                             "event_approve": approveButton
@@ -314,8 +326,29 @@ app.get('/approve/:token/do', function (req, res, next) {
             async function(recordset) {
                 if (recordset) {
 
+                    var fromDate = recordset[0].Date;
+                    var toDate = recordset[0].EndDate;
+
                     // formatting the event date; example: Tuesday, December 22, 2020"
-                    var eventDateString=recordset[0].Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    var eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                    // for a range of dates, construct a human-readable date interval text:
+                    if (recordset[0].EndDate) {
+                        if (recordset[0].Date != recordset[0].EndDate) {
+
+                            // "Friday, May 17 until Saturday, May 18, 2024"
+                            if (toDate.getFullYear() != fromDate.getFullYear()) {
+                                eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+                                        ' until '+toDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            }
+                            // "Friday, May 17, 2024 until Saturday, May 18, 2024"
+                            else {
+                                eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
+                                        ' until '+toDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            }
+
+                        }
+                    }
                     
                     var eventInfoString=recordset[0].Information;
                     if (eventInfoString===null) { eventInfoString=''; }
@@ -418,7 +451,7 @@ app.get('/api/events', function (req, res, next) {
 
     // Approve the campaign in the database and retrieve the event information:
     sqlQuery(connectionString,
-        'SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Cfs_Closes, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
+        'SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
 
             async function(recordset) {
 

@@ -17,6 +17,7 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Regions         nvarchar(200) NOT NULL,
         Venue           nvarchar(1000) NOT NULL,
         [Date]          date NOT NULL,
+        EndDate         date NULL,
         [URL]           nvarchar(1000) NOT NULL,
         Information     nvarchar(max) NULL,
         Created         datetime2(3) NOT NULL,
@@ -37,13 +38,14 @@ CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
     @Regions        nvarchar(200),
     @Venue          nvarchar(1000),
     @Date           date,
+    @EndDate        date=NULL,
     @URL            nvarchar(1000),
     @Information    nvarchar(max)
 AS
 
-INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, EventType, Email, Regions, Venue, [Date], [URL], Information, Created)
+INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, EventType, Email, Regions, Venue, [Date], EndDate, [URL], Information, Created)
 OUTPUT inserted.Token
-SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
+SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, @EndDate, @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
@@ -52,7 +54,7 @@ AS
 
 UPDATE CallForDataSpeakers.Campaigns
 SET [Sent]=SYSDATETIME()
-OUTPUT inserted.[Name], inserted.EventName, inserted.EventType, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.[URL], inserted.Information
+OUTPUT inserted.[Name], inserted.EventName, inserted.EventType, inserted.Email, inserted.Regions, inserted.Venue, inserted.[Date], inserted.EndDate, inserted.[URL], inserted.Information
 WHERE Token=@Token
   AND [Sent] IS NULL;
 
@@ -70,9 +72,9 @@ GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed
 AS
 
-SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Created, Cfs_Closes
+SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Created, Cfs_Closes
 FROM CallForDataSpeakers.Campaigns
-WHERE [Date]>DATEADD(day, -90, SYSDATETIME())
+WHERE ISNULL(EndDate, [Date])>DATEADD(day, -90, SYSDATETIME())
   AND [Sent] IS NOT NULL;
 
 GO
