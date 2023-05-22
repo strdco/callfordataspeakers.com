@@ -109,6 +109,17 @@ window.onload = function yeahyeah() {
 
             // Is this URL already found in the event list?
             var url=e.target.value.toLowerCase();
+
+            if (url.includes('/app/organizer')) {
+                window.alert('That looks a lot like a private organizer URL. Please revise the Cfs URL.');
+                e.target.value='';
+            }
+
+            if (url.includes('sessionize.com/') && url.includes('/?e=')) {
+                window.alert('That looks a lot like a VIP link, which would allow people to submit after the CfS has closed. Please correct the URL.');
+                e.target.value='';
+            }
+
             if (eventList.find(event => event.URL.toLowerCase() === url)) {
                 window.alert('This event URL has already been published in a call for speakers. Under the terms of this service, you can only announce each event once.');
                 e.target.value='';
