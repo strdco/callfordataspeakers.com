@@ -45,7 +45,7 @@ AS
 
 INSERT INTO CallForDataSpeakers.Campaigns (Token, [Name], EventName, EventType, Email, Regions, Venue, [Date], EndDate, [URL], Information, Created)
 OUTPUT inserted.Token
-SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, @EndDate, @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
+SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, NULLIF(@EndDate, @Date), @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
