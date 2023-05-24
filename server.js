@@ -551,20 +551,29 @@ app.get('/feed', async function (req, res, next) {
   List events:
 -----------------------------------------------------------------------------*/
 
-app.get('/api/sync-mailchimp', async function (req, res, next) {
+app.get('/api/sync-mailchimp/:apikey', async function (req, res, next) {
 
-    try {
-        // Update subscriber count:
-        var subscriberCount = await getSubscriberCount(process.env.speaker_audience);
+    if (req.params.apikey==process.env.apikey) {
 
-        // Update campaign/email count:
-        getCampaignCount(process.env.speaker_audience);
+        try {
+            // Update subscriber count:
+            var subscriberCount = await getSubscriberCount(process.env.speaker_audience);
 
-        res.status(200).json(subscriberCount);
-    } catch(err) {
-        res.status(500);
+            // Update campaign/email count:
+            getCampaignCount(process.env.speaker_audience);
+
+            res.status(200).json(subscriberCount);
+        } catch(err) {
+            res.status(500);
+        }
+        console.log('Done');
+
+    } else {
+
+        console.log('Invalid API key for /api/sync-mailchimp');
+        res.status(401).send('Invalid API key');
+
     }
-    console.log('Done');
 
 });
 
@@ -647,8 +656,13 @@ async function getCampaignCount(listName) {
 
 
 
-app.get('/api/sync-sessionize', async function (req, res, next) {
-    await updateCfsCloseDates(res);
+app.get('/api/sync-sessionize/:apikey', async function (req, res, next) {
+    if (req.params.apikey==process.env.apikey) {
+        await updateCfsCloseDates(res);
+    } else {
+        console.log('Invalid API key for /api/sync-sessionize');
+        res.status(401).send('Invalid API key');
+    }
 });
 
 async function updateCfsCloseDates(res) {
