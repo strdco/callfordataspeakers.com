@@ -33,6 +33,7 @@ body {
 h1 {
     text-transform: uppercase;
     font-size: 24pt;
+    overflow-x: hidden;
 }
 
 a:any-link {
@@ -170,7 +171,7 @@ h1.callfordataspeakers a:hover {
     margin-left: -50px;
     margin-right: -50px;
     padding-left: 50px;
-    padding-right: 50px;
+    padding-right: 0;
     padding-top: 25px;
     padding-bottom: 25px;
 }
@@ -293,6 +294,35 @@ table .cfs-closes-in.closed {
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
 @media (max-width: 1000px) {
+    body {
+        padding: 0rem;
+    }
+
+    h1 {
+        scale: 0.7;
+    }
+
+    .menu-item {
+        margin-left: 0.5rem;
+        --margin: 0.1rem 0.1rem 0 0.1rem;
+        --padding: 0;
+    }
+
+    .menu-item a {
+        padding: 1rem 0.75rem 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    code {
+        overflow-x: scroll;
+    }
+
+    .main {
+        width: calc(100% - 1rem);
+        margin: 0;
+        padding: 0.5rem;
+    }
+
     .main-panel {
         top: 0;
         left: 0;
@@ -313,6 +343,7 @@ table .cfs-closes-in.closed {
 
     table td {
         display: block;
+        white-space: unset;
     }
 
     table tr:nth-child(odd) td {
@@ -328,6 +359,20 @@ table .cfs-closes-in.closed {
 
     table td:last-of-type {
         padding-bottom: 0.5em;
+    }
+
+    table#precontbl a {
+        font-weight: bold;
+    }
+
+    table#precontbl td {
+        border-style: none;
+        padding-left: 1em;
+        padding-bottom: 1em;
+    }
+
+    table#precontbl td:first-of-type {
+        padding-left: 0.25em;
     }
 }
 
