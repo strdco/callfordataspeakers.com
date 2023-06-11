@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node --experimental-modules ./server.js"
+    "start": "node ./server.js"
   },
   "dependencies": {
-    "body-parser": "*",
-    "express": "*",
-    "tedious": "*",
+    "body-parser": ">=1.18.2",
+    "express": ">=4.16.2",
+    "tedious": ">=9.1.0",
     "fs": "*",
-    "path": "*",
+    "path": ">=0.12.7",
     "@mailchimp/mailchimp_marketing": "*"
   }
 }
