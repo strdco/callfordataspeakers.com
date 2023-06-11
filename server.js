@@ -6,18 +6,18 @@ const validUrl=/^(http|https):\/\/.{1,}\..{1,}/gi;
 
 
 // Core modules:
-const fs = require('fs');
-const path = require('path');
-const querystring = require('querystring');
-const url = require('url');
-const https = require('https');
+import fs from 'fs';
+import path from 'path';
+import querystring from 'querystring';
+import * as url from 'url';
+import https from 'https';
 
 // Other modules:
-const express = require('express');
-const bodyParser = require('body-parser');
+import express from 'express';
+import bodyParser from 'body-parser';
 
 // Mailchimp Marketing API
-const mailchimp = require("@mailchimp/mailchimp_marketing");
+import mailchimp from "@mailchimp/mailchimp_marketing";
 
 mailchimp.setConfig({
     apiKey: process.env.mcapikey,
@@ -43,9 +43,9 @@ app.use((err, req, res, callback) => {
 });
 
 // Tedious: used to connect to SQL Server:
-const Connection = require('tedious').Connection;
-const Request = require('tedious').Request;
-const Types = require('tedious').TYPES;
+import { Connection, Request, TYPES as Types } from 'tedious';
+
+const __dirname=url.fileURLToPath(new URL('.', import.meta.url));
 
 // Connection string to the SQL Database:
 var connectionString = {
