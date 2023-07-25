@@ -110,8 +110,8 @@ window.onload = function yeahyeah() {
             // Is this URL already found in the event list?
             var url=e.target.value.toLowerCase();
 
-            if (url.includes('/app/organizer')) {
-                window.alert('That looks a lot like a private organizer URL. Please revise the Cfs URL.');
+            if (url.includes('sessionize.com/app/')) {
+                window.alert('That looks a lot like a private URL. Please revise the Cfs URL.');
                 e.target.value='';
             }
 
