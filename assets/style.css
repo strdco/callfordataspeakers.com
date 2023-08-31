@@ -34,6 +34,7 @@ h1 {
     text-transform: uppercase;
     font-size: 24pt;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 a:any-link {
