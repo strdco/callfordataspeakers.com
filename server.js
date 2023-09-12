@@ -410,6 +410,14 @@ app.get('/approve/:token/do', function (req, res, next) {
                                     ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
                                     process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
                             }
+
+                            // Post to Bluesky (if one is configured in the
+                            // environment variables)
+                            if (process.env.bluesky_password) {
+                                postToBluesky('Call for speakers: '+recordset[0].EventName+
+                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
+                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
+                            }
         
                             res.status(200).send(createHTML('message.html', {
                                 "subject": "Campaign sent",
