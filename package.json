@@ -11,6 +11,7 @@
     "tedious": ">=9.1.0",
     "fs": "*",
     "path": ">=0.12.7",
-    "@mailchimp/mailchimp_marketing": "*"
+    "@mailchimp/mailchimp_marketing": "*",
+    "@atproto/api": "*"
   }
 }
