@@ -24,6 +24,9 @@ mailchimp.setConfig({
     server: process.env.mcapikey.split("-")[1],
 });
 
+// ATProtocol (for Bluesky)
+const blue = require('@atproto/api');
+
 // The Express web server itself:
 const app = express();
 app.use(bodyParser.urlencoded({
@@ -404,6 +407,14 @@ app.get('/approve/:token/do', function (req, res, next) {
                             // environment variables)
                             if (process.env.mastodon_access_token) {
                                 postToMastodon('Call for speakers: '+recordset[0].EventName+
+                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
+                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
+                            }
+
+                            // Post to Bluesky (if one is configured in the
+                            // environment variables)
+                            if (process.env.bluesky_password) {
+                                postToBluesky('Call for speakers: '+recordset[0].EventName+
                                     ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
                                     process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
                             }
@@ -1068,10 +1079,42 @@ async function postToMastodon(message) {
         postReq.write('status='+encodeURIComponent(message), 'UTF-8');
         postReq.end();
     });
-
-
-
 }
+
+
+
+
+// Thanks: https://ashevat.medium.com/how-to-build-a-bluesky-bot-using-atproto-and-openai-api-77a26a154b
+async function postToBluesky(message) {
+
+    const {RichText} = blue;
+    const {BskyAgent} = blue;
+
+    const agent = new BskyAgent({
+        service: 'https://bsky.social/'
+    });
+
+    await agent.login({
+        identifier: process.env.bluesky_email,
+        password: process.env.bluesky_password
+    });
+
+    const rt = new RichText({
+        text: message
+    });
+
+    const postRecord = {
+        $type: 'app.bsky.feed.post',
+        text: rt.text,
+        facets: rt.facets,
+        createdAt: new Date().toISOString()
+    };
+    await agent.post(postRecord);
+}
+
+
+
+
 
 
 
