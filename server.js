@@ -1103,6 +1103,8 @@ async function postToBluesky(message) {
         text: message
     });
 
+    await rt.detectFacets(agent) // automatically detects mentions and links
+
     const postRecord = {
         $type: 'app.bsky.feed.post',
         text: rt.text,
