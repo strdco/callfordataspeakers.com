@@ -299,18 +299,21 @@ table .cfs-closes-in.closed {
         padding: 0rem;
     }
 
-    h1 {
-        scale: 0.7;
+    h1.callfordataspeakers {
+        scale: 0.5;
+        max-width: 130vw;
+        margin-left: -10vw !important;
     }
 
     .menu-item {
-        margin-left: 0.5rem;
-        --margin: 0.1rem 0.1rem 0 0.1rem;
+        margin-left: 0.25rem;
+        --margin: 0.1rem 0.05rem 0 0.05rem;
         --padding: 0;
+        max-width: 22vw;
     }
 
     .menu-item a {
-        padding: 1rem 0.75rem 0.5rem 0.75rem;
+        padding: 0.5rem 0.5rem 0.25rem 0.5rem;
         font-size: 0.75rem;
     }
 
