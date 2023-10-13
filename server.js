@@ -370,10 +370,17 @@ app.get('/approve/:token/do', function (req, res, next) {
                         eventVirtualString='This is an in-person event.';
                     }
 
+                    var cfsURL = recordset[0].URL;
+
                     // This is the button at the bottom of the email:
-                    var eventButton='<a class="mcnButton" title="Approve" href="'+recordset[0].URL+'" '+
+                    var eventButton='<a class="mcnButton" title="Approve" href="'+cfsURL+'" '+
                                         'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                         'text-decoration:none;color:#000000;">View the Call for Speakers</a>';
+
+                    var calendarLink='';
+                    if (cfsURL.toLowerCase().indexOf('sessionize.com/')>0) {
+                        calendarLink='<a href="'+cfsURL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/')+'" style="text-decoration: underline; color: #000000;">Add to my calendar</a>';
+                    }
 
                     // These are the "mc:edit" values that we want to fill into our template:
                     var templateSections={
@@ -385,7 +392,8 @@ app.get('/approve/:token/do', function (req, res, next) {
                         "name": recordset[0].Name,
                         "event_email": recordset[0].Email,
                         "event_info": eventInfoString,
-                        "event_button": eventButton
+                        "event_button": eventButton,
+                        "calendar_link": calendarLink
                     };
 
                     // Send the Mailchimp campaign to all our subscribers:
