@@ -18,10 +18,6 @@ organizers to send a one-time Call for Speakers mailing to those speakers.
 
 The frontend is built on Node.js, hosted as an Azure WebApp behind a Cloudflare CDN.
 
-I'm an old-school developer, so I don't feel comfortable using lots of scaffolding and
-libraries. This means the code is simpler, but it unfortunately also means it isn't
-responsively rendered on small screens - because I don't know how to do that.
-
 ## Mailchimp
 
 The mailing list is stored in Mailchimp, in a single list ("list"). There's a "Region"
