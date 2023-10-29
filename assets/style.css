@@ -28,6 +28,7 @@ body {
     background-size: auto;
 
     font-family: "Helvetica Neue", "Helvetica", "Arial";
+    overflow-x: hidden;
 }
 
 h1 {
