@@ -193,6 +193,22 @@ h1.callfordataspeakers a:hover {
     text-decoration-color: var(--yellow);
 }
 
+/* Date range sliders */
+
+.filterpane table td.slider-date {
+    width: 140px;
+}
+
+input#rangeFrom {
+    scale: -1.0 1.0;
+}
+
+.filterpane {
+    border-bottom-style: solid;
+    border-bottom-color: var(--dark);
+    border-bottom-width: 1px;
+}
+
 /* Search bar */
 
 input#search {
@@ -213,19 +229,21 @@ table {
     padding-bottom: 2em;
 }
 
-table tr:hover td {
+table.responsive tr:hover td {
     background-color: var(--yellow) !important;
 }
 
-table tr:hover td a {
+table.responsive tr:hover td a {
     color: var(--black);
 }
 
 table th,
-table td {
+table.responsive td {
     min-width: 120px;
+    max-width: 30vw;
     padding-right: 1em;
     white-space: nowrap;
+    overflow-x: hidden;
 }
 
 table#precontbl td {
@@ -295,6 +313,12 @@ table .cfs-closes-in.closed {
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
+@media (max-width: 600px) {
+    .filterpane input[type=range] {
+        width: 75px;
+    }
+}
+
 @media (max-width: 1000px) {
     body {
         padding: 0rem;
@@ -326,6 +350,7 @@ table .cfs-closes-in.closed {
         width: calc(100% - 1rem);
         margin: 0;
         padding: 0.5rem;
+        overflow-x: hidden;
     }
 
     .main-panel {
@@ -338,45 +363,54 @@ table .cfs-closes-in.closed {
         width: 100%;
     }
 
-    table th {
+    .filterpane table tr td:first-of-type {
         display: none;
     }
 
-    table tr {
-        display: block;
+    table.responsive th {
+        display: none;
     }
 
-    table td {
+    table.responsive tr {
+        display: block;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    table.responsive td {
         display: block;
         white-space: unset;
-    }
+        width: 100%;
+        max-width: unset;
+        overflow-x: hidden;
+        }
 
-    table tr:nth-child(odd) td {
+    table.responsive tr:nth-child(odd) td {
         background-color: #f0f0f0;
     }
 
-    table td:first-of-type {
+    table.responsive td:first-of-type {
         padding-top: 0.5em;
         border-top-style: solid;
         border-top-color: #c0c0c0;
         border-top-width: 1px;
     }
 
-    table td:last-of-type {
+    table.responsive td:last-of-type {
         padding-bottom: 0.5em;
     }
 
-    table#precontbl a {
+    table.responsive#precontbl a {
         font-weight: bold;
     }
 
-    table#precontbl td {
+    table.responsive#precontbl td {
         border-style: none;
         padding-left: 1em;
         padding-bottom: 1em;
     }
 
-    table#precontbl td:first-of-type {
+    table.responsive#precontbl td:first-of-type {
         padding-left: 0.25em;
     }
 }

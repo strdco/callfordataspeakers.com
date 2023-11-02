@@ -4,6 +4,10 @@ var searchInput;
 var searchTimeout;
 var preconSpeakers;
 var eventList;
+var timeoutHandler;
+var rangeFrom;
+var rangeTo;
+var listOfEvents=[];
 
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
@@ -157,81 +161,116 @@ window.onload = function yeahyeah() {
     // If this is the "List Events" page, populate the table using the REST API:
     var eventstbl=document.getElementById("eventstbl");
     if (eventstbl) {
-        var tbody = eventstbl.getElementsByTagName("tbody")[0];
-
         var xhr3 = new XMLHttpRequest();
-
         xhr3.onload = function() {
             if (xhr3.status == 200) {
-                var rs = JSON.parse(xhr3.response);
-
-                rs.forEach(row => {
-                    var tr=document.createElement('tr');
-
-                    var td1=document.createElement('td');
-                    var fromDate=new Date(row.Date);
-                    var toDate=new Date(row.EndDate);
-                    if (toDate-new Date(0)==0) { toDate=fromDate; }
-
-                    if (toDate==fromDate) {
-                        td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-                    }
-                    else {
-                        // Same year, same month:
-                        if (toDate.getFullYear()==fromDate.getFullYear() && toDate.getMonth()==fromDate.getMonth()) {
-                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+fromDate.getUTCDate()+', ', ' '+fromDate.getUTCDate()+'-'+toDate.getUTCDate()+', ');
-                        }
-                        // Same year, spans multiple months:
-                        else if (toDate.getFullYear()==fromDate.getFullYear()) {
-                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '')+' - '+
-                                            toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-                        }
-                        // Not even same year:
-                        else {
-                            td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })+' - '+
-                                            toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-                        }
-                    }
-
-                    // Add an information badge for when the Cfs closes:
-                    if (row.Cfs_Closes!=null) {
-                        var span=document.createElement('span');
-                        span.className='cfs-closes-in';
-                        span.title=new Date(row.Cfs_Closes).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-
-                        var closesInDays=(new Date(row.Cfs_Closes)-new Date())/(1000*3600*24);
-                        if (closesInDays<0) {
-                            span.classList.add('closed');
-                            span.innerText='Closed';
-                        } else if (closesInDays<3) {
-                            span.classList.add('soon');
-                            span.innerText=Math.round(closesInDays*24).toString()+' hours';
-                        } else {
-                            span.innerText=Math.round(closesInDays).toString()+' days';
-                        }
-                        td1.appendChild(span);
-                    }
-                    tr.appendChild(td1);
-
-                    var td2=document.createElement('td');
-                    var a=document.createElement('a');
-                    a.href=row.URL;
-                    a.innerText = row.EventName;
-                    a.target='_blank';
-                    td2.appendChild(a);
-                    tr.appendChild(td2);
-
-                    var td3=document.createElement('td');
-                    td3.innerText=row.Venue;
-                    tr.appendChild(td3);
-
-                    tbody.appendChild(tr);
-                });
+                listOfEvents = JSON.parse(xhr3.response);
+                renderList();
             }
         }
-
         xhr3.open('GET', '/api/events');
         xhr3.send();
+
+        updateSliderDates();
+
+        document.querySelectorAll('div.filterpane input[type=range]').forEach(input => {
+            input.addEventListener('input', (e) => {
+                updateSliderDates();
+
+                if (timeoutHandler) { clearTimeout(timeoutHandler); }
+                timeoutHandler=setTimeout(() => {
+                    renderList();
+                }, 250);
+            });
+        });
+
+
+
+        function updateSliderDates() {
+            var filterpane=document.querySelector('div.filterpane');
+            var inputs=filterpane.querySelectorAll('input[type=range]');
+            var tds=filterpane.querySelectorAll('td.slider-date');
+
+            rangeFrom=Date.now()-Number(inputs[0].value)*24*3600000;
+            rangeTo  =Date.now()+Number(inputs[1].value)*24*3600000;
+    
+            tds[0].innerText=new Date(rangeFrom).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+            tds[1].innerText=new Date(rangeTo).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+        }
+
+
+
+        function renderList() {
+            var tbody = eventstbl.getElementsByTagName("tbody")[0];
+
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+    
+            listOfEvents.filter(r => new Date(r.EndDate)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
+                var tr=document.createElement('tr');
+
+                var td1=document.createElement('td');
+                var fromDate=new Date(row.Date);
+                var toDate=new Date(row.EndDate);
+                if (toDate-new Date(0)==0) { toDate=fromDate; }
+
+                if (toDate==fromDate) {
+                    td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                }
+                else {
+                    // Same year, same month:
+                    if (toDate.getFullYear()==fromDate.getFullYear() && toDate.getMonth()==fromDate.getMonth()) {
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+fromDate.getUTCDate()+', ', ' '+fromDate.getUTCDate()+'-'+toDate.getUTCDate()+', ');
+                    }
+                    // Same year, spans multiple months:
+                    else if (toDate.getFullYear()==fromDate.getFullYear()) {
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '')+' - '+
+                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    }
+                    // Not even same year:
+                    else {
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })+' - '+
+                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    }
+                }
+
+                // Add an information badge for when the Cfs closes:
+                if (row.Cfs_Closes!=null) {
+                    var span=document.createElement('span');
+                    span.className='cfs-closes-in';
+                    span.title=new Date(row.Cfs_Closes).toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+                    var closesInDays=(new Date(row.Cfs_Closes)-new Date())/(1000*3600*24);
+                    if (closesInDays<0) {
+                        span.classList.add('closed');
+                        span.innerText='Closed';
+                    } else if (closesInDays<3) {
+                        span.classList.add('soon');
+                        span.innerText=Math.round(closesInDays*24).toString()+' hours';
+                    } else {
+                        span.innerText=Math.round(closesInDays).toString()+' days';
+                    }
+                    td1.appendChild(span);
+                }
+                tr.appendChild(td1);
+
+                var td2=document.createElement('td');
+                var a=document.createElement('a');
+                a.href=row.URL;
+                a.innerText = row.EventName;
+                a.target='_blank';
+                td2.appendChild(a);
+                tr.appendChild(td2);
+
+                var td3=document.createElement('td');
+                td3.innerText=row.Venue;
+                tr.appendChild(td3);
+
+                tbody.appendChild(tr);
+            });
+
+        }
     }
 
 
