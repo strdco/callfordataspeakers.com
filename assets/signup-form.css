@@ -72,7 +72,7 @@ div.datefield {
 }
 
 .mc-field-group input.datepart {
-    width: 1.65em;
+    width: 3em;
     display: inline-block;
     padding-left: 0;
     padding-right: 0;
@@ -86,7 +86,7 @@ div.datefield {
 }
 
 .mc-field-group .yearfield input.datepart {
-    width: 3.1em;
+    width: 4em;
     display: inline-block;
 }
 
