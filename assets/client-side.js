@@ -207,7 +207,7 @@ window.onload = function yeahyeah() {
                 tbody.removeChild(tbody.firstChild);
             }
     
-            listOfEvents.filter(r => new Date(r.EndDate)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
+            listOfEvents.filter(r => new Date(r.EndDate || r.Date)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
                 var tr=document.createElement('tr');
 
                 var td1=document.createElement('td');
