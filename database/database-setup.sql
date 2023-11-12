@@ -72,7 +72,7 @@ GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed
 AS
 
-SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Created, Cfs_Closes
+SELECT EventName, EventType, Regions, Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], Information, Created, Cfs_Closes
 FROM CallForDataSpeakers.Campaigns
 WHERE ISNULL(EndDate, [Date])>DATEADD(day, -90, SYSDATETIME())
   AND [Sent] IS NOT NULL;

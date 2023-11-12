@@ -207,7 +207,7 @@ window.onload = function yeahyeah() {
                 tbody.removeChild(tbody.firstChild);
             }
     
-            listOfEvents.filter(r => new Date(r.EndDate)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
+            listOfEvents.filter(r => new Date(r.EndDate || r.Date)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
                 var tr=document.createElement('tr');
 
                 var td1=document.createElement('td');
@@ -215,7 +215,7 @@ window.onload = function yeahyeah() {
                 var toDate=new Date(row.EndDate);
                 if (toDate-new Date(0)==0) { toDate=fromDate; }
 
-                if (toDate==fromDate) {
+                if (toDate-fromDate==0) {
                     td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
                 }
                 else {
