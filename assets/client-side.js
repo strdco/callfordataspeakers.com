@@ -215,7 +215,7 @@ window.onload = function yeahyeah() {
                 var toDate=new Date(row.EndDate);
                 if (toDate-new Date(0)==0) { toDate=fromDate; }
 
-                if (toDate==fromDate) {
+                if (toDate-fromDate==0) {
                     td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
                 }
                 else {
