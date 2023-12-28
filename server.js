@@ -533,15 +533,15 @@ app.get('/feed', async function (req, res, next) {
                     var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });            
 
                     items+='<item>\n'+
-                            '<title>'+item.EventName+'</title>\n'+
+                            '<title>'+encodeHtml(item.EventName)+'</title>\n'+
                             '<link>'+item.URL+'</link>\n'+
                             '<dc:creator>Call for Data Speakers</dc:creator>\n'+
                             '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n'+
                             '<category>Call for Speakers</category>\n'+
                             '<guid isPermaLink="false">'+item.uid+'</guid>\n'+
-                            '<description><![CDATA['+item.EventName+']]></description>\n'+
+                            '<description><![CDATA['+encodeHtml(item.EventName)+']]></description>\n'+
                             '<content:encoded><![CDATA['+
-                                item.EventName+' is coming to you on '+eventDate+'<br/>\n'+
+                                encodeHtml(item.EventName)+' is coming to you on '+eventDate+'<br/>\n'+
                                 'The <a href="'+item.URL+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
                             '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
@@ -559,6 +559,18 @@ app.get('/feed', async function (req, res, next) {
             
             });
 });
+
+
+// https://stackoverflow.com/a/57448862/5471286
+const encodeHtml = str => str.replace(/[&<>'"]/g, 
+  tag => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    }[tag]));
+
 
 
 
