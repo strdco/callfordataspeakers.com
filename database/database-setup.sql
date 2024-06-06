@@ -48,6 +48,35 @@ OUTPUT inserted.Token
 SELECT NEWID() AS Token, @Name, @EventName, @EventType, @Email, @Regions, @Venue, @Date, NULLIF(@EndDate, @Date), @URL, ISNULL(@Information, N''), SYSDATETIME() AS Created;
 
 GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_Campaign
+    @Token          uniqueidentifier,
+    @Name           nvarchar(200),
+    @Email          nvarchar(400),
+    @EventName      nvarchar(400),
+    @EventType      nvarchar(400)=NULL,
+    @Regions        nvarchar(200),
+    @Venue          nvarchar(1000),
+    @Date           date,
+    @EndDate        date=NULL,
+    @URL            nvarchar(1000),
+    @Information    nvarchar(max)
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET [Name]=@Name,
+    EventName=@EventName,
+    EventType=@EventType,
+    Email=@Email,
+    Regions=@Regions,
+    Venue=@Venue,
+    [Date]=@Date,
+    EndDate=@EndDate,
+    [URL]=@URL,
+    Information=@Information
+OUTPUT inserted.Token
+WHERE Token=@Token;
+
+GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Approve_Campaign
     @Token          uniqueidentifier
 AS

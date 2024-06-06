@@ -134,6 +134,24 @@ app.get('/event', function (req, res, next) {
 
 
 /*-----------------------------------------------------------------------------
+  Event request moderation
+-----------------------------------------------------------------------------*/
+
+app.get('/moderate/:token', function (req, res, next) {
+
+    httpHeaders(res);
+
+    // Serve up assets/event.html:
+    res.status(200).send(createHTML('moderate.html', {}));
+});
+
+
+
+
+
+
+
+/*-----------------------------------------------------------------------------
   Register a new event request, send a request email to moderator:
 -----------------------------------------------------------------------------*/
 
@@ -303,8 +321,82 @@ app.all('/request', function (req, res, next) {
 
 
 /*-----------------------------------------------------------------------------
-  Approve an event request, send campaign to speakers:
+  Modify an event request from the moderation interface:
 -----------------------------------------------------------------------------*/
+
+// Save any changes to the request before sending it out
+app.post('/api/update/:token', function(req, res, next) {
+    console.log(req.body);
+
+    console.log('1');
+
+    var formEventDate;
+    try {
+        formEventDate=new Date(
+            req.body["EVENTDATE[year]"]+'-'+
+            req.body["EVENTDATE[month]"]+'-'+
+            req.body["EVENTDATE[day]"]+' 00:00:00+00:00').toISOString().split("T")[0];
+        console.log('1a');
+    } catch(err) {
+        console.log('1b');
+        console.log(err);
+        res.status(400).send('That\'s odd.');
+        return;
+    }
+
+    console.log('2');
+
+    var formEventEndDate;
+    try {
+        formEventEndDate=new Date(
+            req.body["EVENTENDDATE[year]"]+'-'+
+            req.body["EVENTENDDATE[month]"]+'-'+
+            req.body["EVENTENDDATE[day]"]+' 00:00:00+00:00').toISOString().split("T")[0];
+    } catch(err) {
+    }
+
+    console.log('3');
+
+    console.log('eventDate:', formEventDate);
+    console.log('eventEndDate:', formEventEndDate);
+
+    // Save the everything to the SQL Server table:
+    try {
+        sqlQuery(connectionString,
+            'EXECUTE CallForDataSpeakers.Update_Campaign @Token=@Token, @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
+            [   { "name": 'Token',   "type": Types.NVarChar, "value": req.params.token},
+                { "name": 'Name',    "type": Types.NVarChar, "value": req.body.NAME },
+                { "name": 'Email',   "type": Types.NVarChar, "value": req.body.EMAIL },
+                { "name": 'EventName', "type": Types.NVarChar, "value": req.body.EVENT },
+                { "name": 'EventType', "type": Types.NVarChar, "value": req.body.TYPE },
+                { "name": 'Regions', "type": Types.NVarChar, "value": req.body.REGION },
+                { "name": 'Venue',   "type": Types.NVarChar, "value": req.body.VENUE },
+                { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
+                { "name": 'EndDate', "type": Types.Date,     "value": formEventEndDate },
+                { "name": 'URL',     "type": Types.NVarChar, "value": req.body.URL },
+                { "name": 'Information', "type": Types.NVarChar, "value": req.body.INFO }],
+
+                // The stored procedure will return a uniqueidentifier (Token), used to identify
+                // each event request:
+                function(recordset) {
+                    if (recordset) {
+                        res.status(200).send('ok');
+                    } else {
+                        console.log('ERROR: Couldn\'t create the campain record in the database.');
+                        res.status(404).send('There was a problem with the database connection.');
+                        return;
+                    }
+        });
+    } catch(e) {
+        res.status(500).send('There was a problem with the database connection.');
+    }
+});
+
+
+
+/*-----------------------------------------------------------------------------
+  Approve an event request, send campaign to speakers:
+  -----------------------------------------------------------------------------*/
 
 app.get('/approve/:token', function (req, res, next) {
     res.status(200).send(createHTML('message.html', {
@@ -476,6 +568,33 @@ app.get('/api/events', function (req, res, next) {
 
                 res.status(200).json(recordset);
                 return;
+            });
+
+});
+
+app.get('/api/event/:token', function (req, res, next) {
+
+    httpHeaders(res);
+
+    // Approve the campaign in the database and retrieve the event information:
+    sqlQuery(connectionString,
+        'SELECT Name, EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created FROM CallForDataSpeakers.Campaigns WHERE Token=@Token AND Sent IS NULL;',
+        [   { "name": 'Token', "type": Types.NVarChar, "value": req.params.token }],
+
+            async function(recordset) {
+                if (recordset) {
+                    if (recordset[0].URL.toLowerCase().indexOf('sessionize.com/')>-1 && process.env.sessionize_apikey) {
+                        blob=await fetchSessionizeEvent(recordset[0].URL);
+                        if (blob) {
+                            recordset[0].Sessionize=blob;
+                        }
+                    }
+
+                    res.status(200).json(recordset);
+                    return;
+                } else {
+                    res.status(500).send('');
+                }
             });
 
 });
@@ -1267,4 +1386,50 @@ function httpHeaders(res) {
   //res.header('Feature-Policy', "camera 'none'; microphone 'none'; usb 'none'");
 
     return;
+}
+
+
+
+
+
+
+async function fetchSessionizeEvent(sessionizeUrl) {
+
+    sessionizeUrl=sessionizeUrl.toLowerCase();
+
+    const url='https://sessionize.callfordataspeakers.com/?'+
+        'apikey='+process.env.sessionize_apikey+'&'+
+        'event='+sessionizeUrl.substring(sessionizeUrl.indexOf('sessionize.com/')+15, 100).split('/')[0];
+
+    try {
+        return new Promise((resolve, reject) => {
+            const req = https.request(url, { method: 'GET' }, (res) => {
+                if (res.statusCode>204) {
+                    return reject(new Error('status='+res.statusCode));
+                }
+
+                const body = [];
+                res.on('data', (chunk) => body.push(chunk));
+                res.on('end', () => {
+                    var resBlob;
+                    resBlob = Buffer.concat(body).toString();
+                    resolve(JSON.parse(resBlob));
+                });
+            });
+
+            req.on('error', (err) => {
+                reject(err);
+            });
+
+            req.on('timeout', () => {
+                req.destroy();
+                reject(new Error('Request time out'));
+            });
+
+            req.end();
+        });
+    } catch(e) {
+        return {};
+    }
+
 }

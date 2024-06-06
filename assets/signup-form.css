@@ -51,6 +51,14 @@
     color: #000000;
 }
 
+.mc-field-group input.matches-sessionize {
+    background-color: rgba(0, 255, 0, 0.25)
+}
+
+.mc-field-group input.mismatches-sessionize {
+    background-color: rgba(255, 255, 0, 0.5)
+}
+
 .mc-field-group input[type='email'] {
     font-size: 10pt;
     margin: 1px;
