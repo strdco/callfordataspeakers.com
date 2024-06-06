@@ -76,18 +76,16 @@ window.onload = function yeahyeah() {
                 try {
                     var groups=JSON.parse(xhr1.response);
                     
-                    if (groups) {
-                        Array.prototype.forEach.call(document.getElementsByTagName('label'), function(label) {
-                            groups.forEach(group => {
-                                if (label.innerText.replace('-', '').replace(' ', '').toUpperCase()==group.name.toUpperCase().replace('-', '').replace(' ', '')) {
-                                    var span=document.createElement('span');
-                                    span.className='subscriber-count';
-                                    span.innerText=group.subscriber_count;
-                                    label.appendChild(span);
-                                }
-                            });
+                    Array.prototype.forEach.call(document.getElementsByTagName('label'), function(label) {
+                        groups.forEach(group => {
+                            if (label.innerText.replace('-', '').replace(' ', '').toUpperCase()==group.name.toUpperCase().replace('-', '').replace(' ', '')) {
+                                var span=document.createElement('span');
+                                span.className='subscriber-count';
+                                span.innerText=group.subscriber_count;
+                                label.appendChild(span);
+                            }
                         });
-                    }
+                    });
                 } catch(err) {
                     // No big deal.
                     console.log(err);
