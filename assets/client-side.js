@@ -111,9 +111,35 @@ window.onload = function yeahyeah() {
 
         // Add an "onchange" event to the URL field to trigger the validation
         document.querySelector('form input[type="url"]').addEventListener("change", function(e) {
+            var url=e.target.value.toLowerCase();
+
+            if (url.includes('sessionize.com/')) {
+                var xhr4 = new XMLHttpRequest();
+                xhr4.onload= function() {
+                    if (xhr4.status==200) {
+                        try {
+                            const sessionizeDetails=JSON.parse(xhr4.response);
+                            if (sessionizeDetails.URL) { document.querySelector('form input#mce-URL').value=sessionizeDetails.URL; }
+                            if (sessionizeDetails.EventName) { document.querySelector('form input#mce-EVENT').value=sessionizeDetails.EventName; }
+                            if (sessionizeDetails.Venue) { document.querySelector('form input#mce-VENUE').value=sessionizeDetails.Venue; }
+                            if (sessionizeDetails.Date) {
+                                document.querySelector('form input#mce-EVENTDATE-year').value=sessionizeDetails.Date.substring(0, 4);
+                                document.querySelector('form input#mce-EVENTDATE-month').value=sessionizeDetails.Date.substring(5, 7);
+                                document.querySelector('form input#mce-EVENTDATE-day').value=sessionizeDetails.Date.substring(8, 10);
+                            }
+                            if (sessionizeDetails.EndDate>sessionizeDetails.Date) {
+                                document.querySelector('form input#mce-EVENTENDDATE-year').value=sessionizeDetails.EndDate.substring(0, 4);
+                                document.querySelector('form input#mce-EVENTENDDATE-month').value=sessionizeDetails.EndDate.substring(5, 7);
+                                document.querySelector('form input#mce-EVENTENDDATE-day').value=sessionizeDetails.EndDate.substring(8, 10);
+                            }
+                        } catch(e) {}
+                    }
+                };
+                xhr4.open('GET', '/api/get-sessionize?url='+encodeURIComponent(url));
+                xhr4.send();
+            }
 
             // Is this URL already found in the event list?
-            var url=e.target.value.toLowerCase();
 
             if (url.includes('sessionize.com/app/')) {
                 window.alert('That looks a lot like a private URL. Please revise the Cfs URL.');
