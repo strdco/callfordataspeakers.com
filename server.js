@@ -248,7 +248,7 @@ app.all('/request', function (req, res, next) {
                     if (recordset) {
 
                         // Create an email to all moderators, requesting event approval:
-                        var approveButton='<a class="mcnButton" title="Approve" href="https://'+req.hostname+'/approve/'+recordset[0].Token+'" '+
+                        var approveButton='<a class="mcnButton" title="Approve" href="https://'+req.hostname+'/moderate/'+recordset[0].Token+'" '+
                                                 'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                                 'text-decoration:none;color:#000000;">Approve</a>';
 
