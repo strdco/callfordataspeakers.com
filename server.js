@@ -804,6 +804,21 @@ async function getCampaignCount(listName) {
 
 
 
+app.get('/api/get-sessionize', async function (req, res, next) {
+    var details={};
+    try {
+        details=await fetchSessionizeEvent(req.query.url);
+        res.status(200).send(JSON.stringify({
+            "URL": details.cfpLink,
+            "EventName": details.name,
+            "Date": details.eventDates.start,
+            "EndDate": details.eventDates.end,
+            "Venue": details.location.full
+        }));
+    } catch(e) {
+        res.status(404).send('');
+    }
+});
 
 
 app.get('/api/sync-sessionize/:apikey', async function (req, res, next) {
