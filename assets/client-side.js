@@ -206,8 +206,8 @@ window.onload = function yeahyeah() {
                 if (eventDetails.Sessionize) {
                     form.querySelector('#mce-EVENT').setAttribute('sessionize', eventDetails.Sessionize.name);
                     form.querySelector('#mce-EVENTDATE-year').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(0, 4));
-                    form.querySelector('#mce-EVENTDATE-month').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(5, 7));
-                    form.querySelector('#mce-EVENTDATE-day').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(8, 10));
+                    form.querySelector('#mce-EVENTDATE-month').setAttribute('sessionize', Number(eventDetails.Sessionize.eventDates.start.substring(5, 7)));
+                    form.querySelector('#mce-EVENTDATE-day').setAttribute('sessionize', Number(eventDetails.Sessionize.eventDates.start.substring(8, 10)));
                     if (eventDetails.Sessionize.isTest) {
                         form.querySelector('#review-CFS').value='WARNING: Event is in test mode!';
                         form.querySelector('#review-CFS').classList.add('mismatches-sessionize');
