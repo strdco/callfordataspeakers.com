@@ -1384,7 +1384,7 @@ function httpHeaders(res) {
 
         // Limits use of external script/css/image resources
         // Mailchimp made me add the 'unsafe-eval' and 'unsafe-inline' stuff. :(
-        res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
+        res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
     }
 
     // Don't allow this site to be embedded in a frame; helps mitigate clickjacking attacks
