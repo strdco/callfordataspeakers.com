@@ -193,11 +193,11 @@ window.onload = function yeahyeah() {
                 form.querySelector('#mce-INFO').value=eventDetails.Information;
 
                 eventDetails.Regions.split(',').forEach(region => {
-                    form.querySelector('input[name=REGION][value='+region.trim()+']').checked=true;
+                    form.querySelector('input[name=REGION][value="'+region.trim()+'"]').checked=true;
                 });
 
                 eventDetails.EventType.split(',').forEach(type => {
-                    form.querySelector('input[name=TYPE][value='+type.trim()+']').checked=true;
+                    form.querySelector('input[name=TYPE][value="'+type.trim()+'"]').checked=true;
                 });
 
 
