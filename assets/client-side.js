@@ -389,10 +389,15 @@ window.onload = function yeahyeah() {
                     if (toDate.getFullYear()==fromDate.getFullYear() && toDate.getMonth()==fromDate.getMonth()) {
                         td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+fromDate.getUTCDate()+', ', ' '+fromDate.getUTCDate()+'-'+toDate.getUTCDate()+', ');
                     }
-                    // Same year, spans multiple months:
-                    else if (toDate.getFullYear()==fromDate.getFullYear()) {
+                    // Same year, spans two months:
+                    else if (toDate.getFullYear()==fromDate.getFullYear() && toDate.getMonth()==fromDate.getMonth()+1) {
                         td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '')+' - '+
                                         toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    }
+                    // Same year, spans multiple months:
+                    else if (toDate.getFullYear()==fromDate.getFullYear()) {
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '').replace(' '+fromDate.getUTCDate(), '')+' - '+
+                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+toDate.getUTCDate(), '');
                     }
                     // Not even same year:
                     else {
@@ -426,6 +431,14 @@ window.onload = function yeahyeah() {
                 a.href=row.URL;
                 a.innerText = row.EventName;
                 a.target='_blank';
+
+                if (row.EventName.toLowerCase().split(' ').join('').includes('sqlsat')) {
+                    a.classList.add('sqlsaturday');
+                }
+                if (row.EventName.toLowerCase().split(' ').join('').includes('datasat')) {
+                    a.classList.add('datasaturday');
+                }
+
                 td2.appendChild(a);
                 tr.appendChild(td2);
 
