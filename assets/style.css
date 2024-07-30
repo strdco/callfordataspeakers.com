@@ -237,6 +237,26 @@ table.responsive tr:hover td a {
     color: var(--black);
 }
 
+table td a.sqlsaturday::before,
+table td a.datasaturday::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 14px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+table td a.sqlsaturday::before {
+    background-image: url('./assets/sqlsaturday.png');
+}
+
+table td a.datasaturday::before {
+    background-image: url('./assets/datasaturday.png');
+}
+
 table th,
 table.responsive td {
     min-width: 120px;
