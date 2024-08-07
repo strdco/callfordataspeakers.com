@@ -840,22 +840,13 @@ async function updateCfsCloseDates(res) {
         'FROM CallForDataSpeakers.Campaigns '+
         'WHERE [Date]>SYSUTCDATETIME() '+
         '  AND [URL] LIKE \'https://sessionize.com/_%\' '+
-        '  AND (DATENAME(dw, SYSUTCDATETIME()) LIKE \'Sun%\' OR Cfs_Closes IS NULL);', [],
+        '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -7, SYSDATETIME());', [],
         function(recordset) {
-            console.log(recordset);
-
             recordset.forEach(async function(record) {
-                // Construct the Sessionize iCal URL using the CFS URL:
-                var url=record.URL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/');
+                var cfs=await fetchSessionizeEvent(record.URL)
+                var formattedUtcTime=cfs.cfpDates.endUtc.replace('T', ' ');
 
-                // Get the iCal file from Sessionize
-                var iCal = await getCalendar(url);
-
-                // Parse the iCal file to get the "end date" value, and format that value
-                // so we can update the database record with it.
-                var utcTime = iCal.split('\r\n').find(row => row.indexOf('DTEND:')>-1).substring(6, 22); // YYYYMMDDTHHMMSSZ
-                var formattedUtcTime = utcTime.substring(0,  4)+'-'+utcTime.substring( 4,  6)+'-'+utcTime.substring( 6,  8)+' '+
-                                       utcTime.substring(9, 11)+':'+utcTime.substring(11, 13)+':'+utcTime.substring(13, 15); // YYYY-MM-DD HH:MM:SS
+                console.log(record.URL, formattedUtcTime);
 
                 sqlQuery(connectionString,
                     'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes;',
