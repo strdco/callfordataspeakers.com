@@ -840,7 +840,7 @@ async function updateCfsCloseDates(res) {
         'FROM CallForDataSpeakers.Campaigns '+
         'WHERE [Date]>SYSUTCDATETIME() '+
         '  AND [URL] LIKE \'https://sessionize.com/_%\' '+
-        '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -7, SYSDATETIME());', [],
+        '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -14, SYSDATETIME());', [],
         function(recordset) {
             recordset.forEach(async function(record) {
                 var cfs=await fetchSessionizeEvent(record.URL)
