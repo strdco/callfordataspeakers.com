@@ -193,10 +193,30 @@ h1.callfordataspeakers a:hover {
     text-decoration-color: var(--yellow);
 }
 
-/* Date range sliders */
+/* Filter and date range sliders */
 
-.filterpane table td.slider-date {
+.filterpane div {
+    display: inline-block;
+    background-color: rgb(128, 128, 128, 0.1);
+    padding: 0.3em 1em;
+    margin-left: 0.5em;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(64, 64, 64, 0.25);
+    border-radius: 0.5em;
+}
+
+.filterpane div:first-of-type {
+    border-width: 0;
+    padding: 0;
+}
+
+.filterpane .slider-date {
     width: 140px;
+}
+
+.filterpane input#search {
+    width: 200px;
 }
 
 input#rangeFrom {
@@ -207,6 +227,9 @@ input#rangeFrom {
     border-bottom-style: solid;
     border-bottom-color: var(--dark);
     border-bottom-width: 1px;
+    padding-bottom: 1em;
+    display: flex;
+    align-items: center;
 }
 
 /* Search bar */
@@ -379,12 +402,12 @@ table .cfs-closes-in.closed {
         width: 100%;
     }
 
-    table {
-        width: 100%;
+    .filterpane div {
+        display: block;
     }
 
-    .filterpane table tr td:first-of-type {
-        display: none;
+    table {
+        width: 100%;
     }
 
     table.responsive th {

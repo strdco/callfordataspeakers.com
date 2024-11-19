@@ -7,6 +7,8 @@ var eventList;
 var timeoutHandler;
 var rangeFrom;
 var rangeTo;
+var searchString;
+var includeClosed=true;
 var listOfEvents=[];
 var sessionizeDetails={};
 
@@ -337,6 +339,14 @@ window.onload = function yeahyeah() {
         xhr3.onload = function() {
             if (xhr3.status == 200) {
                 listOfEvents = JSON.parse(xhr3.response);
+
+                for (n=0; n<listOfEvents.length; n++) {
+                    if (listOfEvents[n].Cfs_Closes) {
+                        var closesInDays=(new Date(listOfEvents[n].Cfs_Closes)-new Date())/(1000*3600*24);
+                        listOfEvents[n].closed = (closesInDays<0);
+                    }
+                }
+
                 renderList();
             }
         }
@@ -345,29 +355,37 @@ window.onload = function yeahyeah() {
 
         updateSliderDates();
 
-        document.querySelectorAll('div.filterpane input[type=range]').forEach(input => {
-            input.addEventListener('input', (e) => {
-                updateSliderDates();
-
-                if (timeoutHandler) { clearTimeout(timeoutHandler); }
-                timeoutHandler=setTimeout(() => {
-                    renderList();
-                }, 250);
-            });
+        document.querySelectorAll('div.filterpane input[type=range], div.filterpane input[type=checkbox]').forEach(input => {
+            input.addEventListener('input', delayListUpdate);
         });
 
+        document.querySelectorAll('div.filterpane input#search').forEach(input => {
+            input.addEventListener('keyup', delayListUpdate);
+        });
 
+        function delayListUpdate(e) {
+            updateSliderDates();
+
+            if (timeoutHandler) { clearTimeout(timeoutHandler); }
+            timeoutHandler=setTimeout(() => {
+                renderList();
+            }, 250);
+        }
 
         function updateSliderDates() {
             var filterpane=document.querySelector('div.filterpane');
             var inputs=filterpane.querySelectorAll('input[type=range]');
-            var tds=filterpane.querySelectorAll('td.slider-date');
+            var chkboxes=filterpane.querySelectorAll('input[type=checkbox]');
+            searchString=(filterpane.querySelector('input#search').value || '').toLowerCase().split(' ').join('');
+            var dateLabels=filterpane.querySelectorAll('.slider-date');
 
             rangeFrom=Date.now()-Number(inputs[0].value)*24*3600000;
             rangeTo  =Date.now()+Number(inputs[1].value)*24*3600000;
     
-            tds[0].innerText=new Date(rangeFrom).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
-            tds[1].innerText=new Date(rangeTo).toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+            dateLabels[0].innerText=new Date(rangeFrom).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+            dateLabels[1].innerText=new Date(rangeTo).toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+
+            includeClosed=chkboxes[0].checked;
         }
 
 
@@ -379,7 +397,14 @@ window.onload = function yeahyeah() {
                 tbody.removeChild(tbody.firstChild);
             }
     
-            listOfEvents.filter(r => new Date(r.EndDate || r.Date)>=rangeFrom && new Date(r.Date)<=rangeTo).forEach(row => {
+            listOfEvents.filter(r =>
+                    // Search criteria:
+                    new Date(r.EndDate || r.Date)>=rangeFrom &&
+                    new Date(r.Date)<=rangeTo &&
+                    (includeClosed==true || includeClosed==false && r.closed!=true) &&
+                    (searchString=='' || (r.EventName+';'+r.EventType+';'+r.Regions+';'+r.Venue+';'+r.Information).toLowerCase().split(' ').join('').indexOf(searchString)>-1)
+                ).forEach(row => {
+
                 var tr=document.createElement('tr');
 
                 var td1=document.createElement('td');
