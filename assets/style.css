@@ -405,11 +405,12 @@ table .cfs-closes-in.closed {
 
     .filterpane {
         display: block;
-        max-width: 250px;
+        max-width: 275px;
     }
 
     .filterpane div {
         display: block;
+        margin-top: 3px;
     }
 
     table {
