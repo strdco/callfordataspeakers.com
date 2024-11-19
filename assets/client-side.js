@@ -138,6 +138,7 @@ window.onload = function yeahyeah() {
 
                     if (xhr4.status==404) {
                         document.querySelector('form input#mce-URL').classList.add('mce_inline_error');
+                        window.alert('That Sessionize URL returned a 404 (not found).\nHave you entered the correct URL?\nDid you remember to publish your Sessionize event?')
                     }
                 };
                 xhr4.open('GET', '/api/get-sessionize?url='+encodeURIComponent(url));
