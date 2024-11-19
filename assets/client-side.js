@@ -119,6 +119,7 @@ window.onload = function yeahyeah() {
                     if (xhr4.status==200) {
                         try {
                             const sessionizeDetails=JSON.parse(xhr4.response);
+                            document.querySelector('form input#mce-URL').classList.remove('mce_inline_error');
                             if (sessionizeDetails.URL) { document.querySelector('form input#mce-URL').value=sessionizeDetails.URL; }
                             if (sessionizeDetails.EventName) { document.querySelector('form input#mce-EVENT').value=sessionizeDetails.EventName; }
                             if (sessionizeDetails.Venue) { document.querySelector('form input#mce-VENUE').value=sessionizeDetails.Venue; }
@@ -133,6 +134,11 @@ window.onload = function yeahyeah() {
                                 document.querySelector('form input#mce-EVENTENDDATE-day').value=sessionizeDetails.EndDate.substring(8, 10);
                             }
                         } catch(e) {}
+                    }
+
+                    if (xhr4.status==404) {
+                        document.querySelector('form input#mce-URL').classList.add('mce_inline_error');
+                        window.alert('That Sessionize URL returned a 404 (not found).\nHave you entered the correct URL?\nDid you remember to publish your Sessionize event?')
                     }
                 };
                 xhr4.open('GET', '/api/get-sessionize?url='+encodeURIComponent(url));
