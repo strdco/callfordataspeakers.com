@@ -209,6 +209,7 @@ h1.callfordataspeakers a:hover {
 .filterpane div:first-of-type {
     border-width: 0;
     padding: 0;
+    background-color: transparent;
 }
 
 .filterpane .slider-date {
@@ -402,8 +403,14 @@ table .cfs-closes-in.closed {
         width: 100%;
     }
 
+    .filterpane {
+        display: block;
+        max-width: 275px;
+    }
+
     .filterpane div {
         display: block;
+        margin-top: 3px;
     }
 
     table {
