@@ -51,15 +51,19 @@
         <h1>List of events</h1>
 
         <div class="filterpane">
-            <table>
-                <tr>
-                    <td>Filter:</td>
-                    <td class="slider-date" align="right"></td>
-                    <td><input type="range" min="1" max="90" value="30"  id="rangeFrom"></td>
-                    <td><input type="range" min="1" max="365" value="365" id="rangeTo"></td>
-                    <td class="slider-date"></td>
-                </tr>
-            </table>
+            <div><input id="search" placeholder="Search for events"></div>
+            <div>
+                <span class="slider-date" align="right"></span>
+                <input type="range" min="1" max="90" value="30"  id="rangeFrom">
+            </div>
+            <div>
+                <input type="range" min="1" max="365" value="365" id="rangeTo">
+                <span class="slider-date"></span>
+            </div>
+            <div>
+                <input id="closed" type="checkbox" checked>
+                <label for="closed" title="Include calls for speakers that have closed?">Closed?</label>
+            </div>
         </div>
 
         <p>
