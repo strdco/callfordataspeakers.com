@@ -1,19 +1,24 @@
 
 /* Base elements */
 
+:root {
+    /* allows for light-dark() */
+    color-scheme: light dark;
+}
+
 body {
     padding: 50px;
     margin: 0;
     height: 100%;
 
     --yellow: #c6d633;
-    --black: #000000;
+    --black: light-dark(#000000, #c0c0c0);
     --red: #8C212B;
     --green: #1E6B53;
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
 
-    --dark: rgba(0, 0, 0, 0.25);
+    --dark: rgba(0, 0, 0, 0.5);
     --bright: rgba(255, 255, 255, 0.9);
 
     --logo-size: 60px;
@@ -57,7 +62,7 @@ a:any-link {
 
 h1.callfordataspeakers {
     border-style: solid;
-    border-color: var(--black);
+    border-color: #000000;
     border-width: calc(0.05 * var(--logo-size));
     border-radius: var(--logo-size);
     background-color: var(--yellow);
@@ -92,7 +97,7 @@ h1.callfordataspeakers::after {
 
 /* Clickable link in the logo header: */
 h1.callfordataspeakers a {
-    color: var(--black);
+    color: #000000;
     text-decoration: none;
 }
 
@@ -134,7 +139,7 @@ h1.callfordataspeakers a:hover {
 }
 
 .menu-item.menu-item-selected a {
-    color: var(--black);
+    color: #000000;
 }
 
 .menu-item a:hover {
@@ -143,10 +148,10 @@ h1.callfordataspeakers a:hover {
 
 .main {
     display: block;
-    background: var(--bright);
+    background: light-dark(var(--bright), var(--dark));
     border-style: solid none solid none;
     border-width: 1px;
-    border-color: var(--black);
+    border-color: light-dark(var(--black), var(--yellow-footer));
     min-height: 100px;
     color: var(--black);
     font-size: 11pt;
@@ -197,12 +202,12 @@ h1.callfordataspeakers a:hover {
 
 .filterpane div {
     display: inline-block;
-    background-color: rgb(128, 128, 128, 0.1);
+    background-color: light-dark(rgba(128, 128, 128, 0.1), rgba(128, 128, 128, 0.5));
     padding: 0.3em 1em;
     margin-left: 0.5em;
     border-style: solid;
     border-width: 1px;
-    border-color: rgb(64, 64, 64, 0.25);
+    border-color: light-dark(rgba(64, 64, 64, 0.25), rgba(255, 255, 255, 0.25));
     border-radius: 0.5em;
 }
 
@@ -226,7 +231,7 @@ input#rangeFrom {
 
 .filterpane {
     border-bottom-style: solid;
-    border-bottom-color: var(--dark);
+    border-bottom-color: light-dark(var(--dark), var(--yellow-footer));
     border-bottom-width: 1px;
     padding-bottom: 1em;
     display: flex;
@@ -236,9 +241,11 @@ input#rangeFrom {
 /* Search bar */
 
 input#search {
+    background-color: light-dark(var(--bright), rgba(128, 128, 128, 0.5));
+    color: light-dark(var(--black), var(--bright));
     border-style: solid;
     border-width: 1px;
-    border-color: rgba(0, 0, 0, 0.5);
+    border-color: light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.25));
     border-radius: 0.5em;
     padding: 0.5em 1em 0.5em 1em;
     width: 50%;
@@ -255,10 +262,11 @@ table {
 
 table.responsive tr:hover td {
     background-color: var(--yellow) !important;
+    color: #000000;
 }
 
 table.responsive tr:hover td a {
-    color: var(--black);
+    color: #000000;
 }
 
 table td a.sqlsaturday::before,
@@ -296,7 +304,7 @@ table#precontbl td {
     padding-bottom: 0.5em;
     border-bottom-style: solid;
     border-bottom-width: 1px;
-    border-bottom-color: rgba(255, 255, 255, 0.5);
+    border-bottom-color: light-dark(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.3));
 }
 
 table#precontbl td:first-of-type {
@@ -320,17 +328,23 @@ table span.badge {
     padding-top: 1px;
     padding-right: 4px;
     padding-bottom: 1px;
-    background-color: rgb(0, 0, 0, 0.05);
-    color: #000000;
+    background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(128, 128, 128, 0.5));
+    color: var(--black);
     border-style: solid;
-    border-color: #b0b0b0;
+    border-color: light-dark(rgba(0, 0, 0, 0.25), rgba(128, 128, 128, 0.75));
     border-width: 1px;
     border-radius: 3px;
     cursor: pointer;
 }
 
+table tr:hover span.badge {
+    color: #000000;
+    border-color: light-dark(rgba(0, 0, 0, 0.25), #000000);
+}
+
 table span.badge:hover {
     background-color: rgba(255, 255, 255, 0.5);
+    color: #000000;
 }
 
 table .cfs-closes-in {
@@ -342,7 +356,7 @@ table .cfs-closes-in {
     padding-bottom: 0px;
     border-radius: 3px;
     background-color: var(--green);
-    color: #ffffff;
+    color: light-dark(#ffffff, #40e040);
     font-size: 90%;
 }
 
@@ -353,7 +367,7 @@ table .cfs-closes-in.soon {
 
 table .cfs-closes-in.closed {
     background-color: var(--red);
-    color: #ffffff;
+    color: light-dark(#ffffff, #ff8080);
 }
 
 /* Make the events table responsive by collapsing the columns on narrow browsers/screens: */
@@ -471,7 +485,7 @@ code {
     margin: 1em;
     padding: 1em;
     display: block;
-    background-color: #d0d0d0; /* #1E6B53; */
+    background-color: light-dark(#d0d0d0, #303030); /* #1E6B53; */
     color: var(--black);
     margin-bottom: 2em;
     border-radius: 4px;
