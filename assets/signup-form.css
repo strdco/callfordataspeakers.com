@@ -48,7 +48,7 @@
     border-bottom-width: 1px;
     border-bottom-color: #a0a0a0;
     background-color: inherit;
-    color: #000000;
+    color: light-dark(#000000, var(--bright));
 }
 
 .mc-field-group input.matches-sessionize {
@@ -154,8 +154,8 @@ div.datefield {
     padding-top: 3px;
     padding-right: 10px;
     padding-bottom: 3px;
-    background-color: rgb(0, 0, 0, 0.05);
-    color: #000000;
+    background-color: light-dark(rgba(0, 0, 0, 0.05), rgba(128, 128, 128, 0.5));
+    color: rgba(#000000, var(--bright));
     border-style: solid;
     border-color: #a0a0a0;
     border-width: 1px;
@@ -195,6 +195,8 @@ div.datefield {
     padding-top: 3px;
     padding-bottom: 3px;
     margin-left: 10px;
+    color: #000000;
+
 }
 
 
@@ -219,7 +221,7 @@ div.datefield {
 }
 
 #mc-embedded-subscribe.submitted {
-    background-color: #f0f0f0;
+    background-color: light-dark(#f0f0f0, #404040);
     color: #808080;
     border-color: #808080;
 }
