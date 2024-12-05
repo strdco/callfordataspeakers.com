@@ -465,8 +465,11 @@ app.get('/approve/:token/do', function (req, res, next) {
                     var cfsURL = recordset[0].URL;
 
                     // This is the button at the bottom of the email:
-                    var eventButton='<a class="mcnButton" title="Approve" href="'+cfsURL+'" '+
-                                        'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
+                    var eventButton='<a class="mcnButton" href="'+
+                                            // Add UTM parameters
+                                            cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=speaker-email' : '')+'" '+
+                                        'target="_blank" '+
+                                        'style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                         'text-decoration:none;color:#000000;">View the Call for Speakers</a>';
 
                     var calendarLink='';
@@ -653,7 +656,7 @@ app.get('/feed', async function (req, res, next) {
 
                     items+='<item>\n'+
                             '<title>'+encodeHtml(item.EventName)+'</title>\n'+
-                            '<link>'+item.URL+'</link>\n'+
+                            '<link>'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'</link>\n'+
                             '<dc:creator>Call for Data Speakers</dc:creator>\n'+
                             '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n'+
                             '<category>Call for Speakers</category>\n'+
@@ -661,7 +664,7 @@ app.get('/feed', async function (req, res, next) {
                             '<description><![CDATA['+encodeHtml(item.EventName)+']]></description>\n'+
                             '<content:encoded><![CDATA['+
                                 encodeHtml(item.EventName)+' is coming to you on '+eventDate+'<br/>\n'+
-                                'The <a href="'+item.URL+'">call for speakers</a> is open.\n'+
+                                'The <a href="'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
                             '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
                                 '<media:title type="html">dhmacher</media:title>\n'+

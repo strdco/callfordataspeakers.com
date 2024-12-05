@@ -460,6 +460,11 @@ window.onload = function yeahyeah() {
                 var td2=document.createElement('td');
                 var a=document.createElement('a');
                 a.href=row.URL;
+                if (row.URL.toLowerCase().indexOf('sessionize.com')>=0) {
+                    if (row.URL.toLowerCase().indexOf('utm_source')==-1) {
+                        a.href=row.URL+(row.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=list-of-events';
+                    }
+                }
                 a.innerText = row.EventName;
                 a.target='_blank';
 
