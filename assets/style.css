@@ -505,3 +505,64 @@ code a:hover {
     text-decoration: underline;
     text-decoration-color: var(--black);
 }
+
+/* World map */
+
+.worldmap {
+    position: relative;
+    height: 42vw;
+    background-color: var(--dark);
+    padding: 0;
+    margin: 0;
+    display: none;
+}
+
+.worldmap img {
+    width: 100%;
+    position: absolute;
+    opacity: 0.75;
+}
+
+.worldmap .dot {
+    position: absolute;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--bright);
+    background-color: var(--green);
+}
+
+.worldmap .dot.soon {
+    background-color: var(--yellow);
+    width: 16px;
+    height: 16px;
+}
+
+.worldmap .dot.closed {
+    background-color: var(--red);
+    width: 8px;
+    height: 8px;
+}
+
+.worldmap .dot:hover {
+    background-color: var(--bright);
+    border-color: var(--bright);
+}
+
+.worldmap .dot:hover::after {
+    display: block;
+    background-color: var(--bright);
+    color: var(--black);
+    margin-left: 8px;
+    margin-top: -4px;
+    width: 150px;
+    display: block;
+    content: attr(data-event-title);
+    font-size: 80%;
+    padding: 2px;
+    border-radius: 4px;
+    z-index: 20;
+}

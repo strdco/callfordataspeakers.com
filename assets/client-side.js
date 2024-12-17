@@ -12,6 +12,13 @@ var includeClosed=true;
 var listOfEvents=[];
 var sessionizeDetails={};
 
+
+
+
+
+
+
+
 /* Housekeeping stuff to do when the page finishes loading */
 window.onload = function yeahyeah() {
 
@@ -355,8 +362,12 @@ window.onload = function yeahyeah() {
 
         updateSliderDates();
 
-        document.querySelectorAll('div.filterpane input[type=range], div.filterpane input[type=checkbox]').forEach(input => {
+        document.querySelectorAll('div.filterpane input[type=range], div.filterpane input#closed[type=checkbox]').forEach(input => {
             input.addEventListener('input', delayListUpdate);
+        });
+
+        document.querySelector('div.filterpane input#map').addEventListener('input', (e) => {
+            document.querySelector('.worldmap').style.display=(e.target.checked ? 'block' : 'none');
         });
 
         document.querySelectorAll('div.filterpane input#search').forEach(input => {
@@ -390,13 +401,33 @@ window.onload = function yeahyeah() {
 
 
 
+        function plotMapPoint(mapContainer, lat, long, cssClass, title) {
+
+            const coords = projectAbsolute(lat, long, 100, 0.52, 0, 0);
+            var dot=document.createElement('div');
+            dot.classList.add('dot');
+            if (cssClass) { dot.classList.add(cssClass); }
+            dot.style.marginLeft=(1.02*coords.x-2).toString()+'%'; // (99*(long+180)/360-3).toString()+'%';
+            dot.style.marginTop=(2*coords.y-1.5).toString()+'%'; // (59*(90-lat)/180-1.5).toString()+'%';
+            dot.setAttribute('data-event-title', title);
+            mapContainer.appendChild(dot);
+        }
+
+
+
+
         function renderList() {
             var tbody = eventstbl.getElementsByTagName("tbody")[0];
+            var mapContainer=document.querySelector('.worldmap');
+
+            mapContainer.querySelectorAll('.dot').forEach(e => {
+                e.remove();
+            });
 
             while (tbody.firstChild) {
                 tbody.removeChild(tbody.firstChild);
             }
-    
+
             listOfEvents.filter(r =>
                     // Search criteria:
                     new Date(r.EndDate || r.Date)>=rangeFrom &&
@@ -404,6 +435,8 @@ window.onload = function yeahyeah() {
                     (includeClosed==true || includeClosed==false && r.closed!=true) &&
                     (searchString=='' || (r.EventName+';'+r.EventType+';'+r.Regions+';'+r.Venue+';'+r.Information).toLowerCase().split(' ').join('').indexOf(searchString)>-1)
                 ).forEach(row => {
+
+                var mapPointCss='';
 
                 var tr=document.createElement('tr');
 
@@ -445,9 +478,11 @@ window.onload = function yeahyeah() {
 
                     var closesInDays=(new Date(row.Cfs_Closes)-new Date())/(1000*3600*24);
                     if (closesInDays<0) {
+                        mapPointCss='closed';
                         span.classList.add('closed');
                         span.innerText='Closed';
                     } else if (closesInDays<3) {
+                        mapPointCss='soon';
                         span.classList.add('soon');
                         span.innerText=Math.round(closesInDays*24).toString()+' hours';
                     } else {
@@ -483,6 +518,12 @@ window.onload = function yeahyeah() {
                 tr.appendChild(td3);
 
                 tbody.appendChild(tr);
+
+                // Add a point to the map:
+                if (row.Lat && row.Long) {
+                    plotMapPoint(mapContainer, row.Lat, row.Long, mapPointCss, row.EventName);
+                }
+
             });
 
         }
@@ -683,3 +724,63 @@ function compareSessionize(e) {
         }
     }
 }
+
+
+
+
+
+
+
+// Thank you, https://gist.github.com/gr8bit/172584afeb738fd864d572b7cfbcc14d
+
+var robinsonAA = [
+    0.84870000,    0.84751182,    0.84479598,    0.84021300,    0.83359314,    0.82578510,    0.81475200,    0.80006949,
+    0.78216192,    0.76060494,    0.73658673,    0.70866450,    0.67777182,    0.64475739,    0.60987582,    0.57134484,
+    0.52729731,    0.48562614,    0.45167814];
+var robinsonBB = [
+    0.00000000,    0.08384260,    0.16768520,    0.25152780,    0.33537040,    0.41921300,    0.50305560,    0.58689820,
+    0.67047034,    0.75336633,    0.83518048,    0.91537187,    0.99339958,    1.06872269,    1.14066505,    1.20841528,
+    1.27035062,    1.31998003,    1.35230000];
+
+function project(latitude, longitude, mapWidth, heightFactor, mapOffsetX, mapOffsetY) {
+    if (typeof heightFactor === 'undefined') { heightFactor = 1; }
+    if (typeof mapOffsetX === 'undefined') { mapOffsetX = 0; }
+    if (typeof mapOffsetY === 'undefined') { mapOffsetY = 0; }
+
+    // Robinson's latitude interpolation points are in 5-degree-steps
+    var latitudeAbs = Math.abs(latitude);
+    var latitudeStepFloor = Math.floor(latitudeAbs / 5);
+    var latitudeStepCeil = Math.ceil(latitudeAbs / 5);
+    // calc interpolation factor (>=0 to <1) between two steps
+    var latitudeInterpolation = (latitudeAbs - latitudeStepFloor * 5) / 5;
+
+    // interpolate robinson table values
+    var AA = robinsonAA[latitudeStepFloor] + (robinsonAA[latitudeStepCeil] - robinsonAA[latitudeStepFloor]) * latitudeInterpolation;
+    var BB = robinsonBB[latitudeStepFloor] + (robinsonBB[latitudeStepCeil] - robinsonBB[latitudeStepFloor]) * latitudeInterpolation;
+
+    var robinsonWidth = 2 * Math.PI * robinsonAA[0];
+    var widthFactor = mapWidth / robinsonWidth;
+    var latitudeSign = Math.sign(latitude) || 1;
+    var x = (widthFactor * AA * longitude * Math.PI) / 180 + mapOffsetX;
+    var y = widthFactor * BB * latitudeSign * heightFactor + mapOffsetY;
+
+    return {x: x, y: y};
+}
+
+function projectAbsolute(latitude, longitude, mapWidth, heightFactor, mapOffsetX, mapOffsetY) {
+    if (typeof heightFactor === 'undefined') { heightFactor = 1; }
+
+    var relative = project(latitude, longitude, mapWidth, heightFactor, mapOffsetX, mapOffsetY);
+    var widthHeightRatio = Math.PI * robinsonAA[0] / robinsonBB[18];
+    var x = mapWidth / 2 + relative.x;
+    var y = mapWidth / widthHeightRatio * heightFactor / 2 - relative.y;
+
+    return {x: x, y: y};
+}
+
+
+
+
+
+
+
