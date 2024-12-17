@@ -565,7 +565,7 @@ app.get('/api/events', function (req, res, next) {
 
     // Approve the campaign in the database and retrieve the event information:
     sqlQuery(connectionString,
-        'SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
+        'SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created, Lat, Long FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
 
             async function(recordset) {
 

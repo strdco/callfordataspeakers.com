@@ -23,6 +23,8 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         Created         datetime2(3) NOT NULL,
         [Sent]          datetime2(3) NULL,
         Cfs_Closes      datetime2(0) NULL,
+        Lat             numeric(8, 5) NULL,
+        Long numeric(8, 5) NULL,
         CONSTRAINT PK_Campaigns PRIMARY KEY NONCLUSTERED (Token),
         CONSTRAINT UQ_Campaigns UNIQUE CLUSTERED (EventName, Token)
     );
@@ -98,10 +100,21 @@ SET Cfs_Closes=@Cfs_Closes
 WHERE Token=@Token;
 
 GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_LatLong
+    @Token      uniqueidentifier,
+    @Lat        numeric(8, 5),
+    @Long       numeric(8, 5)
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET Lat=@Lat, Long=@Long
+WHERE Token=@Token;
+
+GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed
 AS
 
-SELECT EventName, EventType, Regions, Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], Information, Created, Cfs_Closes
+SELECT EventName, EventType, Regions, Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], Information, Created, Cfs_Closes, Lat, Long
 FROM CallForDataSpeakers.Campaigns
 WHERE ISNULL(EndDate, [Date])>DATEADD(day, -90, SYSDATETIME())
   AND [Sent] IS NOT NULL;
