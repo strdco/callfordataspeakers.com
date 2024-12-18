@@ -130,7 +130,7 @@ app.all('/event', function (req, res, next) {
     if (req.body.eventname) { map.url=encodeHtml(req.body.eventname); }
     if (req.body.venue) { map.url=encodeHtml(req.body.venue); }
     if (req.body.date) {
-        var dt=Date.parse(req.body.date);
+        var dt=new Date(req.body.date);
 
         if (!isNaN(dt)) {
             map.year=dt.getUTCFullYear();
