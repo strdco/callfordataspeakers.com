@@ -119,12 +119,40 @@ app.get('/', function (req, res, next) {
   Event request
 -----------------------------------------------------------------------------*/
 
-app.get('/event', function (req, res, next) {
+app.all('/event', function (req, res, next) {
+
+    var map={};
+
+    if (req.body.url) { map.url=encodeHtml(req.body.url); }
+    if (req.body.email) { map.url=encodeHtml(req.body.email); }
+    if (req.body.fname) { map.url=encodeHtml(req.body.fname); }
+    if (req.body.lname) { map.url=encodeHtml(req.body.lname); }
+    if (req.body.eventname) { map.url=encodeHtml(req.body.eventname); }
+    if (req.body.venue) { map.url=encodeHtml(req.body.venue); }
+    if (req.body.date) {
+        var dt=Date.parse(req.body.date);
+
+        if (!isNaN(dt)) {
+            map.year=dt.getUTCFullYear();
+            map.month=dt.getUTCMonth()+1;
+            map.day=dt.getUTCDate();
+        }
+    }
+    if (req.body.year) { map.year=encodeHtml(req.body.year); }
+    if (req.body.month) { map.month=encodeHtml(req.body.month); }
+    if (req.body.day) { map.day=encodeHtml(req.body.day); }
+
+    if (req.body.virtual) { map.virtual_check='checked'; }
+
+    if (req.body.conference) { map.conference_check='checked'; }
+    if (req.body.precon) { map.precon_check='checked'; }
+    if (req.body.usergroup) { map.usergroup_check='checked'; }
+    if (req.body.paid) { map.paid_check='checked'; }
 
     httpHeaders(res);
 
     // Serve up assets/event.html:
-    res.status(200).send(createHTML('event.html', {}));
+    res.status(200).send(createHTML('event.html', map));
 });
 
 
@@ -326,7 +354,6 @@ app.all('/request', function (req, res, next) {
 
 // Save any changes to the request before sending it out
 app.post('/api/update/:token', function(req, res, next) {
-    console.log(req.body);
 
     console.log('1');
 
