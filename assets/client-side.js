@@ -784,3 +784,41 @@ function projectAbsolute(latitude, longitude, mapWidth, heightFactor, mapOffsetX
 
 
 
+// Mailchimp has this huge, obfuscated validation script to make sure my data is entered
+// correctly, but interestingly enough, they don't validate if the server responds with
+// a HTTP/200. You know, in case they just randomly decide to change the submission URL
+// or something.
+
+(function() {
+    // I believe that this code basically "overloads" the XMLHttpRequest object
+    // in the browser in order to add an event listener. That way, we capture
+    // every time an XHR request changes state, so we can check if Mailchimp
+    // failed to register the user.
+
+    // At least that's what I think it does.
+    // This code was written by Copilot. ¯\_(ツ)_/¯
+
+    var originalXHR = window.XMLHttpRequest;
+
+    function newXHR() {
+        var realXHR = new originalXHR();
+        
+        // on XHR state change:
+        realXHR.addEventListener('readystatechange', function() {
+            // ... if it pertains to another host name:
+            if (realXHR.responseURL.indexOf('//'+document.location.hostname+'/')==-1) {
+                // ... and the status is not HTTP/200:
+                if (realXHR.readyState === 4 && realXHR.status !== 200) {
+                    window.alert('Something appears to have gone wrong with the Mailchimp backend.\n'+
+                                 'Please try again, or email us at hello@callfordataspeakers.com so we can take a look at it.');
+                }
+            }
+        }, false);
+        
+        return realXHR;
+    }
+
+    // *Jedi hand wave*  this is the object you're looking for:
+    window.XMLHttpRequest = newXHR;
+})();
+

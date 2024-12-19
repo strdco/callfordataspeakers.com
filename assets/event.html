@@ -66,40 +66,40 @@
         <div class="mc-field-group">
             <label for="mce-URL">Call for Speakers URL  <span class="asterisk">*</span>
         </label>
-            <input type="url" value="" name="URL" class="required url" id="mce-URL">
+            <input type="url" value="<%=url%>" name="URL" class="required url" id="mce-URL">
         </div>
         <div class="mc-field-group">
             <label for="mce-EMAIL">Email Address  <span class="asterisk">*</span>
         </label>
-            <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
+            <input type="email" value="<%=email%>" name="EMAIL" class="required email" id="mce-EMAIL">
         </div>
         <div class="mc-field-group">
             <label for="mce-FNAME">First Name  <span class="asterisk">*</span>
         </label>
-            <input type="text" value="" name="FNAME" class="required" id="mce-FNAME">
+            <input type="text" value="<%=fname%>" name="FNAME" class="required" id="mce-FNAME">
         </div>
         <div class="mc-field-group">
             <label for="mce-LNAME">Last Name  <span class="asterisk">*</span>
         </label>
-            <input type="text" value="" name="LNAME" class="required" id="mce-LNAME">
+            <input type="text" value="<%=lname%>" name="LNAME" class="required" id="mce-LNAME">
         </div>
         <div class="mc-field-group">
             <label for="mce-EVENT">Event name  <span class="asterisk">*</span>
         </label>
-            <input type="text" value="" name="EVENT" class="required" id="mce-EVENT">
+            <input type="text" value="<%=eventname%>" name="EVENT" class="required" id="mce-EVENT">
         </div>
         <div class="mc-field-group">
             <label for="mce-VENUE">Venue  <span class="asterisk">*</span>
         </label>
-            <input type="text" value="" name="VENUE" class="required" id="mce-VENUE">
+            <input type="text" value="<%=venue%>" name="VENUE" class="required" id="mce-VENUE">
         </div>
         <div class="mc-field-group size1of2">
             <label for="mce-EVENTDATE-year">Event start date  <span class="asterisk">*</span></label>
             <div class="datefield">
                 <span class="small-meta nowrap"></span>
-                <span class="subfield yearfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTDATE[year]" id="mce-EVENTDATE-year"></span> -
-                <span class="subfield monthfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTDATE[month]" id="mce-EVENTDATE-month"></span> -
-                <span class="subfield dayfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTDATE[day]" id="mce-EVENTDATE-day"></span>
+                <span class="subfield yearfield"><input class="datepart required" type="number" pattern="[0-9]*" value="<%=year%>" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTDATE[year]" id="mce-EVENTDATE-year"></span> -
+                <span class="subfield monthfield"><input class="datepart required" type="number" pattern="[0-9]*" value="<%=month%>" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTDATE[month]" id="mce-EVENTDATE-month"></span> -
+                <span class="subfield dayfield"><input class="datepart required" type="number" pattern="[0-9]*" value="<%=day%>" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTDATE[day]" id="mce-EVENTDATE-day"></span>
                 <span class="small-meta nowrap"></span>
             </div>
         </div>
@@ -107,9 +107,9 @@
             <label for="mce-EVENTENDDATE-year">Event end date (if later)</label>
             <div class="datefield">
                 <span class="small-meta nowrap"></span>
-                <span class="subfield yearfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTENDDATE[year]" id="mce-EVENTENDDATE-year"></span> -
-                <span class="subfield monthfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTENDDATE[month]" id="mce-EVENTENDDATE-month"></span> -
-                <span class="subfield dayfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTENDDATE[day]" id="mce-EVENTENDDATE-day"></span>
+                <span class="subfield yearfield"><input class="datepart" type="number" pattern="[0-9]*" value="<%=endyear%>" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTENDDATE[year]" id="mce-EVENTENDDATE-year"></span> -
+                <span class="subfield monthfield"><input class="datepart" type="number" pattern="[0-9]*" value="<%=endmonth%>" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTENDDATE[month]" id="mce-EVENTENDDATE-month"></span> -
+                <span class="subfield dayfield"><input class="datepart" type="number" pattern="[0-9]*" value="<%=endday%>" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTENDDATE[day]" id="mce-EVENTENDDATE-day"></span>
                 <span class="small-meta nowrap"></span>
             </div>
         </div>
@@ -120,15 +120,15 @@
         </div>
         <div class="mc-field-group input-group">
             <strong>Is this a...</strong>
-            <ul><li><input type="checkbox" value="Conference" name="TYPE" id="ev-mce-group[1]-1-8"><label for="ev-mce-group[1]-1-8">Conference</label></li>
-                <li><input type="checkbox" value="Precon" name="TYPE" id="ev-mce-group[1]-1-9"><label for="ev-mce-group[1]-1-9">Precon</label></li>
-                <li><input type="checkbox" value="Usergroup" name="TYPE" id="ev-mce-group[1]-1-10"><label for="ev-mce-group[1]-1-10">User group meetup</label></li>
-                <li><input type="checkbox" value="Paid" name="TYPE" id="ev-mce-group[1]-1-11"><label for="ev-mce-group[1]-1-11">Paid engagement</label></li>
+            <ul><li><input type="checkbox" <%=conference_check%> value="Conference" name="TYPE" id="ev-mce-group[1]-1-8"><label for="ev-mce-group[1]-1-8">Conference</label></li>
+                <li><input type="checkbox" <%=precon_check%> value="Precon" name="TYPE" id="ev-mce-group[1]-1-9"><label for="ev-mce-group[1]-1-9">Precon</label></li>
+                <li><input type="checkbox" <%=usergroup_check%> value="Usergroup" name="TYPE" id="ev-mce-group[1]-1-10"><label for="ev-mce-group[1]-1-10">User group meetup</label></li>
+                <li><input type="checkbox" <%=paid_check%> value="Paid" name="TYPE" id="ev-mce-group[1]-1-11"><label for="ev-mce-group[1]-1-11">Paid engagement</label></li>
             </ul>
         </div>
         <div class="mc-field-group input-group max-two">
             <strong>Is this event online?</strong>
-            <ul><li><input type="checkbox" value="Virtual" name="REGION" id="ev-mce-group[79175]-79175-0"><label for="ev-mce-group[79175]-79175-0">Virtual</label></li>
+            <ul><li><input type="checkbox" <%=virtual_check%> value="Virtual" name="REGION" id="ev-mce-group[79175]-79175-0"><label for="ev-mce-group[79175]-79175-0">Virtual</label></li>
             </ul>
             <strong>Region (for in-person events)</strong>
             <ul><li><input type="checkbox" value="Europe" name="REGION" id="ev-mce-group[79175]-79175-1"><label for="ev-mce-group[79175]-79175-1">Europe</label></li>
