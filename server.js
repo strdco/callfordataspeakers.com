@@ -213,7 +213,7 @@ app.all('/request', function (req, res, next) {
             (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
             (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
     } catch(err) {
-        res.status(400).send("Input validation failed on EVENTDATE paramters.");
+        res.status(400).send("Input validation failed on EVENTDATE parameters.");
         return;
     }
 
