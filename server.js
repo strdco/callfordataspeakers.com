@@ -196,7 +196,7 @@ app.all('/request', function (req, res, next) {
 
     // Honey trap triggered: this is a bot
     if (queryParams.free_hunny) {
-        res.status(404);
+        res.status(404).send("Nice try, bot.");
         return;
     }
 
@@ -213,7 +213,7 @@ app.all('/request', function (req, res, next) {
             (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
             (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
     } catch(err) {
-        res.status(400);
+        res.status(400).send("Input validation failed on EVENTDATE parameters.");
         return;
     }
 
