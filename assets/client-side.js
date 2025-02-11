@@ -485,8 +485,10 @@ window.onload = function yeahyeah() {
                         mapPointCss='soon';
                         span.classList.add('soon');
                         span.innerText=Math.round(closesInDays*24).toString()+' hours';
-                    } else {
+                    } else if (closesInDays<60) {
                         span.innerText=Math.round(closesInDays).toString()+' days';
+                    } else {
+                        span.innerText='Open';
                     }
                     td1.appendChild(span);
                 }
