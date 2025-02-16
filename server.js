@@ -579,6 +579,74 @@ app.get('/approve/:token/do', function (req, res, next) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Send procrastinator's digest email:
+  -----------------------------------------------------------------------------*/
+
+app.get('/digest/:apikey', function (req, res, next) {
+
+    httpHeaders(res);
+
+    // The part of the URL that reflects the API key:
+    if (req.params.apikey==process.env.apikey) {
+
+        // Fetch events whose call for speakers closes in 3-10 days
+        sqlQuery(connectionString,
+            'SELECT EventName, [URL]\n'+
+            'FROM CallForDataSpeakers.Feed\n'+
+            'WHERE Cfs_Closes>=DATEADD(hour, 36, SYSUTCDATETIME())\n'+
+            '  AND Cfs_Closes<DATEADD(hour, 36+7*24, SYSUTCDATETIME())\n'+
+            'ORDER BY Cfs_Closes;', [],
+
+                async function(recordset) {
+                    if (recordset.length>0) {
+                        const htmlList = recordset.map(row => {
+                            const url = row.URL+(row.URL.toLowerCase().indexOf('utm_source')==-1 ? (row.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=digest' : '');
+                            return '<li><a href=\"'+encodeHtml(url)+'">'+encodeHtml(row.EventName)+"</a></li>";
+                        }).join("\n");
+
+                        // Send the Mailchimp campaign to all our subscribers:
+                        sendCampaign(process.env.speaker_audience,  // Audience
+                                    process.env.digest_segment,     // Segment name
+                                    undefined,                      // Region group members
+                                    process.env.digest_template,    // Template name
+                                    true,                           // Tracking
+                                    false,                          // Tweet
+                                    { "html_list": htmlList },      // Values to template fields
+                                    'Call for Data Speakers: Events closing soon',   // Subject line
+                                    "Your Procrastinator\'s Digest: these events are closing their calls for speakers in the next few days.",      // Preview
+                                    'hello@callfordataspeakers.com')        // Reply-to
+
+                            // Success:
+                            .then((cfsCampaignId) => {
+                                res.status(200).json({ "status": "ok", "campaignId": cfsCampaignId });
+                                return;
+                            })
+
+                            // Or not:
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({ "status": "Bad things have happened" });
+                                return;
+                            });                    
+                    } else {
+                        res.status(200).json({ "status": "nothing to send" });
+                    }
+                    return;
+                });
+    } else {
+            console.log('Invalid token: '+token+'.');
+            res.status(404).send(createHTML('message.html', {
+                "subject": "Nope",
+                "message": "That token is invalid or already used."
+            }));
+            return;
+    }
+});
+
+
+
+
 
 
 
@@ -1072,6 +1140,10 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
                     }
                 });
 
+                if (!segmentOpts) {
+                    throw 'Could not find segment name \"'+segmentName+'\".';
+                }
+
                 if (showDebugInfo) { console.log('segment_id='+segmentOpts.saved_segment_id); }
 
             }
@@ -1200,7 +1272,7 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
 
     } catch (err) {
         console.log(err);
-        res.status(500).send("There was a problem");
+        throw err;
     }
 
     return(campaignId);
