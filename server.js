@@ -831,30 +831,23 @@ app.get('/api/sync-mailchimp/:apikey', async function (req, res, next) {
 
 async function getSubscriberCount(listName) {
     var listId;
-    var groupId;
     var subscriberCount;
     var regions=[];
 
     // Find the "Speakers" list (the audience):
-    var allLists = await mailchimp.lists.getAllLists();
-    Array.prototype.forEach.call(allLists.lists, list => {
-        if (list.name==listName) {
-            listId=list.id;
-            subscriberCount=list.stats.member_count;
-        }
+    const allLists = await mailchimp.lists.getAllLists({ "count": 100 });
+    Array.from(allLists.lists).filter(list => list.name===listName).forEach(list => {
+        listId=list.id;
+        subscriberCount=list.stats.member_count;
     });
 
     // Find the "Regions" group:
-    var allGroups = await mailchimp.lists.getListInterestCategories(listId);
-    Array.prototype.forEach.call(allGroups.categories, group => {
-        if (group.title=='Region') {
-            groupId=group.id;
-        }
-    });
+    const allGroups = await mailchimp.lists.getListInterestCategories(listId);
+    const groupId=Array.from(allGroups.categories).filter(group => group.title==="Region")[0].id;
 
     // Fetch all regions:
     var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
-    Array.prototype.forEach.call(allGroupMembers.interests, member => {
+    Array.from(allGroupMembers.interests).forEach(member => {
         regions.push({
             "name": member.name,
             "subscriber_count": member.subscriber_count
@@ -1098,7 +1091,6 @@ function createHTML(templateFile, values) {
 
 async function sendCampaign (listName, segmentName, regions, templateName, enableTracking, tweet, templateSections, subjectLine, previewText, replyTo) {
 
-    var listId;
     var segmentId;
     var templateId;
     var campaignId;
@@ -1114,12 +1106,8 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
 
         // Find the "Organizers" or "Speakers" list (the audience):
         // ----------------------------------------------
-        var allLists = await mailchimp.lists.getAllLists();
-        Array.prototype.forEach.call(allLists.lists, list => {
-            if (list.name==listName) {
-                listId=list.id;
-            }
-        });
+        const allLists = await mailchimp.lists.getAllLists({ "count": 100 });
+        const listId = Array.from(allLists.lists).filter(list => list.name===listName)[0].id;
 
         if (showDebugInfo) { console.log('list_id='+listId); }
 
@@ -1129,20 +1117,16 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
 
             // Option 1: Find a specific, named segment:
             if (segmentName) {
-                var allSegments = await mailchimp.lists.listSegments(listId);
-                Array.prototype.forEach.call(allSegments.segments, segment => {
-                    if (segment.name==segmentName) {
-                        segmentId=segment.id;
+                const allSegments = await mailchimp.lists.listSegments(listId);
+                segmentId = Array.from(allSegments.segments).filter(seg => seg.name===segmentName)[0].id;
 
-                        segmentOpts={
-                            "saved_segment_id": segmentId
-                        };
-                    }
-                });
-
-                if (!segmentOpts) {
+                if (!segmentId) {
                     throw 'Could not find segment name \"'+segmentName+'\".';
                 }
+
+                segmentOpts={
+                    "saved_segment_id": segmentId
+                };
 
                 if (showDebugInfo) { console.log('segment_id='+segmentOpts.saved_segment_id); }
 
@@ -1156,13 +1140,8 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
 
                 // 2a. Find the Group ID for the "Region" group:
                 var groupId;
-                var allGroups = await mailchimp.lists.getListInterestCategories(listId);
-
-                Array.prototype.forEach.call(allGroups.categories, group => {
-                    if (group.title=='Region') {
-                        groupId=group.id;
-                    }
-                });
+                const allGroups = await mailchimp.lists.getListInterestCategories(listId);
+                groupId=Array.from(allGroups.categories).filter(group => group.title==="Region")[0].id
 
                 var memberList=[];
 
@@ -1198,13 +1177,8 @@ async function sendCampaign (listName, segmentName, regions, templateName, enabl
         // Find the template:
         // ----------------------------------------------
         if (segmentOpts) {
-            var allTemplates = await mailchimp.templates.list();
-
-            Array.prototype.forEach.call(allTemplates.templates, template => {
-                if (template.name==templateName) {
-                    templateId=template.id;
-                }
-            });
+            const allTemplates = await mailchimp.templates.list({ "count": 1000 });
+            templateId=Array.from(allTemplates.templates).filter(template => template.name===templateName)[0].id;
 
             if (showDebugInfo) { console.log('template_id='+templateId); }
         }
