@@ -1,4 +1,5 @@
 var checkedRegionCount=0;
+var checkedEventTypesOk=false;
 var checkedPhysicalRegionCount=0;
 var searchInput;
 var searchTimeout;
@@ -36,7 +37,7 @@ window.onload = function yeahyeah() {
             // value before proceeding with this event. This feels like a terrible pattern,
             // but don't hate me. Send me a pull request instead.
             setTimeout(function() {
-                if (checkedRegionCount>0) {
+                if (checkedRegionCount>0 && checkedEventTypesOk && document.querySelectorAll('.required[type="checkbox"]:not(:checked)').length==0) {
                     button.classList.remove("submitted");
                     button.disabled=false;
                 } else if (document.location.pathname=='/event') {
@@ -670,17 +671,39 @@ window.onload = function yeahyeah() {
     // Add a click event to each region checkbox on the event page,
     // to make sure the organizer doesn't select more than two
     // regions:
-    var maxTwo=document.getElementsByClassName("max-two");
-    
-    Array.prototype.forEach.call(maxTwo, function(e) {
-        var inputs=e.getElementsByTagName("input");
-        Array.prototype.forEach.call(inputs, function(input) {
-            if (input.type=='checkbox') {
-                input.onclick=regionCheckboxClicked;
-            }
-        });
+    Array.from(document.querySelectorAll(".max-two input[type='checkbox']")).forEach(input => {
+        input.addEventListener('click', regionCheckboxClicked);
     });
 
+
+    // Add an onclick event for the event type checkboxes, so we
+    // can validate them when clicked.
+
+    Array.from(document.querySelectorAll(".event-type input[type='checkbox']")).forEach(input => {
+        input.addEventListener('click', eventTypeClicked);
+    });
+
+
+
+}
+
+/* Validate selected event types */
+
+function eventTypeClicked(e) {
+    const selectedTypes = Array.from(document.querySelectorAll('input[name="TYPE"]'))
+        .reduce((acc, checkbox) => {
+            acc[checkbox.value] = checkbox.checked;
+            return acc;
+            }, {});
+
+    checkedEventTypesOk=
+        selectedTypes.Conference ||
+        selectedTypes.Precon ||
+        selectedTypes.Usergroup;
+
+    if ((selectedTypes.Conference || selectedTypes.Precon) && selectedTypes.Usergroup) {
+        checkedEventTypesOk=false;
+    }
 }
 
 /* Make sure the event organizer doesn't check more than two regions. */
