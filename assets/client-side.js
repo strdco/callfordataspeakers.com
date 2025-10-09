@@ -143,12 +143,24 @@ window.onload = function yeahyeah() {
                                 document.querySelector('form input#mce-EVENTENDDATE-month').value=sessionizeDetails.EndDate.substring(5, 7);
                                 document.querySelector('form input#mce-EVENTENDDATE-day').value=sessionizeDetails.EndDate.substring(8, 10);
                             }
+
+                            const cfsHoursRemaining = (sessionizeDetails.Cfs_Closes - new Date().getTime())/(1000*3600);
+                            if (cfsHoursRemaining < 0) {
+                                document.querySelector('form input#mce-URL').classList.add('mce_inline_error');
+                                window.alert('The call for speakers for this event has already closed.');
+                                e.target.value='';
+                            }
+                            else if (cfsHoursRemaining < 24*7) {
+                                document.querySelector('form input#mce-URL').classList.add('mce_inline_error');
+                                window.alert('The call for speakers for this event has less than 7 days remaining.\nPlease edit the closing date on Sessionize.com and try again.');
+                                e.target.value='';
+                            }
                         } catch(e) {}
                     }
 
                     if (xhr4.status==404) {
                         document.querySelector('form input#mce-URL').classList.add('mce_inline_error');
-                        window.alert('That Sessionize URL returned a 404 (not found).\nHave you entered the correct URL?\nDid you remember to publish your Sessionize event?')
+                        window.alert('That Sessionize URL returned a 404 (not found).\nHave you entered the correct URL?\nDid you remember to publish your Sessionize event?');
                     }
                 };
                 xhr4.open('GET', '/api/get-sessionize?url='+encodeURIComponent(url));

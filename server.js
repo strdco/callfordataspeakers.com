@@ -918,7 +918,8 @@ app.get('/api/get-sessionize', async function (req, res, next) {
             "EventName": details.name,
             "Date": details.eventDates.start,
             "EndDate": details.eventDates.end,
-            "Venue": (details.location ? details.location.full : '')
+            "Venue": (details.location ? details.location.full : ''),
+            "Cfs_Closes": (new Date(details.cfpDates.endUtc+"Z")).getTime().toString()
         }));
     } catch(e) {
         res.status(404).send('');
