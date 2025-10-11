@@ -508,6 +508,35 @@ window.onload = function yeahyeah() {
                 tr.appendChild(td1);
 
                 var td2=document.createElement('td');
+                row.EventType.split(',').forEach(eventType => {
+                    if (eventType.trim()!='')
+                    var badge=document.createElement('span');
+                    badge.classList.add('event-type');
+                    switch (eventType.trim().toLowerCase()) {
+/*                      case "paid":
+                            badge.classList.add('paid');
+                            badge.innerText='$';
+                            badge.title='Paid engagement';
+                            break; */
+                        case "conference":
+                            badge.classList.add('conference');
+                            badge.innerText='C';
+                            badge.title='Conference';
+                            break;
+                        case "precon":
+                            badge.classList.add('precon');
+                            badge.innerText='P';
+                            badge.title='Precon';
+                            break;
+                        case "usergroup":
+                            badge.classList.add('usergroup');
+                            badge.innerText='U';
+                            badge.title='Usergroup';
+                            break;
+                    }
+                    td2.appendChild(badge);
+                });
+
                 var a=document.createElement('a');
                 a.href=row.URL;
                 if (row.URL.toLowerCase().indexOf('sessionize.com')>=0) {
