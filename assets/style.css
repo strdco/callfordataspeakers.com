@@ -361,7 +361,7 @@ table .event-type {
     border-radius: 3px;
     font-size: 90%;
 }
-
+/*
 table .event-type.usergroup {
     background-color: rgba(0, 128, 255, 0.1);
     border-color: rgba(0, 0, 64, 0.5);
@@ -377,7 +377,7 @@ table .event-type.paid {
     background-color: rgba(0, 200, 0, 0.1);
     border-color: rgba(0, 64, 0, 0.5);
 }
-
+*/
 table .cfs-closes-in {
     display: inline-block;
     margin: 1px 8px 1px 10px;
