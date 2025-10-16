@@ -347,6 +347,37 @@ table span.badge:hover {
     color: #000000;
 }
 
+table .event-type {
+    display: inline-block;
+    margin: 1px 4px 0px 1px;
+    padding-left: 4px;
+    padding-top: 0px;
+    padding-right: 4px;
+    padding-bottom: 0px;
+    background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(128, 128, 128, 0.5));
+    border-color: light-dark(rgba(0, 0, 0, 0.25), rgba(128, 128, 128, 0.75));
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+    font-size: 90%;
+}
+/*
+table .event-type.usergroup {
+    background-color: rgba(0, 128, 255, 0.1);
+    border-color: rgba(0, 0, 64, 0.5);
+}
+
+table .event-type.conference {
+    background-color: rgba(255, 200, 0, 0.1);
+    border-color: rgba(200, 64, 0, 0.5);
+}
+
+table .event-type.precon,
+table .event-type.paid {
+    background-color: rgba(0, 200, 0, 0.1);
+    border-color: rgba(0, 64, 0, 0.5);
+}
+*/
 table .cfs-closes-in {
     display: inline-block;
     margin: 1px 8px 1px 10px;
@@ -450,14 +481,18 @@ table .cfs-closes-in.closed {
         }
 
     table.responsive tr:nth-child(odd) td {
-        background-color: #f0f0f0;
+        background-color: rgb(255, 255, 255, 0.1);
+    }
+
+    table.responsive tr:nth-child(even) td {
+        background-color: rgb(0, 0, 0, 0.05);
     }
 
     table.responsive td:first-of-type {
         padding-top: 0.5em;
-        border-top-style: solid;
-        border-top-color: #c0c0c0;
-        border-top-width: 1px;
+/*      border-top-style: solid;
+        border-top-color: #404040;
+        border-top-width: 1px; */
     }
 
     table.responsive td:last-of-type {
