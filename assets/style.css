@@ -481,14 +481,18 @@ table .cfs-closes-in.closed {
         }
 
     table.responsive tr:nth-child(odd) td {
-        background-color: #f0f0f0;
+        background-color: rgb(255, 255, 255, 0.1);
+    }
+
+    table.responsive tr:nth-child(even) td {
+        background-color: rgb(0, 0, 0, 0.05);
     }
 
     table.responsive td:first-of-type {
         padding-top: 0.5em;
-        border-top-style: solid;
-        border-top-color: #c0c0c0;
-        border-top-width: 1px;
+/*      border-top-style: solid;
+        border-top-color: #404040;
+        border-top-width: 1px; */
     }
 
     table.responsive td:last-of-type {
