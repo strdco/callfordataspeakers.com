@@ -18,6 +18,9 @@ const bodyParser = require('body-parser');
 
 // Mailchimp Marketing API
 const mailchimp = require("@mailchimp/mailchimp_marketing");
+// Canned SQL
+const cannedSql=require('./canned-sql.js');
+
 
 mailchimp.setConfig({
     apiKey: process.env.mcapikey,
@@ -271,7 +274,7 @@ app.all('/request', function (req, res, next) {
     } else {
 
         // Save the everything to the SQL Server table:
-        sqlQuery(connectionString,
+        cannedSql.sqlQuery(connectionString,
             'EXECUTE CallForDataSpeakers.Insert_Campaign @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
             [   { "name": 'Name',    "type": Types.NVarChar, "value": formName },
                 { "name": 'Email',   "type": Types.NVarChar, "value": formEmail },
@@ -287,10 +290,10 @@ app.all('/request', function (req, res, next) {
                 // The stored procedure will return a uniqueidentifier (Token), used to identify
                 // each event request:
                 function(recordset) {
-                    if (recordset) {
+                    if (recordset.data) {
 
                         // Create an email to all moderators, requesting event approval:
-                        var approveButton='<a class="mcnButton" title="Review" href="https://'+req.hostname+'/moderate/'+recordset[0].Token+'" '+
+                        var approveButton='<a class="mcnButton" title="Review" href="https://'+req.hostname+'/moderate/'+recordset.data[0].Token+'" '+
                                                 'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
                                                 'text-decoration:none;color:#000000;">Review</a>';
 
@@ -403,7 +406,7 @@ app.post('/api/update/:token', function(req, res, next) {
 
     // Save the everything to the SQL Server table:
     try {
-        sqlQuery(connectionString,
+        cannedSql.sqlQuery(connectionString,
             'EXECUTE CallForDataSpeakers.Update_Campaign @Token=@Token, @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
             [   { "name": 'Token',   "type": Types.NVarChar, "value": req.params.token},
                 { "name": 'Name',    "type": Types.NVarChar, "value": req.body.NAME },
@@ -420,7 +423,7 @@ app.post('/api/update/:token', function(req, res, next) {
                 // The stored procedure will return a uniqueidentifier (Token), used to identify
                 // each event request:
                 function(recordset) {
-                    if (recordset) {
+                    if (recordset.data) {
                         res.status(200).send('ok');
                     } else {
                         console.log('ERROR: Couldn\'t create the campain record in the database.');
@@ -455,22 +458,22 @@ app.get('/approve/:token/do', function (req, res, next) {
     var token=req.params.token;
 
     // Approve the campaign in the database and retrieve the event information:
-    sqlQuery(connectionString,
+    cannedSql.sqlQuery(connectionString,
         'EXECUTE CallForDataSpeakers.Approve_Campaign @Token=@Token;',
         [   { "name": 'Token', "type": Types.NVarChar, "value": token }],
 
             async function(recordset) {
-                if (recordset) {
+                if (recordset.data) {
 
-                    var fromDate = recordset[0].Date;
-                    var toDate = recordset[0].EndDate;
+                    var fromDate = recordset.data[0].Date;
+                    var toDate = recordset.data[0].EndDate;
 
                     // formatting the event date; example: Tuesday, December 22, 2020"
                     var eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
                     // for a range of dates, construct a human-readable date interval text:
-                    if (recordset[0].EndDate) {
-                        if (recordset[0].Date != recordset[0].EndDate) {
+                    if (recordset.data[0].EndDate) {
+                        if (recordset.data[0].Date != recordset.data[0].EndDate) {
 
                             // "Friday, May 17 until Saturday, May 18, 2024"
                             if (toDate.getFullYear() != fromDate.getFullYear()) {
@@ -486,24 +489,24 @@ app.get('/approve/:token/do', function (req, res, next) {
                         }
                     }
                     
-                    var eventInfoString=recordset[0].Information;
+                    var eventInfoString=recordset.data[0].Information;
                     if (eventInfoString===null) { eventInfoString=''; }
 
                     // If the only region is "Virtual", this is a virtual event.
                     // If there are other regions, but they include "Virtual", this is a hybrid event.
                     // If there's no "Virtual" region, this is an in-person event.
                     var eventVirtualString;
-                    if (recordset[0].Regions.toUpperCase().replace(' ', '').split(',')=='VIRTUAL') {
+                    if (recordset.data[0].Regions.toUpperCase().replace(' ', '').split(',')=='VIRTUAL') {
                         eventVirtualString='This is a virtual event';
                     }
-                    else if (recordset[0].Regions.toUpperCase().replace(' ', '').split(',').includes('VIRTUAL')) {
+                    else if (recordset.data[0].Regions.toUpperCase().replace(' ', '').split(',').includes('VIRTUAL')) {
                         eventVirtualString='This is an in-person event, but may also accept virtual session abtracts.';
                     }
                     else {
                         eventVirtualString='This is an in-person event.';
                     }
 
-                    var cfsURL = recordset[0].URL;
+                    var cfsURL = recordset.data[0].URL;
 
                     // This is the button at the bottom of the email:
                     var eventButton='<a class="mcnButton" href="'+
@@ -520,13 +523,13 @@ app.get('/approve/:token/do', function (req, res, next) {
 
                     // These are the "mc:edit" values that we want to fill into our template:
                     var templateSections={
-                        "event_name": recordset[0].EventName,
+                        "event_name": recordset.data[0].EventName,
                         "event_date": eventDateString,
                         "event_virtual": eventVirtualString,
-                        "event_venue": recordset[0].Venue,
-                        "event_type": recordset[0].EventType,
-                        "name": recordset[0].Name,
-                        "event_email": recordset[0].Email,
+                        "event_venue": recordset.data[0].Venue,
+                        "event_type": recordset.data[0].EventType,
+                        "name": recordset.data[0].Name,
+                        "event_email": recordset.data[0].Email,
                         "event_info": eventInfoString,
                         "event_button": eventButton,
                         "calendar_link": calendarLink
@@ -535,22 +538,23 @@ app.get('/approve/:token/do', function (req, res, next) {
                     // Send the Mailchimp campaign to all our subscribers:
                     sendCampaign(process.env.speaker_audience,  // Audience
                                 '',
-                                recordset[0].Regions,           // Region group members
                                 process.env.campaign_template,  // Template name
                                 true,                           // Tracking
                                 true,                           // Tweet
+                                recordset.data[0].Regions,      // Region group members
                                 templateSections,               // Values to template fields
-                                'Call for speakers: '+recordset[0].EventName,   // Subject line
-                                recordset[0].EventName+' is coming to you on '+eventDateString+'. The call for speakers is open!',      // Preview
                                 'hello@callfordataspeakers.com')        // Reply-to
-                                 
+                                'Call for speakers: '+recordset.data[0].EventName,   // Subject line
+                                recordset.data[0].EventName+' is coming to you on '+eventDateString+'. The call for speakers is open!',      // Preview
+                        )
+
                         // Success:
                         .then((cfsCampaignId) => {
 
                             // Post to Mastodon (if one is configured in the
                             // environment variables)
                             if (process.env.mastodon_access_token) {
-                                postToMastodon('Call for speakers: '+recordset[0].EventName+
+                                postToMastodon('Call for speakers: '+recordset.data[0].EventName+
                                     ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
                                     process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
                             }
@@ -558,7 +562,7 @@ app.get('/approve/:token/do', function (req, res, next) {
                             // Post to Bluesky (if one is configured in the
                             // environment variables)
                             if (process.env.bluesky_password) {
-                                postToBluesky('Call for speakers: '+recordset[0].EventName+
+                                postToBluesky('Call for speakers: '+recordset.data[0].EventName+
                                     ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
                                     process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
                             }
@@ -605,7 +609,7 @@ app.get('/digest/:apikey', function (req, res, next) {
     if (req.params.apikey==process.env.apikey) {
 
         // Fetch events whose call for speakers closes in 3-10 days
-        sqlQuery(connectionString,
+        cannedSql.sqlQuery(connectionString,
             'SELECT EventName, [URL]\n'+
             'FROM CallForDataSpeakers.Feed\n'+
             'WHERE Cfs_Closes>=DATEADD(hour, 36, SYSUTCDATETIME())\n'+
@@ -613,8 +617,8 @@ app.get('/digest/:apikey', function (req, res, next) {
             'ORDER BY Cfs_Closes;', [],
 
                 async function(recordset) {
-                    if (recordset.length>0) {
-                        const htmlList = recordset.map(row => {
+                    if (recordset.data.length>0) {
+                        const htmlList = recordset.data.map(row => {
                             const url = row.URL+(row.URL.toLowerCase().indexOf('utm_source')==-1 ? (row.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=digest' : '');
                             return '<li><a href=\"'+encodeHtml(url)+'">'+encodeHtml(row.EventName)+"</a></li>";
                         }).join("\n");
@@ -673,12 +677,12 @@ app.get('/api/events', function (req, res, next) {
     httpHeaders(res);
 
     // Approve the campaign in the database and retrieve the event information:
-    sqlQuery(connectionString,
+    cannedSql.sqlQuery(connectionString,
         'SELECT EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created, Lat, Long FROM CallForDataSpeakers.Feed ORDER BY [Date], Created;', [],
 
             async function(recordset) {
 
-                res.status(200).json(recordset);
+                res.status(200).json(recordset.data);
                 return;
             });
 
@@ -689,20 +693,20 @@ app.get('/api/event/:token', function (req, res, next) {
     httpHeaders(res);
 
     // Approve the campaign in the database and retrieve the event information:
-    sqlQuery(connectionString,
+    cannedSql.sqlQuery(connectionString,
         'SELECT Name, EventName, EventType, Regions, Email, Venue, [Date], EndDate, [URL], Information, Cfs_Closes, Created FROM CallForDataSpeakers.Campaigns WHERE Token=@Token AND Sent IS NULL;',
         [   { "name": 'Token', "type": Types.NVarChar, "value": req.params.token }],
 
             async function(recordset) {
-                if (recordset) {
-                    if (recordset[0].URL.toLowerCase().indexOf('sessionize.com/')>-1 && process.env.sessionize_apikey) {
-                        blob=await fetchSessionizeEvent(recordset[0].URL);
+                if (recordset.data) {
+                    if (recordset.data[0].URL.toLowerCase().indexOf('sessionize.com/')>-1 && process.env.sessionize_apikey) {
+                        blob=await fetchSessionizeEvent(recordset.data[0].URL);
                         if (blob) {
-                            recordset[0].Sessionize=blob;
+                            recordset.data[0].Sessionize=blob;
                         }
                     }
 
-                    res.status(200).json(recordset);
+                    res.status(200).json(recordset.data);
                     return;
                 } else {
                     res.status(500).send('');
@@ -752,14 +756,14 @@ app.get('/precon', function (req, res, next) {
 app.get('/feed', async function (req, res, next) {
 
     var items='';
-    sqlQuery(connectionString,
+    cannedSql.sqlQuery(connectionString,
         'SELECT EventName, EventType, Regions, Email, Venue, [Date], [URL], Information, Created, DATEDIFF_BIG(second, {d \'1970-01-01\'}, Created) AS uid FROM CallForDataSpeakers.Feed ORDER BY Created DESC;', [],
 
             async function(recordset) {
 
                 var lastBuildDate=new Date(Date.now())
 
-                recordset.forEach(item => {
+                recordset.data.forEach(item => {
 
                     var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });            
 
@@ -941,20 +945,20 @@ async function updateCfsCloseDates(res) {
     // Check the closing dates for Sessionize CfS where
     // 1) there isn't one yet (new event), or
     // 2) it's Sunday (check all of them once a week, in case they change)
-    sqlQuery(connectionString,
+    cannedSql.sqlQuery(connectionString,
         'SELECT Token, [URL], Cfs_Closes '+
         'FROM CallForDataSpeakers.Campaigns '+
         'WHERE [Date]>SYSUTCDATETIME() '+
         '  AND [URL] LIKE \'https://sessionize.com/_%\' '+
         '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -14, SYSDATETIME());', [],
         function(recordset) {
-            recordset.forEach(async function(record) {
+            recordset.data.forEach(async function(record) {
                 var cfs=await fetchSessionizeEvent(record.URL)
                 var formattedUtcTime=cfs.cfpDates.endUtc.replace('T', ' ');
 
                 console.log(record.URL, formattedUtcTime);
 
-                sqlQuery(connectionString,
+                cannedSql.sqlQuery(connectionString,
                     'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes;',
                     [   { "name": 'Token',      "type": Types.NVarChar, "value": record.Token },
                         { "name": 'Cfs_Closes', "type": Types.NVarChar, "value": formattedUtcTime }],
@@ -1353,102 +1357,6 @@ async function postToBluesky(message) {
 
 
 
-
-
-
-
-
-
-
-/*-----------------------------------------------------------------------------
-  Canned SQL interface:
------------------------------------------------------------------------------*/
-function sqlQuery(connectionString, statement, parameters, next) {
-    // Connect:
-    var conn = new Connection(connectionString);
-    var rows=[];
-    var columns=[];
-    var errMsg;
-
-    conn.on('infoMessage', connectionError);
-    conn.on('errorMessage', connectionError);
-    conn.on('error', connectionGeneralError);
-    conn.on('end', connectionEnd);
-
-    conn.connect(err => {
-        if (err) {
-            console.log(err);
-            next();
-        } else {
-            exec();
-        }
-    });
-
-    function exec() {
-        var request = new Request(statement, statementComplete);
-
-        parameters.forEach(function(parameter) {
-            request.addParameter(parameter.name, parameter.type, parameter.value);
-        });
-
-        request.on('columnMetadata', columnMetadata);
-        request.on('row', row);
-        request.on('done', requestDone);
-        request.on('requestCompleted', requestCompleted);
-      
-        conn.execSql(request);
-    }
-
-    function columnMetadata(columnsMetadata) {
-        columnsMetadata.forEach(function(column) {
-            columns.push(column);
-        });
-    }
-
-    function row(rowColumns) {
-        var values = {};
-        rowColumns.forEach(function(column) {
-            values[column.metadata.colName] = column.value;
-        });
-        rows.push(values);
-    }
-
-    function statementComplete(err, rowCount) {
-        if (err) {
-            console.log('Statement failed: ' + err);
-            errMsg=err;
-            next();
-        } else {
-            console.log('Statement succeeded: ' + rowCount + ' rows');
-        }
-    }
-
-    function requestDone(rowCount, more) {
-        console.log('Request done: ' + rowCount + ' rows');
-    }
-
-    function requestCompleted() {
-        console.log('Request completed');
-        conn.close();
-        if (!errMsg) {
-            next(rows);
-        }
-    }
-      
-    function connectionEnd() {
-        console.log('Connection closed');
-    }
-
-    function connectionError(info) {
-        console.log('Msg '+info.number + ': ' + info.message);
-    }
-
-    function connectionGeneralError(err) {
-        console.log('General database error:');
-        console.log(err);
-    }
-
-}
 
 
 
