@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <meta content="utf-8" http-equiv="encoding"/>
+    <meta name="theme-color" content="#c6d633">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="Call for Data Speakers">
+    <meta name="description" content="Subscribe to upcoming data platform conferences, or announce your conference to a world of data platform speakers">
+
+    <link rel="shortcut icon" href="https://callfordataspeakers.com/callfordataspeakers-logo.png" type="image/png">
+    <link rel="icon" href="https://callfordataspeakers.com/callfordataspeakers-logo.png" type="image/png">
+
+	<style type="text/css">
+<%=stylesheet%>
+	</style>
+</head>
+<body>
+
+	<span style="display:none; font-size: 0px; line-height: 0px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; visibility: hidden; mso-hide: all;"><%=preview-text%></span>
+
+	<header>
+		<h1 class="callfordataspeakers"><a href="https://callfordataspeakers.com/">Call for Data Speakers</a></h1>
+	</header>
+
+    <div class="main">
+
+			<h1>Your weekly Procrastinator&apos;s Digest</h1>
+
+			<p>
+				Dear {{ firstname | default: "speaker" }},
+			</p>
+			<p>
+				The following events are closing their calls for speakers soon.
+				If you still want to submit a session before the deadline,
+				this is the time.
+			</p>
+			<ul>
+				<%=html-list%>
+			</ul>
+			<p>
+				You're receiving this email because you signed up as a data platform speaker at
+				<a href="https://callfordataspeakers.com/">callfordataspeakers.com</a>. You can
+				update your preferences or unsubscribe at any time using the link in the email footer.
+			</p>
+
+	</div>
+
+
+
+
+    <div class="fineprint">
+		<div class="fineprint-main">
+
+		<p>
+			<a href="{{unsubscribe_link}}">{{unsubscribe_text}}</a>
+		</p>
+
+        <p> Privacy: We will only use your information to email you about calls for speakers for upcoming data platform
+            conferences. Your data is stored and processed by Sender.net for the purpose of fulfilling the service.
+            You can choose to unsubscribe at any time, using the link in the email. This site is built and operated
+            by the friendly people at <a href="https://strd.co/" rel="noopener" target="_blank">Structured Concepts</a>, for use by
+            the data platform community.
+        </p>
+		
+		<p>
+			<b>Our mailing address is:</b><br/>
+
+			Structured Concepts AB<br/>
+			Box 11147<br/>
+			SE-100 61 Stockholm
+		</p>
+
+        <p>
+            Follow <a rel="me" href="https://bsky.app/profile/callfordataspeakers.com">@callfordataspeakers.com on Bluesky</a>!
+            This stuff is open-source. Want to contribute? Head over to the
+            <a href="https://github.com/strdco/callfordataspeakers.com" rel="noopener" target="_blank">Github page</a>.
+        </p>
+
+	    </div>
+	</div>
+
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+
+/* Base elements */
+
+body {
+    height: 100%;
+    margin: 0;
+
+    --yellow: #c6d633;
+    --red: #8C212B;
+    --green: #1E6B53;
+
+    --dark: rgba(0, 0, 0, 0.9);
+
+    --logo-size: 60px;
+
+    font-family: "Helvetica Neue", "Helvetica", "Arial";
+    overflow-x: hidden;
+}
+
+header {
+    padding: 50px 50px 10px 50px;
+    background-color: rgb(0, 0, 0, 0.9);
+    background-image:
+      linear-gradient(
+        rgba(0, 0, 0, 0.6),
+        rgba(0, 0, 0, 0.8),
+        rgba(0, 0, 0, 0.6)),
+        url("https://callfordataspeakers.com/jonas-jacobsson-2xaF4TbjXT0-unsplash.jpg");
+    background-size: auto;
+}
+
+h1 {
+    text-transform: uppercase;
+    font-size: 24pt;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+a:any-link {
+    color: #000000;
+}
+
+/* Text selection */
+
+::selection {
+    background: var(--yellow); /* WebKit/Blink Browsers */
+    color: rgb(0, 0, 0);
+}
+::-moz-selection {
+    background: var(--yellow); /* Gecko Browsers */
+    color: rgb(0, 0, 0);
+}
+
+/* The logo */
+
+h1.callfordataspeakers {
+    border-style: solid;
+    border-color: #000000;
+    border-width: calc(0.05 * var(--logo-size));
+    border-radius: var(--logo-size);
+    background-color: var(--yellow);
+    padding: calc(0.3 * var(--logo-size))
+      calc(0 * var(--logo-size))
+      calc(0.15 * var(--logo-size))
+      calc(0.5 * var(--logo-size));
+    display: block;
+    width: calc(7 * var(--logo-size));
+    height: calc(0.75 * var(--logo-size));
+    font-size: calc(0.5 * var(--logo-size));
+    text-align: center;
+    justify-content: center;
+    margin-bottom: calc(0.75 * var(--logo-size));
+    text-transform: lowercase;
+}
+
+/* Shouty logo icon: */
+h1.callfordataspeakers::after {
+    position: relative;
+    display: block;
+    left: calc(-0.3 * var(--logo-size));
+    top: calc(-0.8 * var(--logo-size));
+    width: var(--logo-size);
+    height: var(--logo-size);
+    background-color: var(--yellow);
+    content: "";
+    background-image: url("https://callfordataspeakers.com/callfordataspeakers-logo.png");
+    background-size: var(--logo-size) var(--logo-size);
+    border-radius: 100%;
+}
+
+/* Clickable link in the logo header: */
+h1.callfordataspeakers a {
+    color: #000000;
+    text-decoration: none;
+}
+
+h1.callfordataspeakers a:hover {
+    text-decoration: underline;
+}
+
+/* Main portion: message contents go here */
+
+.main {
+    display: block;
+    min-height: 100px;
+    font-size: 11pt;
+    padding: 2em 2em 4em 50px;
+    margin: auto;
+    max-width: 600px;
+}
+
+.tag{
+    display: inline-block;
+    font-size: 75%;
+    text-transform:uppercase;
+    font-weight:bold;
+    background-color: var(--green);
+    color:#ffffff;
+    padding:.15rem .5rem;
+    border-radius:.25rem;
+}
+
+.main p {
+    line-height: 150%;
+}
+
+p.centered {
+    text-align: center;
+}
+
+table tr td {
+    padding-left: 0;
+    padding-right: 20px;
+}
+
+/* Yellow button */
+a.yellow-button  {
+    display: inline-block;
+    margin: auto;
+    background-color: #C6D633;
+    padding: 12px 32px;
+    color: #000000;
+    text-decoration: none;
+    outline: none;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #000000;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Helper classes */
+
+.display-none {
+    display: none;
+}
+
+/* Fine print */
+
+.fineprint {
+    width: 100%;
+    background-color: var(--dark);
+    margin-top: 0;
+    margin-bottom: -50px;
+    margin-left: -50px;
+    margin-right: -50px;
+    padding-left: 50px;
+    padding-right: 0;
+    padding-top: 25px;
+    padding-bottom: 25px;
+}
+
+.fineprint .fineprint-main {
+    display: block;
+    margin: auto;
+    max-width: 600px;
+    font-size: 9pt;
+    color: #b0b0b0;
+}
+
+.fineprint a:any-link {
+    color: var(--yellow);
+    text-decoration: none;
+}
+
+.fineprint a:hover {
+    text-decoration: underline;
+/*  text-decoration-thickness: 1px; */
+    text-decoration-color: var(--yellow);
+}
