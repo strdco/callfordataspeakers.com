@@ -77,6 +77,14 @@ var connectionString = {
         } 
     };
 
+// Are we running in a test environment? This prevents posting to social media,
+// accidentally emailing production users, etc.
+var isTestEnvironment=false;
+if (process.env.dbname.toLowerCase().indexOf("test")>=0 ||
+    process.env.dblogin.toLowerCase().indexOf("test")>=0) {
+
+    isTestEnvironment=true;
+}
 
 
 
@@ -90,6 +98,7 @@ var serverPort=process.argv[2] || process.env.PORT || 3000;
 console.log('    **** CALLFORDATASPEAKERS.COM ****');
 console.log('HTTP port:       '+serverPort);
 console.log('Database server: '+process.env.dbserver);
+console.log('Database name:   '+process.env.dbname);
 console.log('Express env:     '+app.settings.env);
 console.log('');
 app.listen(serverPort, () => console.log('READY.'));
