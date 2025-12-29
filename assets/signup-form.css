@@ -1,6 +1,6 @@
 
-.response#mce-error-response,
-.response#mce-success-response {
+.response#error-response,
+.response#success-response {
     display: none;
 }
 
@@ -23,26 +23,26 @@
     color: #ff0000;
 }
 
-.mc-field-group {
+.field-group {
     margin-top: 5px;
 }
 
-.mc-field-group.size1of2 {
+.field-group.size1of2 {
     display: inline-block;
 }
 
-.mc-field-group.size1of2 .datefield {
+.field-group.size1of2 .datefield {
     padding-right: 2em;
 }
 
 /* Input fields */
 
-.mc-field-group label {
+.field-group label {
     width: 170px;
     display: inline-block;
 }
 
-.mc-field-group input {
+.field-group input {
     border-style: none;
     border-bottom-style: dashed;
     border-bottom-width: 1px;
@@ -51,24 +51,24 @@
     color: light-dark(#000000, var(--bright));
 }
 
-.mc-field-group input.matches-sessionize {
+.field-group input.matches-sessionize {
     background-color: rgba(0, 255, 0, 0.25)
 }
 
-.mc-field-group input.mismatches-sessionize {
+.field-group input.mismatches-sessionize {
     background-color: rgba(255, 255, 0, 0.5)
 }
 
-.mc-field-group input[type='email'] {
+.field-group input[type='email'] {
     font-size: 10pt;
     margin: 1px;
     padding: 8px;
     width: 50%;
 }
 
-.mc-field-group input[type='text'],
-.mc-field-group input[type='number'],
-.mc-field-group input[type='url']  {
+.field-group input[type='text'],
+.field-group input[type='number'],
+.field-group input[type='url']  {
     font-size: 10pt;
     margin: 1px;
     padding: 8px;
@@ -79,7 +79,7 @@ div.datefield {
     display: inline-block;
 }
 
-.mc-field-group input.datepart {
+.field-group input.datepart {
     width: 3em;
     display: inline-block;
     padding-left: 0;
@@ -87,13 +87,13 @@ div.datefield {
     text-align: center;
 }
 
-.mc-field-group input[type=number]::-webkit-inner-spin-button, 
-.mc-field-group input[type=number]::-webkit-outer-spin-button { 
+.field-group input[type=number]::-webkit-inner-spin-button, 
+.field-group input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
     margin: 0; 
 }
 
-.mc-field-group .yearfield input.datepart {
+.field-group .yearfield input.datepart {
     width: 4em;
     display: inline-block;
 }
@@ -103,12 +103,12 @@ div.datefield {
 }
 
 /* Error message as applied by the validation script */
-#mc_embed_signup form input.mce_inline_error {
+form#subscribe-form input.mce_inline_error {
     border-color: #c00000;
     background-color: rgb(220,0,0,0.25);
 }
 
-#mc_embed_signup form div.mce_inline_error {
+form#subscribe-form div.mce_inline_error {
     background-color: unset;
     color: #c00000;
     font-weight: normal;
@@ -120,7 +120,7 @@ div.datefield {
 }
 
 /* Fancy left-pointing arrow: */
-#mc_embed_signup form div.mce_inline_error::before {
+form#subscribe-form div.mce_inline_error::before {
     display: block;
     position: absolute;
     height: 0;
@@ -170,7 +170,7 @@ div.datefield {
 
 /* Slightly bigger checkboxes */
 
-.mc-field-group input[type='checkbox'] {
+.field-group input[type='checkbox'] {
     width: 1.25em;
     height: 1.25em;
     margin: 6px;
@@ -179,14 +179,14 @@ div.datefield {
 
 /* Labels for checkboxes cannot be limited in width */
 
-.mc-field-group.input-group label {
+.field-group.input-group label {
     width: inherit;
     min-width: 125px;
 }
 
 /* Subscriber count in the region boxes */
 
-.mc-field-group.input-group li label span.subscriber-count {
+.field-group.input-group li label span.subscriber-count {
     display: inline-block;
     background-color: rgb(255, 255, 255, 0.4);
     border-radius: 2em;
@@ -205,7 +205,7 @@ div.datefield {
 
 /* Big, colorful subscribe button */
 
-#mc-embedded-subscribe.button {
+input[type="submit"] {
     margin-left: 2px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -220,7 +220,7 @@ div.datefield {
     cursor: pointer;
 }
 
-#mc-embedded-subscribe.submitted {
+#embedded-subscribe.submitted {
     background-color: light-dark(#f0f0f0, #404040);
     color: #808080;
     border-color: #808080;
@@ -229,8 +229,6 @@ div.datefield {
 /* Popup message for inline success/failure messages. */
 
 .response {
-    background-color: rgb(198,214,51,0.2);
-    border-color: rgb(198,214,51,1);
     border-width: 2px;
     border-style: solid;
     border-radius: 5px;
@@ -241,3 +239,14 @@ div.datefield {
     display: inline-block;
 }
 
+.response#success-response {
+    background-color: rgb(198,214,51,0.2);
+    border-color: rgb(198,214,51,1);
+    color: black;
+}
+
+.response#error-response {
+    background-color: rgb(140, 33, 43,0.9);
+    border-color: rgb(140, 33, 43,1);
+    color: white;
+}
