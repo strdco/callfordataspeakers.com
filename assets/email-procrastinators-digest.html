@@ -3,6 +3,7 @@
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
     <meta content="utf-8" http-equiv="encoding"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#c6d633">
 
     <link rel="shortcut icon" href="https://callfordataspeakers.com/callfordataspeakers-logo.png" type="image/png">
@@ -14,7 +15,7 @@
 </head>
 <body>
 
-	<span style="display:none; font-size: 0px; line-height: 0px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; visibility: hidden; mso-hide: all;"><%=preview-text%></span>
+	<span style="display:none; font-size: 0px; line-height: 0px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; visibility: hidden; mso-hide: all;"><%=preview%></span>
 
 	<header>
 		<h1 class="callfordataspeakers"><a href="https://callfordataspeakers.com/">Call for Data Speakers</a></h1>
@@ -50,13 +51,13 @@
 		<div class="fineprint-main">
 
 		<p>
-			<a href="https://callfordataspeakers.com/modify?email={{ email | url_encode }}&key={{ sha256 }}">Update your preferences</a> |
+			<a href="https://callfordataspeakers.com/modify?email={{ email | url_encode }}&key={{ sha256 }}">Update your preferences</a><br/>
 			<a href="{{unsubscribe_link}}">{{unsubscribe_text}}</a>
 		</p>
 
         <p> Privacy: We will only use your information to email you about calls for speakers for upcoming data platform
             conferences. Your data is stored and processed by Sender.net for the purpose of fulfilling the service.
-            You can choose to unsubscribe at any time, using the link in the email. This site is built and operated
+            You can choose to unsubscribe at any time, using the link above. This site is built and operated
             by the friendly people at <a href="https://strd.co/" rel="noopener" target="_blank">Structured Concepts</a>, for use by
             the data platform community.
         </p>
@@ -70,9 +71,9 @@
 		</p>
 
         <p>
-            Follow <a rel="me" href="https://bsky.app/profile/callfordataspeakers.com">@callfordataspeakers.com on Bluesky</a>!
-            This stuff is open-source. Want to contribute? Head over to the
-            <a href="https://github.com/strdco/callfordataspeakers.com" rel="noopener" target="_blank">Github page</a>.
+            Follow <a rel="me" href="https://bsky.app/profile/callfordataspeakers.com">@callfordataspeakers.com on Bluesky</a>!<br/>
+            This stuff is open-source. Want to contribute? Head over to
+            <a href="https://github.com/strdco/callfordataspeakers.com" rel="noopener" target="_blank">Github</a>.
         </p>
 
 	    </div>

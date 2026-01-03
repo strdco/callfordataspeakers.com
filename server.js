@@ -11,21 +11,23 @@ const path = require('path');
 const querystring = require('querystring');
 const url = require('url');
 const https = require('https');
+const crypto = require('crypto');
 
 // Other modules:
 const express = require('express');
 const bodyParser = require('body-parser');
 
-// Mailchimp Marketing API
-const mailchimp = require("@mailchimp/mailchimp_marketing");
 // Canned SQL
 const cannedSql=require('./canned-sql.js');
 
+// Headers sent in API calls to Sender.net
+const senderApiHeaders = {
+    "Authorization": "Bearer "+process.env.sender_token,
+    "Content-Type":  "application/json",
+    "Accept":        "application/json"
+}
 
-mailchimp.setConfig({
-    apiKey: process.env.mcapikey,
-    server: process.env.mcapikey.split("-")[1],
-});
+const senderEmail = process.env.sender_email;
 
 // ATProtocol (for Bluesky)
 const blue = require('@atproto/api');
@@ -40,13 +42,6 @@ app.disable('etag');
 app.disable('x-powered-by');
 app.enable('trust proxy');
 
-// Error handler for Express and its middlewares, like BodyParser, etc.
-// Source: https://stackoverflow.com/a/53048858/5471286
-app.use((err, req, res, callback) => {
-    console.error(err);
-    res.sendStatus(500);
-    callback();
-});
 
 // Tedious: used to connect to SQL Server:
 const Connection = require('tedious').Connection;
@@ -92,7 +87,7 @@ if (process.env.dbname.toLowerCase().indexOf("test")>=0 ||
 
 /*-----------------------------------------------------------------------------
   Start the web server
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 var serverPort=process.argv[2] || process.env.PORT || 3000;
 
 console.log('    **** CALLFORDATASPEAKERS.COM ****');
@@ -124,7 +119,7 @@ app.get('/robots933456.txt', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   Start page: Speaker registration
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/', function (req, res, next) {
 
@@ -138,10 +133,51 @@ app.get('/', function (req, res, next) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Modify speaker registration
+  -----------------------------------------------------------------------------*/
+
+app.get('/modify', async function (req, res, next) {
+
+    const queryParams = querystring.parse(url.parse(req.url).query);
+
+    const subscriber = await fetch("https://api.sender.net/v2/subscribers/" + encodeURIComponent(queryParams.email), {
+        method: "GET",
+        headers: senderApiHeaders
+    }).then(response => response.json());
+
+    httpHeaders(res);
+console.log(queryParams);
+console.log(subscriber);
+    if(!subscriber.data.columns.find(col => col.title==="sha256")) {
+        res.status(401).send("Subscriber does not have a hash key.");
+        return;
+    }
+
+    // Check that the key in the URL matches the hash on the subscriber record.
+    if(subscriber.data.columns.find(col => col.title==="sha256").value !== queryParams.key) {
+        res.status(401).send("Subscriber key does not match.");
+        return;
+    };
+
+    // Serve up assets/speaker.html:
+    res.status(200).send(createHTML('speaker.html', {
+        "email": subscriber.data.email,
+        "first-name": subscriber.data.firstname,
+        "last-name": subscriber.data.lastname,
+        "key": queryParams.key,
+        "email-locked": " READONLY",
+        "groups": subscriber.data.subscriber_tags.map(tag => { return tag.title })
+    }));
+});
+
+
+
+
 
 /*-----------------------------------------------------------------------------
   Event request
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.all('/event', function (req, res, next) {
 
@@ -189,13 +225,13 @@ app.all('/event', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   Event request moderation
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/moderate/:token', function (req, res, next) {
 
     httpHeaders(res);
 
-    // Serve up assets/event.html:
+    // Serve up assets/moderate.html:
     res.status(200).send(createHTML('moderate.html', {}));
 });
 
@@ -207,37 +243,20 @@ app.get('/moderate/:token', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   Register a new event request, send a request email to moderator:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
-app.all('/request', function (req, res, next) {
+app.post('/api/request', function (req, res, next) {
 
     httpHeaders(res);
 
-    // Parse query string parameters:
-    queryParams = querystring.parse(url.parse(req.url).query);
-
-    // The "c" variable is passed from the Mailchimp validation form, and I
-    // suppose it fills some kind of purpose that we pass it back in our response:
-    jQueryIdentifier=queryParams.c;
-
-    // Honey trap triggered: this is a bot
-    if (queryParams.free_hunny) {
-        res.status(404).send("Nice try, bot.");
-        return;
-    }
-
-    // Could be GET or POST, so we'll check both:
-    var formName=(queryParams.FNAME || req.body.FNAME)+' '+(queryParams.LNAME || req.body.LNAME);
-    var formEmail=req.body.EMAIL || queryParams.EMAIL;
-    var formEventName=req.body.EVENT || queryParams.EVENT;
-    var formEventVenue=req.body.VENUE || queryParams.VENUE;
+    var formName=req.body["first-name"]+" "+req.body["last-name"];
+    var formEmail=req.body.email;
+    var formEventName=req.body.event;
+    var formEventVenue=req.body.venue;
 
     var formEventDate;
     try {
-        formEventDate=new Date(
-            (queryParams["EVENTDATE[year]"] || req.body["EVENTDATE[year]"])+'-'+
-            (queryParams["EVENTDATE[month]"] || req.body["EVENTDATE[month]"])+'-'+
-            (queryParams["EVENTDATE[day]"] || req.body["EVENTDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
+        formEventDate=new Date(req.body["event-date"]).toISOString().split("T")[0];
     } catch(err) {
         res.status(400).send("Input validation failed on EVENTDATE parameters.");
         return;
@@ -245,28 +264,29 @@ app.all('/request', function (req, res, next) {
 
     var formEventEndDate;
     try {
-        formEventEndDate=new Date(
-            (queryParams["EVENTENDDATE[year]"] || req.body["EVENTENDDATE[year]"])+'-'+
-            (queryParams["EVENTENDDATE[month]"] || req.body["EVENTENDDATE[month]"])+'-'+
-            (queryParams["EVENTENDDATE[day]"] || req.body["EVENTENDDATE[day]"])+' 00:00:00+00:00').toISOString().split("T")[0];
+        if (req.body["event-end-date"]) {
+            formEventEndDate=new Date(req.body["event-end-date"]).toISOString().split("T")[0];
+        }
     } catch(err) {
+        res.status(400).send("Input validation failed on EVENTENDDATE parameters.");
+        return;
     }
 
-    var formEventURL=queryParams.URL || req.body.URL;
-    var formEventInfo=queryParams.INFO || req.body.INFO;
+    var formEventURL=req.body.url;
+    var formEventInfo=req.body.info;
 
     // If you select a single region, it's a string, but with multiple regions, the
     // variable turns into an array. So if it's an array, we need to turn it back
     // into a comma-delimited string again.
 
-    var formEventRegions=(queryParams.REGION || req.body.REGION);
+    var formEventRegions=req.body.groups;
     if (typeof formEventRegions!='string') {
         formEventRegions=formEventRegions.join(",");
     }
 
     // Same type of logic for event type as for event region above.
 
-    var formEventType=(queryParams.TYPE || req.body.TYPE || "");
+    var formEventType=req.body.types;
     if (typeof formEventType!='string') {
         formEventType=formEventType.join(", ");
     }
@@ -301,66 +321,47 @@ app.all('/request', function (req, res, next) {
                 function(recordset) {
                     if (recordset.data) {
 
-                        // Create an email to all moderators, requesting event approval:
-                        var approveButton='<a class="mcnButton" title="Review" href="https://'+req.hostname+'/moderate/'+recordset.data[0].Token+'" '+
-                                                'target="_blank" style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
-                                                'text-decoration:none;color:#000000;">Review</a>';
-
-
-                        // These are the "mc:edit" values that we want to fill into our template:
+                        // These are the values that we want to fill into our template:
                         var templateSections={
-                            "name": formName,
-                            "event_email": formEmail,
-                            "event_regions": formEventRegions,
-                            "event_name": formEventName,
-                            "event_type": formEventType,
-                            "event_venue": formEventVenue,
-                            "event_date": formEventDate + (formEventEndDate ? ' -> ' + formEventEndDate : ''),
-                            "event_url": formEventURL,
-                            "event_info": formEventInfo,
-                            "event_approve": approveButton
+                            "submitted-by-name": encodeHtml(formName),
+                            "submitted-by-email": encodeHtml(formEmail),
+                            "region": encodeHtml(formEventRegions.split(",").join(", ")),
+                            "event-name": encodeHtml(formEventName),
+                            "event-type": encodeHtml(formEventType),
+                            "venue": encodeHtml(formEventVenue),
+                            "event-date": formEventDate + (formEventEndDate ? ' -> ' + formEventEndDate : ''),
+                            "event-url": formEventURL,
+                            "event-information": encodeHtml(formEventInfo),
+                            "review-url": "https://"+req.hostname+"/moderate/"+recordset.data[0].Token
                         };
 
                         // Here's where we send the campaign:
-                        sendCampaign(process.env.organizer_audience,                                    // Audience
-                                    'Moderators',                                                       // Segment name
-                                    '',
-                                    process.env.request_template,                                       // Template name
-                                    false,                                                              // Tracking
-                                    false,                                                              // Tweet
+                        if (sendCampaign(
+                                    'Moderators',                                                       // "Regions"
+                                    "email-campaign-request.html",                                      // Template name
                                     templateSections,                                                   // Values template fields
                                     'New campaign request',                                             // Subject line
-                                    'There\'s a new request for a call for speakers email to review.',  // Preview
-                                    'hello@callfordataspeakers.com')                                    // Reply-to
+                                    'There\'s a new request for a call for speakers email to review.')) // Preview
+                        {
+                            // Success
+                            res.status(200).send({
+                                    "result": "success",
+                                    "msg": "Thank you. A moderator will review your request."
+                                });
+                            return;
+                        } else {
+                            // Error
+                            console.log(err);
 
-                            // Send successful:
-                            .then(() => {
-                                res.status(200).send(
-                                    jQueryIdentifier+'('+
-                                    JSON.stringify({
-                                        "result": "success",
-                                        "msg": "Thank you. A moderator will review your request."
-                                    })+')'
-                                );
-                                return;
-                            })
-    
-                            // Send failed:
-                            .catch(err => {
-                                console.log(err);
-
-                                res.status(500).send(
-                                    jQueryIdentifier+'('+
-                                    JSON.stringify({
-                                        "result": "error",
-                                        "msg": "Sorry. Something didn\'t work out."
-                                    })+')'
-                                );
-                                return;
-                            });
+                            res.status(500).send({
+                                    "result": "error",
+                                    "msg": "Sorry. Something didn\'t work out."
+                                });
+                            return;
+                        }
 
                     } else {
-                        console.log('ERROR: Couldn\'t create the campain record in the database.');
+                        console.log('ERROR: Couldn\'t create the campaign record in the database.');
                         res.status(500).send('There was a problem with the database connection.');
                         return;
                     }
@@ -374,60 +375,184 @@ app.all('/request', function (req, res, next) {
 
 
 
+
+/*-----------------------------------------------------------------------------
+  Add or update a subscriber:
+  -----------------------------------------------------------------------------*/
+
+// Save any changes to the request before sending it out
+app.post('/api/subscribe', async function(req, res, next) {
+
+    if (req.body.free_hunny!=="") {
+        res.status(401).send("You've been a naughty bot.");
+        return;
+    }
+
+    const senderGroups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
+    if (senderGroups.sucess===false) {
+        throw 'Could not fetch groups: '+senderGroups.message;
+    }
+
+    const eligibleGroups = ["Virtual", "Europe", "Middle-East", "Africa", "South Asia",
+                            "South-East Asia", "East Asia", "Oceania", "North America",
+                            "South America", "Procrastinators"];
+
+    // If req.body.groups is a string, convert it to an array
+    const groups = [].concat(req.body.groups)
+        // ... and return the intersection of req.body.groups and eligibleGroups, to
+        // prevent people from signing up to arbitrary groups, like "Moderators":
+        .filter(grpName => eligibleGroups.includes(grpName))
+        .map(grpName => { return senderGroups.data.find(grp => grp.title.toLowerCase()===grpName.toLowerCase()).id; });
+
+    var data = {
+        "email": req.body.email,
+        "firstname": req.body.firstname,
+        "lastname": req.body.lastname,
+        "groups": groups,
+        "fields": {}
+    };
+
+    // Update existing subscriber?
+    if (req.body.key) {
+
+        try {
+            // First, validate that we have the correct SHA256 key
+            const subscriber = await fetch("https://api.sender.net/v2/subscribers/" + encodeURIComponent(req.body.email), {
+                method: "GET",
+                headers: senderApiHeaders
+            }).then(response => response.json());
+
+            if(subscriber.data.columns.find(col => col.title==="sha256").value !== req.body.key) {
+                res.status(401).send("Subscriber key does not match.");
+                return;
+            };
+
+            // PATCH the existing subscriber
+            const result = await fetch("https://api.sender.net/v2/subscribers/" + encodeURIComponent(req.body.email), {
+                method: "PATCH",
+                headers: senderApiHeaders,
+                body: JSON.stringify(data)
+            }).then(response => response.json());
+
+            if (!result.success) {
+                res.status(401).send(result.message);
+                return;
+            }
+
+            // DELETE subscriber from groups (gee thanks, Sender.net)
+            subscriber.data.subscriber_tags
+                // exclude "Moderators", "TEST", etc
+                .filter(grp => eligibleGroups.includes(grp.title))
+                // find groups that are no longer in data.groups
+                .filter(grp => !groups.includes(grp.id))
+                .forEach(grp => {
+                    // ... and remove the user from each group, one by one.
+                    // I'm intentionally doing this async. No plans on hanging around to see how it goes.
+                    fetch("https://api.sender.net/v2/subscribers/groups/" + encodeURIComponent(grp.id), {
+                        method: "DELETE",
+                        headers: senderApiHeaders,
+                        body: JSON.stringify({ "subscribers": [req.body.email] })
+                    }).then(response => response.json());
+                });
+
+
+
+            if (result.success) {
+                res.sendStatus(200);
+            } else {
+                res.status(401).send(result.message);
+            }
+
+        } catch (err) {
+            console.log(err);
+            res.sendStatus(500);
+        }
+
+    }
+    // ... or create a new subscriber?
+    else {
+
+        data.email=req.body.email;
+        data.fields.sha256 = emailHash(req.body.email);
+
+        try {
+            // POST the new subscriber
+            const result = await fetch("https://api.sender.net/v2/subscribers", {
+                method: "POST",
+                headers: senderApiHeaders,
+                body: JSON.stringify(data)
+            }).then(response => response.json());
+
+            if (result.success) {
+                res.sendStatus(200);
+            } else {
+                res.status(401).send(result.message);
+            }
+        } catch (err) {
+            console.log(err);
+            res.sendStatus(500);
+        }
+
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
 /*-----------------------------------------------------------------------------
   Modify an event request from the moderation interface:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 // Save any changes to the request before sending it out
 app.post('/api/update/:token', function(req, res, next) {
 
-    console.log('1');
-
     var formEventDate;
     try {
-        formEventDate=new Date(
-            req.body["EVENTDATE[year]"]+'-'+
-            req.body["EVENTDATE[month]"]+'-'+
-            req.body["EVENTDATE[day]"]+' 00:00:00+00:00').toISOString().split("T")[0];
-        console.log('1a');
+        eventDateComponents = req.body["event-date"].split("-");
+        formEventDate=new Date(Date.UTC(
+            parseInt(eventDateComponents[0]),
+            parseInt(eventDateComponents[1])-1,
+            parseInt(eventDateComponents[2]))
+        ).toISOString().split("T")[0];
     } catch(err) {
-        console.log('1b');
         console.log(err);
         res.status(400).send('That\'s odd.');
         return;
     }
 
-    console.log('2');
-
     var formEventEndDate;
     try {
-        formEventEndDate=new Date(
-            req.body["EVENTENDDATE[year]"]+'-'+
-            req.body["EVENTENDDATE[month]"]+'-'+
-            req.body["EVENTENDDATE[day]"]+' 00:00:00+00:00').toISOString().split("T")[0];
+        eventEndDateComponents = req.body["event-end-date"].split("-");
+        formEventEndDate=new Date(Date.UTC(
+            parseInt(eventEndDateComponents[0]),
+            parseInt(eventEndDateComponents[1])-1,
+            parseInt(eventEndDateComponents[2]))
+        ).toISOString().split("T")[0];
     } catch(err) {
     }
-
-    console.log('3');
-
-    console.log('eventDate:', formEventDate);
-    console.log('eventEndDate:', formEventEndDate);
 
     // Save the everything to the SQL Server table:
     try {
         cannedSql.sqlQuery(connectionString,
             'EXECUTE CallForDataSpeakers.Update_Campaign @Token=@Token, @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
             [   { "name": 'Token',   "type": Types.NVarChar, "value": req.params.token},
-                { "name": 'Name',    "type": Types.NVarChar, "value": req.body.NAME },
-                { "name": 'Email',   "type": Types.NVarChar, "value": req.body.EMAIL },
-                { "name": 'EventName', "type": Types.NVarChar, "value": req.body.EVENT },
-                { "name": 'EventType', "type": Types.NVarChar, "value": req.body.TYPE },
-                { "name": 'Regions', "type": Types.NVarChar, "value": req.body.REGION },
-                { "name": 'Venue',   "type": Types.NVarChar, "value": req.body.VENUE },
+                { "name": 'Name',    "type": Types.NVarChar, "value": req.body.name },
+                { "name": 'Email',   "type": Types.NVarChar, "value": req.body.email },
+                { "name": 'EventName', "type": Types.NVarChar, "value": req.body.event },
+                { "name": 'EventType', "type": Types.NVarChar, "value": req.body.types.join(",") },
+                { "name": 'Regions', "type": Types.NVarChar, "value": req.body.groups.join(",") },
+                { "name": 'Venue',   "type": Types.NVarChar, "value": req.body.venue },
                 { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
                 { "name": 'EndDate', "type": Types.Date,     "value": formEventEndDate },
-                { "name": 'URL',     "type": Types.NVarChar, "value": req.body.URL },
-                { "name": 'Information', "type": Types.NVarChar, "value": req.body.INFO }],
+                { "name": 'URL',     "type": Types.NVarChar, "value": req.body.url },
+                { "name": 'Information', "type": Types.NVarChar, "value": req.body.info }],
 
                 // The stored procedure will return a uniqueidentifier (Token), used to identify
                 // each event request:
@@ -451,15 +576,7 @@ app.post('/api/update/:token', function(req, res, next) {
   Approve an event request, send campaign to speakers:
   -----------------------------------------------------------------------------*/
 
-app.get('/approve/:token', function (req, res, next) {
-    res.status(200).send(createHTML('message.html', {
-        "subject": "Approving...",
-        "message": "Hang on..",
-        "script": '<script src="/assets/approve.js"></script>'
-    }));
-});
-
-app.get('/approve/:token/do', function (req, res, next) {
+app.post('/api/approve/:token', function (req, res, next) {
 
     httpHeaders(res);
 
@@ -473,33 +590,15 @@ app.get('/approve/:token/do', function (req, res, next) {
 
             async function(recordset) {
                 if (recordset.data) {
+                    var eventDateString=friendlyDateRange(
+                        recordset.data[0].Date, 
+                        recordset.data[0].EndDate,
+                        " until ");
 
-                    var fromDate = recordset.data[0].Date;
-                    var toDate = recordset.data[0].EndDate;
-
-                    // formatting the event date; example: Tuesday, December 22, 2020"
-                    var eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-                    // for a range of dates, construct a human-readable date interval text:
-                    if (recordset.data[0].EndDate) {
-                        if (recordset.data[0].Date != recordset.data[0].EndDate) {
-
-                            // "Friday, May 17 until Saturday, May 18, 2024"
-                            if (toDate.getFullYear() != fromDate.getFullYear()) {
-                                eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
-                                        ' until '+toDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                            }
-                            // "Friday, May 17, 2024 until Saturday, May 18, 2024"
-                            else {
-                                eventDateString=fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) +
-                                        ' until '+toDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                            }
-
-                        }
+                    var eventInfoString=recordset.data[0].Information || "";
+                    if (eventInfoString.length>0 && !/[\.!?]/.test(eventInfoString.substring(eventInfoString.length-1))) {
+                        eventInfoString+=".";
                     }
-                    
-                    var eventInfoString=recordset.data[0].Information;
-                    if (eventInfoString===null) { eventInfoString=''; }
 
                     // If the only region is "Virtual", this is a virtual event.
                     // If there are other regions, but they include "Virtual", this is a hybrid event.
@@ -517,84 +616,66 @@ app.get('/approve/:token/do', function (req, res, next) {
 
                     var cfsURL = recordset.data[0].URL;
 
-                    // This is the button at the bottom of the email:
-                    var eventButton='<a class="mcnButton" href="'+
-                                            // Add UTM parameters
-                                            cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=speaker-email' : '')+'" '+
-                                        'target="_blank" '+
-                                        'style="font-weight:normal;letter-spacing:normal;line-height:100%;text-align:center;'+
-                                        'text-decoration:none;color:#000000;">View the Call for Speakers</a>';
-
                     var calendarLink='';
                     if (cfsURL.toLowerCase().indexOf('sessionize.com/')>0) {
                         calendarLink='<a href="'+cfsURL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/')+'" style="text-decoration: underline; color: #000000;">Add to my calendar</a>';
                     }
 
-                    // These are the "mc:edit" values that we want to fill into our template:
+                    // These are the values that we want to fill into our template:
                     var templateSections={
-                        "event_name": recordset.data[0].EventName,
-                        "event_date": eventDateString,
-                        "event_virtual": eventVirtualString,
-                        "event_venue": recordset.data[0].Venue,
-                        "event_type": recordset.data[0].EventType,
-                        "name": recordset.data[0].Name,
-                        "event_email": recordset.data[0].Email,
-                        "event_info": eventInfoString,
-                        "event_button": eventButton,
-                        "calendar_link": calendarLink
+                        "event-name": encodeHtml(recordset.data[0].EventName),
+                        "event-date": eventDateString,
+                        "event-virtual": eventVirtualString,
+                        "event-venue": encodeHtml(recordset.data[0].Venue),
+                        "event-type": encodeHtml(recordset.data[0].EventType.split(",").join(", ")),
+                        "name": encodeHtml(recordset.data[0].Name),
+                        "organizer-email": encodeHtml(recordset.data[0].Email),
+                        "event-information": encodeHtml(eventInfoString),
+                        "cfs-url": cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=speaker-email' : ''),
+                        "calendar-url": calendarLink
                     };
 
-                    // Send the Mailchimp campaign to all our subscribers:
-                    sendCampaign(process.env.speaker_audience,  // Audience
-                                '',
-                                process.env.campaign_template,  // Template name
-                                true,                           // Tracking
-                                true,                           // Tweet
+                    // Send the email campaign to all our subscribers:
+                    if (await sendCampaign(
                                 recordset.data[0].Regions,      // Region group members
+                                "email-call-for-speakers.html", // Template name
                                 templateSections,               // Values to template fields
-                                'hello@callfordataspeakers.com')        // Reply-to
                                 'Call for speakers: '+recordset.data[0].EventName,   // Subject line
-                                recordset.data[0].EventName+' is coming to you on '+eventDateString+'. The call for speakers is open!',      // Preview
-                        )
-
+                                recordset.data[0].EventName+' is coming to you on '+eventDateString+'. The call for speakers is open!')) // Preview
+                    {
                         // Success:
-                        .then((cfsCampaignId) => {
+                        const mastodonUrl = cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=mastodon' : '');
 
-                            // Post to Mastodon (if one is configured in the
-                            // environment variables)
-                            if (process.env.mastodon_access_token) {
-                                postToMastodon('Call for speakers: '+recordset.data[0].EventName+
-                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
-                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
-                            }
+                        // Post to Mastodon (if one is configured in the
+                        // environment variables)
+                        if (process.env.mastodon_access_token && !isTestEnvironment) {
+                            postToMastodon("Call for speakers: "+recordset.data[0].EventName+"\n\n"+mastodonUrl);
+                        }
 
-                            // Post to Bluesky (if one is configured in the
-                            // environment variables)
-                            if (process.env.bluesky_password) {
-                                postToBluesky('Call for speakers: '+recordset.data[0].EventName+
-                                    ' - https://'+process.env.mcapikey.split('-')[1]+'.campaign-archive.com/?u='+
-                                    process.env.mailchimp_social_identifer+'&id='+cfsCampaignId);
-                            }
-        
-                            res.status(200).send(createHTML('message.html', {
-                                "subject": "Campaign sent",
-                                "message": "Your campaign has been scheduled and will be sent out."
-                            }));
-                            return;
-                        })
+                        const blueskyUrl = cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=bluesky' : '');
 
-                        // Or not:
-                        .catch(err => {
-                            res.status(500).json(err);
-                            return;
+                        // Post to Bluesky (if one is configured in the
+                        // environment variables)
+                        if (process.env.bluesky_password && !isTestEnvironment) {
+                            postToBluesky("Call for speakers: "+recordset.data[0].EventName+"\n\n"+blueskyUrl);
+                        }
+
+                        res.status(200).send({
+                            "subject": "Campaign sent",
+                            "message": "Your campaign has been scheduled and will be sent out."
                         });
-
+                        return;
+                    } else {
+                    // Or not:
+                        res.status(500).json(err);
+                        return;
+                    }
                 } else {
                     console.log('Invalid token: '+token+'.');
-                    res.status(404).send(createHTML('message.html', {
+                    res.status(404).send({
                         "subject": "Nope",
                         "message": "That token is invalid or already used."
-                    }));
+                    });
                     return;
                 }
     });
@@ -619,7 +700,7 @@ app.get('/digest/:apikey', function (req, res, next) {
 
         // Fetch events whose call for speakers closes in 3-10 days
         cannedSql.sqlQuery(connectionString,
-            'SELECT EventName, [URL]\n'+
+            'SELECT EventName, [URL], Regions\n'+
             'FROM CallForDataSpeakers.Feed\n'+
             'WHERE Cfs_Closes>=DATEADD(hour, 36, SYSUTCDATETIME())\n'+
             '  AND Cfs_Closes<DATEADD(hour, 36+7*24, SYSUTCDATETIME())\n'+
@@ -629,44 +710,37 @@ app.get('/digest/:apikey', function (req, res, next) {
                     if (recordset.data.length>0) {
                         const htmlList = recordset.data.map(row => {
                             const url = row.URL+(row.URL.toLowerCase().indexOf('utm_source')==-1 ? (row.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=digest' : '');
-                            return '<li><a href=\"'+encodeHtml(url)+'">'+encodeHtml(row.EventName)+"</a></li>";
+                            const regions = row.Regions.split(",").map(r => " <div class=\"tag\">"+encodeHtml(r)+"</div>").join(" ");
+                            return '<li><a href=\"'+encodeHtml(url)+'">'+encodeHtml(row.EventName)+"</a>"+regions+"</li>";
                         }).join("\n");
 
-                        // Send the Mailchimp campaign to all our subscribers:
-                        sendCampaign(process.env.speaker_audience,  // Audience
-                                    process.env.digest_segment,     // Segment name
-                                    undefined,                      // Region group members
-                                    process.env.digest_template,    // Template name
-                                    true,                           // Tracking
-                                    false,                          // Tweet
-                                    { "html_list": htmlList },      // Values to template fields
-                                    'Call for Data Speakers: Events closing soon',   // Subject line
-                                    "Your Procrastinator\'s Digest: these events are closing their calls for speakers in the next few days.",      // Preview
-                                    'hello@callfordataspeakers.com')        // Reply-to
-
+                        // Send the campaign to all our subscribers:
+                        if (await sendCampaign(
+                                    "Procrastinators",                              // Region group members
+                                    "email-procrastinators-digest.html",            // Template name
+                                    { "html-list": htmlList },                      // Values to template fields
+                                    'Call for Data Speakers: Events closing soon',  // Subject line
+                                    "Your Procrastinator\'s Digest: these events are closing their calls for speakers in the next few days.")) // Preview
+                        {
                             // Success:
-                            .then((cfsCampaignId) => {
-                                res.status(200).json({ "status": "ok", "campaignId": cfsCampaignId });
-                                return;
-                            })
-
+                            res.status(200).json({ "status": "ok" });
+                            return;
+                        } else {
                             // Or not:
-                            .catch(err => {
-                                console.log(err);
-                                res.status(500).json({ "status": "Bad things have happened" });
-                                return;
-                            });                    
+                            console.log(err);
+                            res.status(500).json({ "status": "Bad things have happened" });
+                            return;
+                        }
                     } else {
                         res.status(200).json({ "status": "nothing to send" });
                     }
                     return;
                 });
     } else {
-            console.log('Invalid token: '+token+'.');
-            res.status(404).send(createHTML('message.html', {
-                "subject": "Nope",
-                "message": "That token is invalid or already used."
-            }));
+            console.log('Invalid token API key.');
+            res.status(404).send({
+                "status": "Not allowed"
+            });
             return;
     }
 });
@@ -679,7 +753,7 @@ app.get('/digest/:apikey', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   REST API-ish to list events:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/api/events', function (req, res, next) {
 
@@ -697,6 +771,11 @@ app.get('/api/events', function (req, res, next) {
 
 });
 
+
+/*-----------------------------------------------------------------------------
+  API to fetch single event for moderation:
+  -----------------------------------------------------------------------------*/
+
 app.get('/api/event/:token', function (req, res, next) {
 
     httpHeaders(res);
@@ -707,7 +786,7 @@ app.get('/api/event/:token', function (req, res, next) {
         [   { "name": 'Token', "type": Types.NVarChar, "value": req.params.token }],
 
             async function(recordset) {
-                if (recordset.data) {
+                if (recordset.data.length>0) {
                     if (recordset.data[0].URL.toLowerCase().indexOf('sessionize.com/')>-1 && process.env.sessionize_apikey) {
                         blob=await fetchSessionizeEvent(recordset.data[0].URL);
                         if (blob) {
@@ -726,7 +805,7 @@ app.get('/api/event/:token', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   List events:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/list', function (req, res, next) {
 
@@ -739,7 +818,7 @@ app.get('/list', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   List precon speakers:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/precon', function (req, res, next) {
 
@@ -760,7 +839,7 @@ app.get('/precon', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   RSS feed:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
 
 app.get('/feed', async function (req, res, next) {
 
@@ -823,104 +902,94 @@ const encodeHtml = str => str.replace(/[&<>'"]/g,
 
 
 /*-----------------------------------------------------------------------------
-  List events:
------------------------------------------------------------------------------*/
+  Sync subscriber count to a local JSON file that we can use to display the
+  count on each page.
+  -----------------------------------------------------------------------------*/
 
-app.get('/api/sync-mailchimp/:apikey', async function (req, res, next) {
+app.get('/api/sync-subscriber-count/:apikey', async function (req, res, next) {
 
     if (req.params.apikey==process.env.apikey) {
 
         try {
             // Update subscriber count:
-            var subscriberCount = await getSubscriberCount(process.env.speaker_audience);
+            getSubscriberCount();
 
             // Update campaign/email count:
-            getCampaignCount(process.env.speaker_audience);
+            getCampaignCount();
 
-            res.status(200).json(subscriberCount);
+            res.status(200).json({ "status": "ok" });
         } catch(err) {
-            res.status(500);
+            res.status(500).json({ "status": "error" });
         }
         console.log('Done');
 
     } else {
-
-        console.log('Invalid API key for /api/sync-mailchimp');
-        res.status(401).send('Invalid API key');
-
+        res.status(401).json({ "status": "invalid authenticator" });
     }
 
 });
 
 
+async function getSubscriberCount() {
 
+    // We don't want to include groups like "Moderators", "Procrastinators", or "TEST".
+    const eligibleGroups = ["Virtual", "Europe", "Middle-East", "Africa", "South Asia",
+                            "South-East Asia", "East Asia", "Oceania", "North America",
+                            "South America"];
 
+    // How many subscribers for each region group?
+    const groups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
 
-async function getSubscriberCount(listName) {
-    var listId;
-    var subscriberCount;
-    var regions=[];
-
-    // Find the "Speakers" list (the audience):
-    const allLists = await mailchimp.lists.getAllLists({ "count": 100 });
-    Array.from(allLists.lists).filter(list => list.name===listName).forEach(list => {
-        listId=list.id;
-        subscriberCount=list.stats.member_count;
-    });
-
-    // Find the "Regions" group:
-    const allGroups = await mailchimp.lists.getListInterestCategories(listId);
-    const groupId=Array.from(allGroups.categories).filter(group => group.title==="Region")[0].id;
-
-    // Fetch all regions:
-    var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
-    Array.from(allGroupMembers.interests).forEach(member => {
-        regions.push({
-            "name": member.name,
-            "subscriber_count": member.subscriber_count
+    const subscriberCount = groups.data
+        .filter(grp => eligibleGroups.includes(grp.title))
+        .map(grp => {
+            return {
+                "name": grp.title,
+                "subscriber_count": grp.active_subscribers
+            };
         });
-    });
+
+    console.log(subscriberCount);
 
     // Write to file
-    fs.writeFileSync(__dirname + '/assets/subscriber-count.json', JSON.stringify(regions));
-
-    // Return the results:
-    return(regions);
-
+    fs.writeFileSync(__dirname + '/assets/subscriber-count.json', JSON.stringify(subscriberCount));
 }
 
-async function getCampaignCount(listName) {
-    var offset=0;
-    var pageSize=1000;
+
+async function getCampaignCount() {
+
+    var page=1;
+    var pageSize=10;
     var done=false;
 
-    var campaignCount=0;
-    var emailCount=0;
+    var campaignCount=parseInt(process.env.legacy_campaign_count) || 0;
+    var emailCount=parseInt(process.env.legacy_email_count) || 0;
 
     while (!done) {
-        // Fetch a page of campaigns:
-        var allCampaigns = await mailchimp.campaigns.list({ "count": pageSize, "offset": offset });
+        console.log(page);
+        const campaigns = await fetch('https://api.sender.net/v2/campaigns?limit='+pageSize+'&status=SENT&page='+page, { headers: senderApiHeaders }).then(response => response.json());
 
-        if (allCampaigns.campaigns.length>0) {
-            Array.prototype.forEach.call(allCampaigns.campaigns, campaign => {
-                if (campaign.recipients.list_name==listName) {
-                    campaignCount++;
-                    emailCount+=campaign.emails_sent;
-                }
-            });
+        const cfsCampaigns = campaigns.data.filter(c => /^Call for speakers: /.test(c.subject) && !/closing soon/.test(c.subject));
 
-            // Set the next page to fetch:
-            offset+=pageSize;
-            if (allCampaigns.campaigns.length<pageSize) { done=true; }
-        } else {
-            done=true;
-        }
+        campaignCount += cfsCampaigns.length;
+        emailCount    += cfsCampaigns.reduce((accumulator, campaign) => accumulator + campaign.sent_count, 0);
+
+        console.log(campaignCount, emailCount);
+
+        if (campaigns.data.length===0) { done=true; }
+        page++;
     }
 
-    fs.writeFileSync(__dirname + '/assets/campaign-count.json', JSON.stringify({ "campaigns": campaignCount, "emails": emailCount }));
+    fs.writeFileSync(__dirname + '/assets/campaign-count.json', JSON.stringify({
+        "campaigns": campaignCount,
+        "emails": emailCount
+    }));
 }
 
 
+/*-----------------------------------------------------------------------------
+  Fetch event information from Sessionize:
+  -----------------------------------------------------------------------------*/
 
 app.get('/api/get-sessionize', async function (req, res, next) {
     var details={};
@@ -939,6 +1008,11 @@ app.get('/api/get-sessionize', async function (req, res, next) {
     }
 });
 
+
+
+/*-----------------------------------------------------------------------------
+  Sync call-for-speakers closing dates from Sessionize:
+  -----------------------------------------------------------------------------*/
 
 app.get('/api/sync-sessionize/:apikey', async function (req, res, next) {
     if (req.params.apikey==process.env.apikey) {
@@ -979,44 +1053,6 @@ async function updateCfsCloseDates(res) {
 
     res.status(200).send('OK');
 }
-
-        
-
-async function getCalendar(url) {
-    const options = {
-        method: 'GET'
-    };
-
-    return new Promise((resolve, reject) => {
-        const req = https.request(url, options, (res) => {
-            if (res.statusCode>204) {
-                return reject(new Error('status='+res.statusCode));
-            }
-
-            const body = [];
-            res.on('data', (chunk) => body.push(chunk));
-            res.on('end', () => {
-                //console.log(Buffer.concat(body).toString());
-
-                var resBlob;
-                resBlob = Buffer.concat(body).toString();
-                resolve(resBlob);
-            });
-        })
-
-        req.on('error', (err) => {
-            reject(err);
-        })
-
-        req.on('timeout', () => {
-            req.destroy();
-            reject(new Error('Request time out'));
-        })
-
-        req.end();
-    });
-}
-
 
 
 
@@ -1074,32 +1110,39 @@ app.get('/:asset', function (req, res, next) {
 
 /*-----------------------------------------------------------------------------
   Format the HTML template:
------------------------------------------------------------------------------*/
+  -----------------------------------------------------------------------------*/
+
 function createHTML(templateFile, values) {
     var rn=Math.random();
 
     // Read the template file:
     var htmlTemplate = fs.readFileSync(path.resolve(__dirname, './assets/'+templateFile), 'utf8').toString();
 
+    // Apparently, tabs mess with some HTML renderers, who knew...
+    htmlTemplate=htmlTemplate.split("\t").join(" ");
+
     // Loop through the JSON blob given as the argument to this function,
     // replace all occurrences of <%=param%> in the template with their
     // respective values.
     for (var param in values) {
         if (values.hasOwnProperty(param)) {
-            htmlTemplate = htmlTemplate.split('\<\%\='+param+'\%\>').join(values[param]);
+            const value=values[param];
+            if (typeof value==="string") {
+                htmlTemplate = htmlTemplate.split("\<\%\="+param+"\%\>").join(value);
+            } else {
+                for (key of value) {
+                    htmlTemplate = htmlTemplate.split("\<\%\="+param+":"+key+"\%\>").join(" checked");
+                }
+            }
         }
     }
 
     // Special parameter that contains a random number (for caching reasons):
     htmlTemplate = htmlTemplate.split('\<\%\=rand\%\>').join(rn);
-    
+
     // Clean up any remaining parameters in the template
     // that we haven't replaced with values from the JSON argument:
-    while (htmlTemplate.includes('<%=')) {
-        param=htmlTemplate.substr(htmlTemplate.indexOf('<%='), 100);
-        param=param.substr(0, param.indexOf('%>')+2);
-        htmlTemplate = htmlTemplate.split(param).join('');
-    }
+    htmlTemplate = htmlTemplate.replace(/<%=([\s\S]*?)%>/g, "");
 
     // DONE.
     return(htmlTemplate);
@@ -1109,180 +1152,92 @@ function createHTML(templateFile, values) {
 
 
 
-
-
-
-
 /*-----------------------------------------------------------------------------
-  Canned Mailchimp template campaign:
------------------------------------------------------------------------------*/
+  Send campaign: Returns true if successful
+  -----------------------------------------------------------------------------*/
 
-async function sendCampaign (listName, segmentName, regions, templateName, enableTracking, tweet, templateSections, subjectLine, previewText, replyTo) {
+async function sendCampaign(regions, templateName, templateSections, subjectLine, previewText) {
 
-    var segmentId;
-    var templateId;
-    var campaignId;
-    var segmentOpts;
-
-    const showDebugInfo=true;
-
-    // Defaults:
-    if (!subjectLine) { subjectName=templateName; }
-    if (!replyTo) { replyTo='hello@callfordataspeakers.com'; }
-
-    try {
-
-        // Find the "Organizers" or "Speakers" list (the audience):
-        // ----------------------------------------------
-        const allLists = await mailchimp.lists.getAllLists({ "count": 100 });
-        const listId = Array.from(allLists.lists).filter(list => list.name===listName)[0].id;
-
-        if (showDebugInfo) { console.log('list_id='+listId); }
-
-        // Find the segment, or create an ad-hoc segment:
-        // ----------------------------------------------
-        if (listId) {
-
-            // Option 1: Find a specific, named segment:
-            if (segmentName) {
-                const allSegments = await mailchimp.lists.listSegments(listId);
-                segmentId = Array.from(allSegments.segments).filter(seg => seg.name===segmentName)[0].id;
-
-                if (!segmentId) {
-                    throw 'Could not find segment name \"'+segmentName+'\".';
-                }
-
-                segmentOpts={
-                    "saved_segment_id": segmentId
-                };
-
-                if (showDebugInfo) { console.log('segment_id='+segmentOpts.saved_segment_id); }
-
-            }
-
-            // Option 2: Create an ad-hoc segment from a list of one or more regions:
-            if (regions) {
-
-                // Normalize region names to simplify matching:
-                regions=regions.toUpperCase().replace('-', '').replace(' ', '');
-
-                // 2a. Find the Group ID for the "Region" group:
-                var groupId;
-                const allGroups = await mailchimp.lists.getListInterestCategories(listId);
-                groupId=Array.from(allGroups.categories).filter(group => group.title==="Region")[0].id
-
-                var memberList=[];
-
-                // 2b. Find all matching regions:
-                var allGroupMembers=await mailchimp.lists.listInterestCategoryInterests(listId, groupId, {"count": 100});
-
-                Array.prototype.forEach.call(allGroupMembers.interests, member => {
-                    if (showDebugInfo) { console.log(member.name+'?'); }
-                    // Is this member in the list of regions?
-                    if (regions.split(",").includes(member.name.toUpperCase().replace('-', '').replace(' ', ''))) {
-                        if (showDebugInfo) { console.log('Yup.'); }
-                        memberList.push(member.id);
-                    } else {
-                        if (showDebugInfo) { console.log('Nope.'); }
-                    }
-                });
-
-                segmentOpts={
-                    "match": "any",
-                    "conditions": [{
-                        "condition_type": "Interests",
-                        "field": "interests-"+groupId,
-                        "op": "interestcontains",
-                        "value": memberList
-                    }]
-                };
-
-                if (showDebugInfo) { console.log('conditions='); console.log(segmentOpts.conditions); }
-
-            }
-        }
-
-        // Find the template:
-        // ----------------------------------------------
-        if (segmentOpts) {
-            const allTemplates = await mailchimp.templates.list({ "count": 1000 });
-            templateId=Array.from(allTemplates.templates).filter(template => template.name===templateName)[0].id;
-
-            if (showDebugInfo) { console.log('template_id='+templateId); }
-        }
-
-        // Create the campaign:
-        // ----------------------------------------------
-        if (templateId) {
-            var campaignParameters = {
-                "type": "regular",
-                "recipients": {
-                    "list_id": listId,
-                    "segment_opts": segmentOpts
-                },
-                "settings": {
-                    "subject_line": subjectLine,
-                    "preview_text": previewText,
-                    "title": subjectLine,
-                    "from_name": "Call for Data Speakers",
-                    "reply_to": replyTo,
-                    "authenticate": true,
-                    "auto_footer": false,
-                    "auto_tweet": tweet,
-                    "template_id": templateId
-                },
-                "tracking": {
-                    "opens": enableTracking,
-                    "html_clicks": enableTracking,
-                    "text_clicks": enableTracking,
-                    "goal_tracking": enableTracking,
-                    "ecomm360": false
-                },
-                "content_type": "template",
-                "social_card": {
-                    "image_url": "https://callfordataspeakers.com/assets/social-preview.jpeg",
-                    "description": previewText,
-                    "title": subjectLine
-                }
-            };
-            var campaign = await mailchimp.campaigns.create(campaignParameters);
-            campaignId = campaign.id;
-
-            if (showDebugInfo) { console.log('campaign_id='+campaignId); }
-        }
-
-        // Update the campaign with the template values:
-        // ----------------------------------------------
-        if (campaignId) {
-
-            if (templateSections) {
-                var updateInstructions={
-                    "template": {
-                        "id": templateId,
-                        "sections": templateSections
-                    }
-                };
-                await mailchimp.campaigns.setContent(campaignId, updateInstructions);
-                console.log('Campaign updated.');
-            }
-
-            // Update the campaign with the template values:
-            // ----------------------------------------------
-            await mailchimp.campaigns.send(campaignId);
-            console.log('Campaign sent.');
-        }
-
-    } catch (err) {
-        console.log(err);
-        throw err;
+    // Fetch groups for each of the regions
+    const groups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
+    if (groups.sucess===false) {
+        throw 'Could not fetch groups: '+groups.message;
     }
 
-    return(campaignId);
+    if (isTestEnvironment) {
+        regions="TEST";
+        console.log("WARNING: Overriding region. Setting to \”TEST\".");
+    }
+
+    const regionList = regions
+        .toUpperCase()
+        .split("-").join("")
+        .split(" ").join("")
+        .split(",");
+
+    const groupIds = groups.data
+        .filter(grp => regionList.indexOf(grp.title.toUpperCase().replace("-", "").replace(" ", ""))>=0)
+        .map(grp => grp.id);
+
+    if (groupIds.length!==regions.split(",").length || groupIds.length===0) {
+        throw new Error("Group count is zero, or does not match the target region count.");
+    }
+
+    // Load the email template
+    const templateCSS = fs.readFileSync(__dirname + "/assets/email-template-style.css", { encoding: "utf8", flag: "r" });
+    templateSections.stylesheet=templateCSS;
+    templateSections.preview=previewText;
+
+    // Populate the email template
+    templateSections.subject=subjectLine;
+    const htmlContent=createHTML(templateName, templateSections);
+
+    // Construct the API call and create the campaign
+    data = {
+        "title": subjectLine,
+        "subject": subjectLine,
+        "from": "Call for Data Speakers",
+        "reply_to": senderEmail,
+        "preheader": previewText,
+        "content_type": "html",
+        "google_analytics": 0,
+        "auto_followup_active": false,
+        "groups": groupIds,
+        "content": htmlContent
+    };
+
+    const campaign = await fetch("https://api.sender.net/v2/campaigns", {
+        method: "POST",
+        headers: senderApiHeaders,
+        body: JSON.stringify(data)
+    }).then(response => response.json());
+
+    if (campaign.sucess===false) {
+        throw 'Could not create campaign: '+campaign.message;
+    }
+
+    const campaignId = campaign.data.id;
+
+    // Send the campaign
+    const sendStatus = await fetch("https://api.sender.net/v2/campaigns/"+campaignId+"/send", {
+        method: "POST",
+        headers: senderApiHeaders
+    }).then(response => response.json());
+
+    if (sendStatus.sucess===false) {
+        throw 'Could not send campaign: '+sendStatus.message;
+    }
+
+    console.log((new Date), "Sent campaign: "+subjectLine);
+    return sendStatus.success;
 }
 
 
 
 
+/*-----------------------------------------------------------------------------
+  Post the call for speakers to Mastodon:
+  -----------------------------------------------------------------------------*/
 
 async function postToMastodon(message) {
 
@@ -1332,6 +1287,9 @@ async function postToMastodon(message) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Post the call for speakers to Bluesky:
+  -----------------------------------------------------------------------------*/
 
 // Thanks: https://ashevat.medium.com/how-to-build-a-bluesky-bot-using-atproto-and-openai-api-77a26a154b
 async function postToBluesky(message) {
@@ -1371,6 +1329,9 @@ async function postToBluesky(message) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Standardized HTTP headers:
+  -----------------------------------------------------------------------------*/
 
 function httpHeaders(res) {
     // The "preload" directive also enables the site to be pinned (HSTS with Preload)
@@ -1382,8 +1343,7 @@ function httpHeaders(res) {
         res.req.originalUrl.toLowerCase().indexOf('/api/')==-1) {
 
         // Limits use of external script/css/image resources
-        // Mailchimp made me add the 'unsafe-eval' and 'unsafe-inline' stuff. :(
-        res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self' 'unsafe-inline'; script-src 'unsafe-eval' 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://*.list-manage.com https://s3.amazonaws.com/downloads.mailchimp.com/;");
+        res.header('Content-Security-Policy', "default-src https: 'self'; style-src 'self'; script-src 'self' https://static.cloudflareinsights.com;");
     }
 
     // Don't allow this site to be embedded in a frame; helps mitigate clickjacking attacks
@@ -1406,6 +1366,9 @@ function httpHeaders(res) {
 
 
 
+/*-----------------------------------------------------------------------------
+  Fetch sessionize event information:
+  -----------------------------------------------------------------------------*/
 
 async function fetchSessionizeEvent(sessionizeUrl) {
 
@@ -1447,3 +1410,92 @@ async function fetchSessionizeEvent(sessionizeUrl) {
     }
 
 }
+
+
+/*-----------------------------------------------------------------------------
+  Hash email address (with salt) with SHA256. This digest is used to authenticate
+  users when they open the /modify page to change their registration.
+  -----------------------------------------------------------------------------*/
+
+function emailHash(email) {
+    return crypto.createHash("sha256").update(email+":"+process.env.email_hash_salt).digest("hex");
+}
+
+
+
+/*-----------------------------------------------------------------------------
+  Friendly formatting for date ranges.
+  -----------------------------------------------------------------------------*/
+
+function friendlyDateRange(fromDate, toDate, separator) {
+    toDate = toDate || fromDate;
+    separator = separator || " - ";
+
+    var friendlyDate;
+
+    if (fromDate===toDate) {
+        // Single date
+        friendlyDate=fromDate.toLocaleDateString("en-US", {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+    } else if (fromDate.getUTCFullYear()===toDate.getUTCFullYear()) {
+        if (fromDate.getUTCMonth()===toDate.getUTCMonth()) {
+            // Same year & month
+            friendlyDate=fromDate.toLocaleDateString("en-US", {
+                    month: 'long',
+                    day: 'numeric'
+                })+separator+toDate.toLocaleDateString("en-US", {
+                    day: 'numeric'
+                })+", "+toDate.toLocaleDateString("en-US", {
+                    year: 'numeric'
+                });
+
+        } else {
+            // Same year, different month
+            friendlyDate=fromDate.toLocaleDateString("en-US", {
+                    month: 'long',
+                    day: 'numeric'
+                })+separator+toDate.toLocaleDateString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+        }
+    } else {
+        // Different year
+            friendlyDate=fromDate.toLocaleDateString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                })+separator+toDate.toLocaleDateString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+    }
+
+    return friendlyDate;
+}
+
+
+
+
+
+/*-----------------------------------------------------------------------------
+  Error handler for Express and its middlewares, like BodyParser, etc.
+  This needs to go last, after all the other routes.
+  -----------------------------------------------------------------------------*/
+
+app.use((err, req, res, callback) => {
+    console.error(err);
+    res.sendStatus(500);
+    callback();
+});
+
+
+
+
+

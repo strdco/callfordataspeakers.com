@@ -1,155 +1,127 @@
+const token=document.location.pathname.split("/")[2];
 
 
 
 
+document.querySelector('form#approve-form').addEventListener("submit", (e) => {
+    e.preventDefault();      // Prevents the form from submitting
+    e.stopPropagation();     // Avoids bubbling to form submit handlers
+});
+
+document.querySelector('form#approve-form input[name=approve]').addEventListener("click", (e) => {
+    form=document.querySelector("form#approve-form");
+    form.action="/api/approve/"+token;
+    if (postForm(form, e.target)) {
+        document.location.pathname="/list";
+    } else {
+        window.alert("There was a problem posting this event.");
+        e.target.disabled=false;
+    };
+});
+
+document.querySelector('form#approve-form input[name=save]').addEventListener("click", (e) => {
+    form=document.querySelector("form#approve-form");
+    form.action="/api/update/"+token;
+
+    //form.querySelector("input[name='approve']").disabled=true;
+    const res=postForm(form, e.target);
+    if (res) { form.querySelector("input[name='approve']").disabled=false; }
+});
 
 
 
 
-/* Housekeeping stuff to do when the page finishes loading */
-window.onload = function yeahyeah() {
+fetch("/api/event/"+token).then(async response => {
 
-    // This is the moderation interface - fetch a single event's details and
-    // populate the form with that information.
-    if (document.location.pathname.substring(0, 10)=='/moderate/') {
-        var token=document.location.pathname.substring(10, 46);
-        var xhr3 = new XMLHttpRequest();
+    if (response.status===200) {
+        const eventDetails = (await response.json())[0];
+        const form=document.querySelector("form#approve-form");
 
-        xhr3.onload = function() {
-            if (xhr3.status == 200) {
-                const eventDetails = JSON.parse(xhr3.response)[0];
-                const form=document.querySelector('form');
+        // Populate the form with values from the database:
 
-                form.querySelector('#mce-EMAIL').value=eventDetails.Email;
-                form.querySelector('#mce-NAME').value=eventDetails.Name;
-                form.querySelector('#mce-EVENT').value=eventDetails.EventName;
-                form.querySelector('#mce-VENUE').value=eventDetails.Venue;
+        form.querySelector("input#url").value=eventDetails.URL;
+        form.querySelector("input#email").value=eventDetails.Email;
+        form.querySelector("input#name").value=eventDetails.Name;
+        form.querySelector("input#event").value=eventDetails.EventName;
+        form.querySelector("input#venue").value=eventDetails.Venue;
+        form.querySelector("input#info").value=eventDetails.Information;
 
-                var eventDate=new Date(Date.parse(eventDetails.Date));
+        var eventDate=new Date(Date.parse(eventDetails.Date));
 
-                form.querySelector('#mce-EVENTDATE-year').value=eventDate.getUTCFullYear();
-                form.querySelector('#mce-EVENTDATE-month').value=eventDate.getUTCMonth()+1;
-                form.querySelector('#mce-EVENTDATE-day').value=eventDate.getUTCDate();
+        form.querySelector('input#event-date-year').value=eventDate.getUTCFullYear().toString();
+        form.querySelector('input#event-date-month').value=(eventDate.getUTCMonth()+1).toString().padStart(2, "0");
+        form.querySelector('input#event-date-day').value=eventDate.getUTCDate().toString().padStart(2, "0");
 
-                var endDate=new Date(Date.parse(eventDetails.EndDate));
-                if (endDate>0) {
-                    form.querySelector('#mce-EVENTENDDATE-year').value=endDate.getUTCFullYear();
-                    form.querySelector('#mce-EVENTENDDATE-month').value=endDate.getUTCMonth()+1;
-                    form.querySelector('#mce-EVENTENDDATE-day').value=endDate.getUTCDate();
+        var endDate=new Date(Date.parse(eventDetails.EndDate));
+        if (endDate>0) {
+            form.querySelector('input#event-end-date-year').value=endDate.getUTCFullYear().toString();
+            form.querySelector('input#event-end-date-month').value=(endDate.getUTCMonth()+1).toString().padStart(2, "0");
+            form.querySelector('input#event-end-date-day').value=endDate.getUTCDate().toString().padStart(2, "0");
+        }
+
+        eventDetails.Regions.split(",").forEach(region => {
+            form.querySelector('input[name="groups"][value="'+region.trim()+'"]').checked=true;
+        });
+
+        eventDetails.EventType.split(",").forEach(type => {
+            form.querySelector('input[name="types"][value="'+type.trim()+'"]').checked=true;
+        });
+
+        // If there's information about a Sessionize event, store those values
+        // in the "sessionize" attribute on each input element for comparison:
+
+        if (eventDetails.Sessionize) {
+            form.querySelector('input#event').setAttribute('sessionize', eventDetails.Sessionize.name);
+            form.querySelector('input#event-date-year').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(0, 4));
+            form.querySelector('input#event-date-month').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(5, 7));
+            form.querySelector('input#event-date-day').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(8, 10));
+
+            if (eventDetails.Sessionize.isTest) {
+                form.querySelector('input#review-cfs').value='WARNING: Event is in test mode!';
+                form.querySelector('input#review-cfs').classList.add('mismatches-sessionize');
+            } else {
+                form.querySelector('input#review-cte').value='UTC '+eventDetails.Sessionize.cfpDates.startUtc.replace('T', ' ').substring(0, 16)+' -> '+eventDetails.Sessionize.cfpDates.endUtc.replace('T', ' ').substring(0, 16);
+                if (Date.parse(eventDetails.Sessionize.cfpDates.startUtc)<=Date.now() && Date.parse(eventDetails.Sessionize.cfpDates.endUtc)>=Date.now()) {
+                    form.querySelector('input#review-cfs').classList.add('matches-sessionize');
+                } else {
+                    form.querySelector('input#review-cfs').classList.add('mismatches-sessionize');
                 }
-
-                form.querySelector('#mce-URL').value=eventDetails.URL;
-                form.querySelector('#mce-INFO').value=eventDetails.Information;
-
-                eventDetails.Regions.split(',').forEach(region => {
-                    form.querySelector('input[name=REGION][value="'+region.trim()+'"]').checked=true;
-                });
-
-                eventDetails.EventType.split(',').forEach(type => {
-                    form.querySelector('input[name=TYPE][value="'+type.trim()+'"]').checked=true;
-                });
-
-
-
-                // If there's a matching Sessionize event, store those properties here for comparison:
-                if (eventDetails.Sessionize) {
-                    form.querySelector('#mce-EVENT').setAttribute('sessionize', eventDetails.Sessionize.name);
-                    form.querySelector('#mce-EVENTDATE-year').setAttribute('sessionize', eventDetails.Sessionize.eventDates.start.substring(0, 4));
-                    form.querySelector('#mce-EVENTDATE-month').setAttribute('sessionize', Number(eventDetails.Sessionize.eventDates.start.substring(5, 7)));
-                    form.querySelector('#mce-EVENTDATE-day').setAttribute('sessionize', Number(eventDetails.Sessionize.eventDates.start.substring(8, 10)));
-                    if (eventDetails.Sessionize.isTest) {
-                        form.querySelector('#review-CFS').value='WARNING: Event is in test mode!';
-                        form.querySelector('#review-CFS').classList.add('mismatches-sessionize');
-                    } else {
-                        form.querySelector('#review-CFS').value='UTC '+eventDetails.Sessionize.cfpDates.startUtc.replace('T', ' ').substring(0, 16)+' -> '+eventDetails.Sessionize.cfpDates.endUtc.replace('T', ' ').substring(0, 16);
-                        if (Date.parse(eventDetails.Sessionize.cfpDates.startUtc)<=Date.now() && Date.parse(eventDetails.Sessionize.cfpDates.endUtc)>=Date.now()) {
-                            form.querySelector('#review-CFS').classList.add('matches-sessionize');
-                        } else {
-                            form.querySelector('#review-CFS').classList.add('mismatches-sessionize');
-                        }
-                    }
-
-                    if (eventDetails.Sessionize.eventDates.start!=eventDetails.Sessionize.eventDates.end || form.querySelector('#mce-EVENTENDDATE-day').value!='') {
-                        form.querySelector('#mce-EVENTENDDATE-year').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(0, 4));
-                        form.querySelector('#mce-EVENTENDDATE-month').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(5, 7));
-                        form.querySelector('#mce-EVENTENDDATE-day').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(8, 10));
-                    }
-                }
-
-
-
-
-                document.querySelector('form #mc-embedded-subscribe[name=save]').classList.add('submitted');
-                document.querySelector('form #mc-embedded-subscribe[name=save]').disabled=true;
-                document.querySelector('form #mc-embedded-subscribe[name=approve]').classList.remove('submitted');
-                document.querySelector('form #mc-embedded-subscribe[name=approve]').disabled=false;
-
-                form.querySelectorAll('input').forEach(i => {
-                    compareSessionize(i);
-
-                    i.addEventListener('change', e => {
-                        document.querySelector('form #mc-embedded-subscribe[name=save]').classList.remove('submitted');
-                        document.querySelector('form #mc-embedded-subscribe[name=save]').disabled=false;
-                        document.querySelector('form #mc-embedded-subscribe[name=approve]').classList.add('submitted');
-                        document.querySelector('form #mc-embedded-subscribe[name=approve]').disabled=true;
-                        compareSessionize(e.target);
-                    });
-                });
-
-                // Save button
-                document.querySelector('form #mc-embedded-subscribe[name=save]').addEventListener('click', (e) => {
-                    var xhr4 = new XMLHttpRequest();
-                    xhr4.onload = function() {
-                        if (xhr4.status == 200) {
-                            document.querySelector('form #mc-embedded-subscribe[name=save]').classList.add('submitted');
-                            document.querySelector('form #mc-embedded-subscribe[name=save]').disabled=true;
-                            document.querySelector('form #mc-embedded-subscribe[name=approve]').classList.remove('submitted');
-                            document.querySelector('form #mc-embedded-subscribe[name=approve]').disabled=false;
-                        } else {
-                            console.log('NOPE');
-                        }
-                    };
-
-                    var data={};
-                    // For each <input> element whose name either starts with "mce"
-                    // or is a checkbox that has been checked
-                    Array.from(form.querySelectorAll('input[id^=mce], input[type=checkbox]:checked')).forEach(i => {
-                        if (i.type=='checkbox') {
-                            if (i.checked) {
-                                if (data[i.name]) {
-                                    data[i.name]+=','+i.value;
-                                } else {
-                                    data[i.name]=i.value;
-                                }
-                            }
-                        } else {
-                            data[i.name]=i.value;
-                        }
-                    });
-
-                    xhr4.open('POST', '/api/update/'+token);
-                    xhr4.setRequestHeader("Content-Type", "application/json");
-                    xhr4.send(JSON.stringify(data));
-                });
-
-                // Approve button
-                document.querySelector('form #mc-embedded-subscribe[name=approve]').addEventListener('click', (e) => {
-                    document.querySelector('form #mc-embedded-subscribe[name=approve]').classList.add('submitted');
-                    document.querySelector('form #mc-embedded-subscribe[name=approve]').disabled=true;
-                    document.location.href='/approve/'+token;
-                });
             }
-        };
 
-        xhr3.open('GET', '/api/event/'+token);
-        xhr3.send();
+            if (eventDetails.Sessionize.eventDates.start!=eventDetails.Sessionize.eventDates.end || form.querySelector('input#event-end-date-day').value!='') {
+                form.querySelector('input#event-end-date-year').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(0, 4));
+                form.querySelector('input#event-end-date-month').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(5, 7));
+                form.querySelector('input#event-end-date-day').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(8, 10));
+            }
+        }
     }
 
+    // Ready to approve, but save button is grayed out until user changes something:
+
+    form.querySelector('input.button[name=save]').disabled=true;
+    form.querySelector('input.button[name=approve]').disabled=false;
+
+    // For each input field...
+    form.querySelectorAll('input').forEach(i => {
+
+        // Compare its value to that from Sessionize...
+        compareSessionize(i);
+
+        // ... and add an onchange event to catch any changes made to the field:
+        i.addEventListener('change', e => {
+            e.target.closest("form").querySelector('input.button[name=save]').disabled=false;
+            e.target.closest("form").querySelector('input.button[name=approve]').disabled=true;
+            compareSessionize(e.target);
+        });
+    });
+});
 
 
 
 
-}
+
+
+
 
 
 

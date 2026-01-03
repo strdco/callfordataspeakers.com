@@ -51,6 +51,15 @@
     color: light-dark(#000000, var(--bright));
 }
 
+.field-group input.invalid {
+    border-style: solid;
+    border-color: var(--red);
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 0.5);
+    margin-top: 0 !important;
+    margin-bottom: -1px !important;
+}
+
 .field-group input.matches-sessionize {
     background-color: rgba(0, 255, 0, 0.25)
 }
@@ -103,12 +112,12 @@ div.datefield {
 }
 
 /* Error message as applied by the validation script */
-form#subscribe-form input.mce_inline_error {
+form#subscribe-form input.inline_error {
     border-color: #c00000;
     background-color: rgb(220,0,0,0.25);
 }
 
-form#subscribe-form div.mce_inline_error {
+form#subscribe-form div.inline_error {
     background-color: unset;
     color: #c00000;
     font-weight: normal;
@@ -120,7 +129,7 @@ form#subscribe-form div.mce_inline_error {
 }
 
 /* Fancy left-pointing arrow: */
-form#subscribe-form div.mce_inline_error::before {
+form#subscribe-form div.inline_error::before {
     display: block;
     position: absolute;
     height: 0;
@@ -200,12 +209,15 @@ form#subscribe-form div.mce_inline_error::before {
 }
 
 
-
+/* IYKYK */
+.bonus {
+    display: none;
+}
 
 
 /* Big, colorful subscribe button */
 
-input[type="submit"] {
+input.button {
     margin-left: 2px;
     margin-top: 20px;
     margin-bottom: 20px;
@@ -220,10 +232,12 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-#embedded-subscribe.submitted {
+input.button.submitted,
+input.button:disabled {
     background-color: light-dark(#f0f0f0, #404040);
     color: #808080;
     border-color: #808080;
+    cursor: not-allowed;
 }
 
 /* Popup message for inline success/failure messages. */

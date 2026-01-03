@@ -54,105 +54,105 @@
 
         <h1>Moderation</h1>
 
-        <!-- Begin Mailchimp Signup Form -->
-        <div id="mc_embed_signup">
-        <form action="/approve" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" rel="noopener" target="_blank" novalidate>
+        <form action="/api/approve" method="post" id="approve-form">
 
-            <div id="mc_embed_signup_scroll">
-        <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
-        <div class="mc-field-group">
-            <label for="mce-EMAIL">Email Address  <span class="asterisk">*</span>
-        </label>
-            <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL">
-        </div>
-        <div class="mc-field-group">
-            <label for="mce-FNAME">Name  <span class="asterisk">*</span>
-        </label>
-            <input type="text" value="" name="NAME" class="required" id="mce-NAME">
-        </div>
-        <div class="mc-field-group">
-            <label for="mce-EVENT">Event name  <span class="asterisk">*</span>
-        </label>
-            <input type="text" value="" name="EVENT" class="required" id="mce-EVENT">
-        </div>
-        <div class="mc-field-group">
-            <label for="mce-VENUE">Venue  <span class="asterisk">*</span>
-        </label>
-            <input type="text" value="" name="VENUE" class="required" id="mce-VENUE">
-        </div>
-        <div class="mc-field-group size1of2">
-            <label for="mce-EVENTDATE-year">Event start date  <span class="asterisk">*</span></label>
-            <div class="datefield">
-                <span class="small-meta nowrap"></span>
-                <span class="subfield yearfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTDATE[year]" id="mce-EVENTDATE-year"></span> -
-                <span class="subfield monthfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTDATE[month]" id="mce-EVENTDATE-month"></span> -
-                <span class="subfield dayfield"><input class="datepart required" type="number" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTDATE[day]" id="mce-EVENTDATE-day"></span>
-                <span class="small-meta nowrap"></span>
-            </div>
-        </div>
-        <div class="mc-field-group size1of2">
-            <label for="mce-EVENTENDDATE-year">Event end date (if later)</label>
-            <div class="datefield">
-                <span class="small-meta nowrap"></span>
-                <span class="subfield yearfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="EVENTENDDATE[year]" id="mce-EVENTENDDATE-year"></span> -
-                <span class="subfield monthfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="1" max="12" name="EVENTENDDATE[month]" id="mce-EVENTENDDATE-month"></span> -
-                <span class="subfield dayfield"><input class="datepart" type="number" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="1" max="31" name="EVENTENDDATE[day]" id="mce-EVENTENDDATE-day"></span>
-                <span class="small-meta nowrap"></span>
-            </div>
-        </div>
-        <div class="mc-field-group">
-            <label for="mce-URL">Call for Speakers URL  <span class="asterisk">*</span>
-        </label>
-            <input type="url" value="" name="URL" class="required url" id="mce-URL">
-        </div>
-        <div class="mc-field-group">
-            <label for="mce-INFO">Other information
-        </label>
-            <input type="text" value="" name="INFO" id="mce-INFO">
-        </div>
-        <div class="mc-field-group">
-            <label for="review-CFS">Call for speakers open?
-        </label>
-            <input type="text" value="" name="CFS" id="review-CFS" disabled>
-        </div>
-        <div class="mc-field-group input-group">
-            <strong>Is this a...</strong>
-            <ul><li><input type="checkbox" value="Conference" name="TYPE" id="ev-mce-group[1]-1-8"><label for="ev-mce-group[1]-1-8">Conference</label></li>
-                <li><input type="checkbox" value="Precon" name="TYPE" id="ev-mce-group[1]-1-9"><label for="ev-mce-group[1]-1-9">Precon</label></li>
-                <li><input type="checkbox" value="Usergroup" name="TYPE" id="ev-mce-group[1]-1-10"><label for="ev-mce-group[1]-1-10">User group meetup</label></li>
-                <li><input type="checkbox" value="Paid" name="TYPE" id="ev-mce-group[1]-1-11"><label for="ev-mce-group[1]-1-11">Paid engagement</label></li>
-            </ul>
-        </div>
-        <div class="mc-field-group input-group max-two">
-            <strong>Is this event online?</strong>
-            <ul><li><input type="checkbox" value="Virtual" name="REGION" id="ev-mce-group[79175]-79175-0"><label for="ev-mce-group[79175]-79175-0">Virtual</label></li>
-            </ul>
-            <strong>Region (for in-person events)</strong>
-            <ul><li><input type="checkbox" value="Europe" name="REGION" id="ev-mce-group[79175]-79175-1"><label for="ev-mce-group[79175]-79175-1">Europe</label></li>
-                <li><input type="checkbox" value="Middle-East" name="REGION" id="ev-mce-group[79175]-79175-3"><label for="ev-mce-group[79175]-79175-3">Middle-East</label></li>
-                <li><input type="checkbox" value="Africa" name="REGION" id="ev-mce-group[79175]-79175-4"><label for="ev-mce-group[79175]-79175-4">Africa</label></li>
-                <li><input type="checkbox" value="South Asia" name="REGION" id="ev-mce-group[79175]-79175-5"><label for="ev-mce-group[79175]-79175-5">South Asia</label></li>
-                <li><input type="checkbox" value="South-East Asia" name="REGION" id="ev-mce-group[79175]-79175-6"><label for="ev-mce-group[79175]-79175-6">South-East Asia</label></li>
-                <li><input type="checkbox" value="East Asia" name="REGION" id="ev-mce-group[79175]-79175-7"><label for="ev-mce-group[79175]-79175-7">East Asia</label></li>
-                <li><input type="checkbox" value="Oceania" name="REGION" id="ev-mce-group[79175]-79175-8"><label for="ev-mce-group[79175]-79175-8">Oceania</label></li>
-                <li><input type="checkbox" value="North America" name="REGION" id="ev-mce-group[79175]-79175-9"><label for="ev-mce-group[79175]-79175-9">North America</label></li>
-                <li><input type="checkbox" value="South America" name="REGION" id="ev-mce-group[79175]-79175-10"><label for="ev-mce-group[79175]-79175-10">South America</label></li>
-        </ul>
-        </div>
+            <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
 
-        <div id="mce-responses" class="clear">
-                <div class="response" id="mce-error-response"></div>
-                <div class="response" id="mce-success-response"></div>
-            </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-            <div class="secret-div" aria-hidden="true"><input type="text" name="free_hunny" tabindex="-1" value=""></div>
+            <div class="field-group">
+                <label for="url">Call for Speakers URL  <span class="asterisk">*</span></label>
+                <input type="url" required value="" name="url" class="required url" id="url">
+            </div>
+
+            <div class="field-group">
+                <label for="email">Email Address  <span class="asterisk">*</span></label>
+                <input type="email" required value="" name="email" class="required email" id="email">
+            </div>
+
+            <div class="field-group">
+                <label for="name">Name  <span class="asterisk">*</span></label>
+                <input type="text" required value="" name="name" class="required" id="name">
+            </div>
+
+            <div class="field-group">
+                <label for="event">Event name  <span class="asterisk">*</span></label>
+                <input type="text" required value="" name="event" class="required" id="event">
+            </div>
+
+            <div class="field-group">
+                <label for="venue">Venue  <span class="asterisk">*</span></label>
+                <input type="text" required value="" name="venue" class="required" id="venue">
+            </div>
+
+            <div class="field-group size1of2">
+                <label for="event-date-year">Event start date  <span class="asterisk">*</span></label>
+                <div class="datefield">
+                    <span class="small-meta nowrap"></span>
+                    <span class="subfield yearfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-date[year]" id="event-date-year"></span> -
+                    <span class="subfield monthfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-date[month]" id="event-date-month"></span> -
+                    <span class="subfield dayfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-date[day]" id="event-date-day"></span>
+                    <span class="small-meta nowrap"></span>
+                </div>
+            </div>
+
+            <div class="field-group size1of2">
+                <label for="event-end-date-year">Event end date (if later)</label>
+                <div class="datefield">
+                    <span class="small-meta nowrap"></span>
+                    <span class="subfield yearfield"><input class="datepart" type="text" pattern="[0-9]*" value="" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-end-date[year]" id="event-end-date-year"></span> -
+                    <span class="subfield monthfield"><input class="datepart" type="text" pattern="[0-9]*" value="" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-end-date[month]" id="event-end-date-month"></span> -
+                    <span class="subfield dayfield"><input class="datepart" type="text" pattern="[0-9]*" value="" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-end-date[day]" id="event-end-date-day"></span>
+                    <span class="small-meta nowrap"></span>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label for="info">Other information</label>
+                <input type="text" value="" name="info" id="info">
+            </div>
+
+            <div class="field-group">
+                <label for="review-CFS">Call for speakers open?</label>
+                <input type="text" value="" name="CFS" id="review-cfs" disabled>
+            </div>
+
+            <div class="field-group input-group event-type">
+                <strong>Is this a...</strong>
+                <ul>
+                    <li><input type="checkbox" class="required" value="Conference" name="types" id="types_8"><label for="types_8">Conference</label></li>
+                    <li><input type="checkbox" class="required" value="Precon" name="types" id="types_9"><label for="types_9">Precon</label></li>
+                    <li><input type="checkbox" class="required" value="Usergroup" name="types" id="types_10"><label for="types_10">User group meetup</label></li>
+                    <li><input type="checkbox" class="required" value="Paid" name="types" id="types_11"><label for="types_11">Paid engagement</label></li>
+                </ul>
+            </div>
+
+            <div class="field-group input-group max-two">
+                <strong>Is this event online?</strong>
+                <ul>
+                    <li><input type="checkbox" class="required" value="Virtual" name="groups" id="groups_0"><label for="groups_0">Virtual</label></li>
+                </ul>
+
+                <strong>Region (for in-person events)</strong>
+                <ul>
+                    <li><input type="checkbox" class="required" value="Europe" name="groups" id="groups_1"><label for="groups_1">Europe</label></li>
+                    <li><input type="checkbox" class="required" value="Middle-East" name="groups" id="groups_3"><label for="groups_3">Middle-East</label></li>
+                    <li><input type="checkbox" class="required" value="Africa" name="groups" id="groups_4"><label for="groups_4">Africa</label></li>
+                    <li><input type="checkbox" class="required" value="South Asia" name="groups" id="groups_5"><label for="groups_5">South Asia</label></li>
+                    <li><input type="checkbox" class="required" value="South-East Asia" name="groups" id="groups_6"><label for="groups_6">South-East Asia</label></li>
+                    <li><input type="checkbox" class="required" value="East Asia" name="groups" id="groups_7"><label for="groups_7">East Asia</label></li>
+                    <li><input type="checkbox" class="required" value="Oceania" name="groups" id="groups_8"><label for="groups_8">Oceania</label></li>
+                    <li><input type="checkbox" class="required" value="North America" name="groups" id="groups_9"><label for="groups_9">North America</label></li>
+                    <li><input type="checkbox" class="required" value="South America" name="groups" id="groups_10"><label for="groups_10">South America</label></li>
+                </ul>
+            </div>
+
+            <div class="secret-div" aria-hidden="true"><input type="text" name="description" tabindex="-1" value=""></div>
+
             <div class="clear">
-                <input type="button" value="Save changes" name="save" id="mc-embedded-subscribe" class="button submitted" disabled>
-                <input type="button" value="Approve" name="approve" id="mc-embedded-subscribe" class="button submitted" disabled>
+                <input type="button" value="Save changes" name="save" class="button" disabled>
+                <input type="button" value="Approve" name="approve" class="button" disabled>
             </div>
             </div>
         </form>
-        </div>
-        <!--End mc_embed_signup-->
 
 
     </div>
