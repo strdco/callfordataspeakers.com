@@ -147,8 +147,7 @@ app.get('/modify', async function (req, res, next) {
     }).then(response => response.json());
 
     httpHeaders(res);
-console.log(queryParams);
-console.log(subscriber);
+
     if(!subscriber.data.columns.find(col => col.title==="sha256")) {
         res.status(401).send("Subscriber does not have a hash key.");
         return;
@@ -921,7 +920,6 @@ app.get('/api/sync-subscriber-count/:apikey', async function (req, res, next) {
         } catch(err) {
             res.status(500).json({ "status": "error" });
         }
-        console.log('Done');
 
     } else {
         res.status(401).json({ "status": "invalid authenticator" });
@@ -949,8 +947,6 @@ async function getSubscriberCount() {
             };
         });
 
-    console.log(subscriberCount);
-
     // Write to file
     fs.writeFileSync(__dirname + '/assets/subscriber-count.json', JSON.stringify(subscriberCount));
 }
@@ -959,22 +955,18 @@ async function getSubscriberCount() {
 async function getCampaignCount() {
 
     var page=1;
-    var pageSize=10;
+    var pageSize=1000;
     var done=false;
 
     var campaignCount=parseInt(process.env.legacy_campaign_count) || 0;
     var emailCount=parseInt(process.env.legacy_email_count) || 0;
 
     while (!done) {
-        console.log(page);
         const campaigns = await fetch('https://api.sender.net/v2/campaigns?limit='+pageSize+'&status=SENT&page='+page, { headers: senderApiHeaders }).then(response => response.json());
-
         const cfsCampaigns = campaigns.data.filter(c => /^Call for speakers: /.test(c.subject) && !/closing soon/.test(c.subject));
 
         campaignCount += cfsCampaigns.length;
         emailCount    += cfsCampaigns.reduce((accumulator, campaign) => accumulator + campaign.sent_count, 0);
-
-        console.log(campaignCount, emailCount);
 
         if (campaigns.data.length===0) { done=true; }
         page++;
@@ -1038,8 +1030,6 @@ async function updateCfsCloseDates(res) {
             recordset.data.forEach(async function(record) {
                 var cfs=await fetchSessionizeEvent(record.URL)
                 var formattedUtcTime=cfs.cfpDates.endUtc.replace('T', ' ');
-
-                console.log(record.URL, formattedUtcTime);
 
                 cannedSql.sqlQuery(connectionString,
                     'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes;',
@@ -1259,7 +1249,6 @@ async function postToMastodon(message) {
             const body = [];
             res.on('data', (chunk) => body.push(chunk));
             res.on('end', () => {
-              //console.log(Buffer.concat(body).toString());
 
                 var resBlob;
                 try {
