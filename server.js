@@ -96,11 +96,44 @@ console.log('Database server: '+process.env.dbserver);
 console.log('Database name:   '+process.env.dbname);
 console.log('Express env:     '+app.settings.env);
 console.log('');
+
+// HTML endpoints
+app.get('/', speakerPage);
+app.all('/event', eventPage);
+app.get('/list', listPage);
+app.get('/precon', preconPage);
+app.get('/modify', modifySubscriptionPage);
+app.get('/moderate/:token', moderationPage);
+
+// Other
+app.get('/feed', getRssFeed);
+app.get('/robots933456.txt', healthCheck);
+
+// API endpoints
+app.post('/api/request', doEventRequest);
+app.post('/api/subscribe', doSubscribe);
+app.post('/api/update/:token', doModifyRequest);
+app.post('/api/approve/:token', doApproveRequest);
+app.get('/digest/:apikey', sendDigestCampaign);
+app.get('/api/events', listEvents);
+app.get('/api/event/:token', getEvent);
+app.get('/api/sync-subscriber-count/:apikey', syncSubscriberCount);
+app.get('/api/get-sessionize', getSessionizeDetails);
+app.get('/api/sync-sessionize/:apikey', doSyncSessionize);
+
+// Other assets (stylesheets, images, etc)
+app.get('/assets/:asset', getAsset);
+app.get('/:asset', getAsset);
+
+// Error handler. Needs to go last.
+app.use((err, req, res, callback) => {
+    console.error(err);
+    res.sendStatus(500);
+    callback();
+});
+
+// Start your engines
 app.listen(serverPort, () => console.log('READY.'));
-
-
-
-
 
 
 
@@ -109,10 +142,10 @@ app.listen(serverPort, () => console.log('READY.'));
   Azure Linux App Service Plan health check request:
   ---------------------------------------------------------------------------*/
 
-app.get('/robots933456.txt', function (req, res, next) {
+function healthCheck(req, res, next) {
     console.log("Azure health check: OK.");
     res.status(200).send("OK");
-});
+}
 
 
 
@@ -121,13 +154,13 @@ app.get('/robots933456.txt', function (req, res, next) {
   Start page: Speaker registration
   -----------------------------------------------------------------------------*/
 
-app.get('/', function (req, res, next) {
+function speakerPage(req, res, next) {
 
     httpHeaders(res);
 
     // Serve up assets/speaker.html:
     res.status(200).send(createHTML('speaker.html', {}));
-});
+}
 
 
 
@@ -137,7 +170,7 @@ app.get('/', function (req, res, next) {
   Modify speaker registration
   -----------------------------------------------------------------------------*/
 
-app.get('/modify', async function (req, res, next) {
+async function modifySubscriptionPage(req, res, next) {
 
     const queryParams = querystring.parse(url.parse(req.url).query);
 
@@ -168,7 +201,7 @@ app.get('/modify', async function (req, res, next) {
         "email-locked": " READONLY",
         "groups": subscriber.data.subscriber_tags.map(tag => { return tag.title })
     }));
-});
+}
 
 
 
@@ -178,7 +211,7 @@ app.get('/modify', async function (req, res, next) {
   Event request
   -----------------------------------------------------------------------------*/
 
-app.all('/event', function (req, res, next) {
+function eventPage(req, res, next) {
 
     var map={};
 
@@ -214,7 +247,7 @@ app.all('/event', function (req, res, next) {
 
     // Serve up assets/event.html:
     res.status(200).send(createHTML('event.html', map));
-});
+}
 
 
 
@@ -226,13 +259,13 @@ app.all('/event', function (req, res, next) {
   Event request moderation
   -----------------------------------------------------------------------------*/
 
-app.get('/moderate/:token', function (req, res, next) {
+function moderationPage(req, res, next) {
 
     httpHeaders(res);
 
     // Serve up assets/moderate.html:
     res.status(200).send(createHTML('moderate.html', {}));
-});
+}
 
 
 
@@ -244,7 +277,7 @@ app.get('/moderate/:token', function (req, res, next) {
   Register a new event request, send a request email to moderator:
   -----------------------------------------------------------------------------*/
 
-app.post('/api/request', function (req, res, next) {
+function doEventRequest(req, res, next) {
 
     httpHeaders(res);
 
@@ -366,7 +399,7 @@ app.post('/api/request', function (req, res, next) {
                     }
         });
     }
-});
+}
 
 
 
@@ -379,8 +412,7 @@ app.post('/api/request', function (req, res, next) {
   Add or update a subscriber:
   -----------------------------------------------------------------------------*/
 
-// Save any changes to the request before sending it out
-app.post('/api/subscribe', async function(req, res, next) {
+async function doSubscribe(req, res, next) {
 
     if (req.body.free_hunny!=="") {
         res.status(401).send("You've been a naughty bot.");
@@ -494,7 +526,7 @@ app.post('/api/subscribe', async function(req, res, next) {
 
     }
 
-});
+}
 
 
 
@@ -509,8 +541,7 @@ app.post('/api/subscribe', async function(req, res, next) {
   Modify an event request from the moderation interface:
   -----------------------------------------------------------------------------*/
 
-// Save any changes to the request before sending it out
-app.post('/api/update/:token', function(req, res, next) {
+function doModifyRequest(req, res, next) {
 
     var formEventDate;
     try {
@@ -567,7 +598,7 @@ app.post('/api/update/:token', function(req, res, next) {
     } catch(e) {
         res.status(500).send('There was a problem with the database connection.');
     }
-});
+}
 
 
 
@@ -575,7 +606,7 @@ app.post('/api/update/:token', function(req, res, next) {
   Approve an event request, send campaign to speakers:
   -----------------------------------------------------------------------------*/
 
-app.post('/api/approve/:token', function (req, res, next) {
+function doApproveRequest(req, res, next) {
 
     httpHeaders(res);
 
@@ -679,7 +710,7 @@ app.post('/api/approve/:token', function (req, res, next) {
                 }
     });
 
-});
+}
 
 
 
@@ -690,7 +721,7 @@ app.post('/api/approve/:token', function (req, res, next) {
   Send procrastinator's digest email:
   -----------------------------------------------------------------------------*/
 
-app.get('/digest/:apikey', function (req, res, next) {
+function sendDigestCampaign(req, res, next) {
 
     httpHeaders(res);
 
@@ -742,7 +773,7 @@ app.get('/digest/:apikey', function (req, res, next) {
             });
             return;
     }
-});
+}
 
 
 
@@ -754,7 +785,7 @@ app.get('/digest/:apikey', function (req, res, next) {
   REST API-ish to list events:
   -----------------------------------------------------------------------------*/
 
-app.get('/api/events', function (req, res, next) {
+function listEvents(req, res, next) {
 
     httpHeaders(res);
 
@@ -768,14 +799,14 @@ app.get('/api/events', function (req, res, next) {
                 return;
             });
 
-});
+}
 
 
 /*-----------------------------------------------------------------------------
   API to fetch single event for moderation:
   -----------------------------------------------------------------------------*/
 
-app.get('/api/event/:token', function (req, res, next) {
+function getEvent(req, res, next) {
 
     httpHeaders(res);
 
@@ -800,33 +831,33 @@ app.get('/api/event/:token', function (req, res, next) {
                 }
             });
 
-});
+}
 
 /*-----------------------------------------------------------------------------
   List events:
   -----------------------------------------------------------------------------*/
 
-app.get('/list', function (req, res, next) {
+function listPage(req, res, next) {
 
     httpHeaders(res);
 
     res.status(200).send(createHTML('list.html', {}));
     return;
 
-});
+}
 
 /*-----------------------------------------------------------------------------
   List precon speakers:
   -----------------------------------------------------------------------------*/
 
-app.get('/precon', function (req, res, next) {
+function preconPage(req, res, next) {
 
     httpHeaders(res);
 
     res.status(200).send(createHTML('precon.html', {}));
     return;
 
-});
+}
 
 
 
@@ -840,7 +871,7 @@ app.get('/precon', function (req, res, next) {
   RSS feed:
   -----------------------------------------------------------------------------*/
 
-app.get('/feed', async function (req, res, next) {
+async function getRssFeed(req, res, next) {
 
     var items='';
     cannedSql.sqlQuery(connectionString,
@@ -880,7 +911,7 @@ app.get('/feed', async function (req, res, next) {
                 return;
             
             });
-});
+}
 
 
 // https://stackoverflow.com/a/57448862/5471286
@@ -905,7 +936,7 @@ const encodeHtml = str => str.replace(/[&<>'"]/g,
   count on each page.
   -----------------------------------------------------------------------------*/
 
-app.get('/api/sync-subscriber-count/:apikey', async function (req, res, next) {
+async function syncSubscriberCount(req, res, next) {
 
     if (req.params.apikey==process.env.apikey) {
 
@@ -925,8 +956,7 @@ app.get('/api/sync-subscriber-count/:apikey', async function (req, res, next) {
         res.status(401).json({ "status": "invalid authenticator" });
     }
 
-});
-
+}
 
 async function getSubscriberCount() {
 
@@ -950,7 +980,6 @@ async function getSubscriberCount() {
     // Write to file
     fs.writeFileSync(__dirname + '/assets/subscriber-count.json', JSON.stringify(subscriberCount));
 }
-
 
 async function getCampaignCount() {
 
@@ -983,7 +1012,7 @@ async function getCampaignCount() {
   Fetch event information from Sessionize:
   -----------------------------------------------------------------------------*/
 
-app.get('/api/get-sessionize', async function (req, res, next) {
+async function getSessionizeDetails(req, res, next) {
     var details={};
     try {
         details=await fetchSessionizeEvent(req.query.url);
@@ -998,7 +1027,7 @@ app.get('/api/get-sessionize', async function (req, res, next) {
     } catch(e) {
         res.status(404).send('');
     }
-});
+}
 
 
 
@@ -1006,14 +1035,14 @@ app.get('/api/get-sessionize', async function (req, res, next) {
   Sync call-for-speakers closing dates from Sessionize:
   -----------------------------------------------------------------------------*/
 
-app.get('/api/sync-sessionize/:apikey', async function (req, res, next) {
+async function doSyncSessionize(req, res, next) {
     if (req.params.apikey==process.env.apikey) {
         await updateCfsCloseDates(res);
     } else {
         console.log('Invalid API key for /api/sync-sessionize');
         res.status(401).send('Invalid API key');
     }
-});
+}
 
 async function updateCfsCloseDates(res) {
 
@@ -1050,7 +1079,7 @@ async function updateCfsCloseDates(res) {
   Other related assets, like client-side JS, CSS, images, whatever:
 -----------------------------------------------------------------------------*/
 
-app.get('/assets/:asset', function (req, res, next) {
+function getAsset(req, res, next) {
 
     httpHeaders(res);
 
@@ -1069,28 +1098,7 @@ app.get('/assets/:asset', function (req, res, next) {
             return;
         }
     });
-});
-
-app.get('/:asset', function (req, res, next) {
-
-    httpHeaders(res);
-
-    var options = {
-        root: __dirname + '/assets/',
-        dotfiles: 'deny',
-        headers: {
-            'x-timestamp': Date.now(),
-            'x-sent': true
-        }
-    };
-
-    res.sendFile(req.params.asset, options, function(err) {
-        if (err) {
-            res.send(err);
-            return;
-        }
-    });
-});
+}
 
 
 
@@ -1468,23 +1476,5 @@ function friendlyDateRange(fromDate, toDate, separator) {
 
     return friendlyDate;
 }
-
-
-
-
-
-/*-----------------------------------------------------------------------------
-  Error handler for Express and its middlewares, like BodyParser, etc.
-  This needs to go last, after all the other routes.
-  -----------------------------------------------------------------------------*/
-
-app.use((err, req, res, callback) => {
-    console.error(err);
-    res.sendStatus(500);
-    callback();
-});
-
-
-
 
 
