@@ -18,6 +18,10 @@ body {
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
 
+    --in-person-badge: rgba(160, 64, 0, 1);
+    --hybrid-badge: rgba(128, 0, 220, 1);
+    --virtual-badge: rgba(0, 160, 192, 1);
+
     --dark: rgba(0, 0, 0, 0.5);
     --bright: rgba(255, 255, 255, 0.9);
 
@@ -270,7 +274,8 @@ table.responsive tr:hover td a {
 }
 
 table td a.sqlsaturday::before,
-table td a.datasaturday::before {
+table td a.datasaturday::before,
+table td a.uncategorized::before {
     content: "";
     display: inline-block;
     width: 16px;
@@ -340,6 +345,24 @@ table span.badge {
 table tr:hover span.badge {
     color: #000000;
     border-color: light-dark(rgba(0, 0, 0, 0.25), #000000);
+}
+
+.badge.event-type {
+    text-transform: uppercase;
+    border-left-width: 8px;
+    font-size: 80%;
+}
+
+.badge.event-type.in-person {
+    border-left-color: var(--in-person-badge);
+}
+
+.badge.event-type.virtual {
+    border-left-color: var(--virtual-badge);
+}
+
+.badge.event-type.hybrid {
+    border-left-color: var(--hybrid-badge);
 }
 
 table span.badge:hover {
@@ -470,6 +493,7 @@ table .cfs-closes-in.closed {
         display: block;
         max-width: 100%;
         overflow-x: hidden;
+        padding-bottom: 0.75rem;
     }
 
     table.responsive td {
@@ -478,7 +502,7 @@ table .cfs-closes-in.closed {
         width: 100%;
         max-width: unset;
         overflow-x: hidden;
-        }
+    }
 
     table.responsive tr:nth-child(odd) td {
         background-color: rgb(255, 255, 255, 0.1);
@@ -511,6 +535,10 @@ table .cfs-closes-in.closed {
 
     table.responsive#precontbl td:first-of-type {
         padding-left: 0.25em;
+    }
+
+    table td a.uncategorized::before {
+        display: none;
     }
 }
 

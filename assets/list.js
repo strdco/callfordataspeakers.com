@@ -172,35 +172,6 @@ window.onload = function yeahyeah() {
                 tr.appendChild(td1);
 
                 var td2=document.createElement('td');
-                row.EventType.split(',').forEach(eventType => {
-                    if (eventType.trim()!='')
-                    var badge=document.createElement('span');
-                    badge.classList.add('event-type');
-                    switch (eventType.trim().toLowerCase()) {
-/*                      case "paid":
-                            badge.classList.add('paid');
-                            badge.innerText='$';
-                            badge.title='Paid engagement';
-                            break; */
-                        case "conference":
-                            badge.classList.add('conference');
-                            badge.innerText='C';
-                            badge.title='Conference';
-                            break;
-                        case "precon":
-                            badge.classList.add('precon');
-                            badge.innerText='P';
-                            badge.title='Precon';
-                            break;
-                        case "usergroup":
-                            badge.classList.add('usergroup');
-                            badge.innerText='U';
-                            badge.title='Usergroup';
-                            break;
-                    }
-                    td2.appendChild(badge);
-                });
-
                 var a=document.createElement('a');
                 a.href=row.URL;
                 if (row.URL.toLowerCase().indexOf('sessionize.com')>=0) {
@@ -213,16 +184,41 @@ window.onload = function yeahyeah() {
 
                 if (row.EventName.toLowerCase().split(' ').join('').includes('sqlsat')) {
                     a.classList.add('sqlsaturday');
-                }
-                if (row.EventName.toLowerCase().split(' ').join('').includes('datasat')) {
+                } else if (row.EventName.toLowerCase().split(' ').join('').includes('dayofdata')) {
+                    a.classList.add('sqlsaturday');
+                } else if (row.EventName.toLowerCase().split(' ').join('').includes('datasat')) {
                     a.classList.add('datasaturday');
+                } else {
+                    a.classList.add('uncategorized');
                 }
 
                 td2.appendChild(a);
                 tr.appendChild(td2);
 
                 var td3=document.createElement('td');
-                td3.innerText=row.Venue;
+
+                const regions=row.Regions.split(',');
+                var badge=document.createElement('span');
+                badge.classList.add('badge');
+                badge.classList.add('event-type');
+                if (regions.includes("Virtual") && regions.length>1) {
+                    badge.innerText="Hybrid";
+                    badge.classList.add('hybrid');
+                } else if (regions.includes("Virtual")) {
+                    badge.innerText="Virtual";
+                    badge.classList.add('virtual');
+                } else {
+                    badge.innerText="In-person";
+                    badge.classList.add('in-person');
+                }
+                td3.appendChild(badge);
+
+                var td3_span=document.createElement('span');
+                var venue=row.Venue;
+                if (!["online", "virtual"].includes(venue.trim().toLowerCase())) {
+                    td3_span.innerText=row.Venue;
+                    td3.appendChild(td3_span);                    
+                }
                 tr.appendChild(td3);
 
                 tbody.appendChild(tr);
