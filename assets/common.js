@@ -210,6 +210,7 @@ async function postForm(form, submit) {
     if (!submit) { submit=form.querySelector("input[type=submit]"); }
 
     if (submit) {
+        submit.classList.add("loading");
         submit.disabled=true;
     }
 
@@ -231,6 +232,9 @@ async function postForm(form, submit) {
                 responses.querySelector("#error-response").style.display="hidden";
                 responses.querySelector("#success-response").style.display="inline";
             }
+            if (submit) {
+                submit.classList.remove("loading");
+            }
 
             return true;
         } else {
@@ -240,6 +244,7 @@ async function postForm(form, submit) {
             }
 
             if (submit) {
+                submit.classList.remove("loading");
                 submit.disabled=false;
             }
 
@@ -253,6 +258,7 @@ async function postForm(form, submit) {
         console.log(err);
 
         if (submit) {
+            submit.classList.remove("loading");
             submit.disabled=false;
         }
 

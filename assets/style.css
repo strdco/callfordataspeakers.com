@@ -131,19 +131,21 @@ h1.callfordataspeakers a:hover {
     border-color: var(--black);
     background-color: var(--yellow);
     border-bottom-color: var(--yellow);
-    box-shadow: 0 0px 30px 1px var(--yellow-footer);
+    box-shadow: 0 0px 40px 1px var(--yellow-footer);
     z-index: 100;
 }
 
 .menu-item a {
     display: inline-block;
     color: var(--yellow);
+    box-shadow: inset 0 20px 0 rgba(255, 255, 255, 0.1);
     text-decoration: none;
     padding: 1rem 2rem 0.5rem 2rem;
 }
 
 .menu-item.menu-item-selected a {
     color: #000000;
+    box-shadow: inset 0 20px 0 rgba(255, 255, 255, 0.25);
 }
 
 .menu-item a:hover {

@@ -8,6 +8,7 @@ document.querySelector('form#approve-form').addEventListener("submit", (e) => {
     e.stopPropagation();     // Avoids bubbling to form submit handlers
 });
 
+// Clicking the "Approve" button
 document.querySelector('form#approve-form input[name=approve]').addEventListener("click", (e) => {
     form=document.querySelector("form#approve-form");
     form.action="/api/approve/"+token;
@@ -19,11 +20,11 @@ document.querySelector('form#approve-form input[name=approve]').addEventListener
     };
 });
 
+// Clicking the "Save" button
 document.querySelector('form#approve-form input[name=save]').addEventListener("click", (e) => {
     form=document.querySelector("form#approve-form");
     form.action="/api/update/"+token;
 
-    //form.querySelector("input[name='approve']").disabled=true;
     const res=postForm(form, e.target);
     if (res) { form.querySelector("input[name='approve']").disabled=false; }
 });
