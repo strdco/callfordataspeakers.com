@@ -27,6 +27,7 @@ document.querySelector('form#approve-form input[name=save]').addEventListener("c
 
     const res=postForm(form, e.target);
     if (res) { form.querySelector("input[name='approve']").disabled=false; }
+    e.target.classList.remove("loading");
 });
 
 
@@ -95,26 +96,31 @@ fetch("/api/event/"+token).then(async response => {
                 form.querySelector('input#event-end-date-day').setAttribute('sessionize', eventDetails.Sessionize.eventDates.end.substring(8, 10));
             }
         }
-    }
-
-    // Ready to approve, but save button is grayed out until user changes something:
-
-    form.querySelector('input.button[name=save]').disabled=true;
-    form.querySelector('input.button[name=approve]').disabled=false;
-
-    // For each input field...
-    form.querySelectorAll('input').forEach(i => {
-
-        // Compare its value to that from Sessionize...
-        compareSessionize(i);
-
-        // ... and add an onchange event to catch any changes made to the field:
-        i.addEventListener('change', e => {
-            e.target.closest("form").querySelector('input.button[name=save]').disabled=false;
-            e.target.closest("form").querySelector('input.button[name=approve]').disabled=true;
-            compareSessionize(e.target);
+        
+        // Ready to approve, but save button is grayed out until user changes something:
+        
+        form.querySelector('input.button[name=save]').disabled=true;
+        form.querySelector('input.button[name=approve]').disabled=false;
+        
+        // For each input field...
+        form.querySelectorAll('input').forEach(i => {
+            
+            // Compare its value to that from Sessionize...
+            compareSessionize(i);
+            
+            // ... and add an onchange event to catch any changes made to the field:
+            i.addEventListener('change', e => {
+                e.target.closest("form").querySelector('input.button[name=save]').disabled=false;
+                e.target.closest("form").querySelector('input.button[name=approve]').disabled=true;
+                compareSessionize(e.target);
+            });
         });
-    });
+    } else {
+        // If we can't load the event details, like if the event has already been sent:
+        form.querySelector('input.button[name=save]').disabled=true;
+        form.querySelector('input.button[name=approve]').disabled=true;
+        window.alert("This event has already been sent.");
+    }
 });
 
 

@@ -570,14 +570,18 @@ function doModifyRequest(req, res, next) {
 
     // Save the everything to the SQL Server table:
     try {
+        // Single values appear as strings, multiple values as arrays. We always want arrays.
+        const types=[].concat(req.body.types);
+        const groups=[].concat(req.body.groups);
+
         cannedSql.sqlQuery(connectionString,
             'EXECUTE CallForDataSpeakers.Update_Campaign @Token=@Token, @Name=@Name, @Email=@Email, @EventName=@EventName, @EventType=@EventType, @Regions=@Regions, @Venue=@Venue, @Date=@Date, @EndDate=@EndDate, @URL=@URL, @Information=@Information;',
             [   { "name": 'Token',   "type": Types.NVarChar, "value": req.params.token},
                 { "name": 'Name',    "type": Types.NVarChar, "value": req.body.name },
                 { "name": 'Email',   "type": Types.NVarChar, "value": req.body.email },
                 { "name": 'EventName', "type": Types.NVarChar, "value": req.body.event },
-                { "name": 'EventType', "type": Types.NVarChar, "value": req.body.types.join(",") },
-                { "name": 'Regions', "type": Types.NVarChar, "value": req.body.groups.join(",") },
+                { "name": 'EventType', "type": Types.NVarChar, "value": types.join(",") },
+                { "name": 'Regions', "type": Types.NVarChar, "value": groups.join(",") },
                 { "name": 'Venue',   "type": Types.NVarChar, "value": req.body.venue },
                 { "name": 'Date',    "type": Types.Date,     "value": formEventDate },
                 { "name": 'EndDate', "type": Types.Date,     "value": formEventEndDate },
@@ -596,6 +600,7 @@ function doModifyRequest(req, res, next) {
                     }
         });
     } catch(e) {
+        console.log(e);
         res.status(500).send('There was a problem with the database connection.');
     }
 }
@@ -697,7 +702,7 @@ function doApproveRequest(req, res, next) {
                         return;
                     } else {
                     // Or not:
-                        res.status(500).json(err);
+                        res.sendStatus(500);
                         return;
                     }
                 } else {
@@ -1232,14 +1237,24 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
     const sendStatus = await fetch("https://api.sender.net/v2/campaigns/"+campaignId+"/send", {
         method: "POST",
         headers: senderApiHeaders
-    }).then(response => response.json());
+    });
 
-    if (sendStatus.sucess===false) {
-        throw 'Could not send campaign: '+sendStatus.message;
+    try {
+        const sendResponse = sendStatus.json();
+
+        if (sendResponse.sucess===false) {
+            console.log(sendResponse);
+            return false;
+        }
+
+        console.log((new Date), "Sent campaign: "+subjectLine);
+        return true;
+    } catch(err) {
+        console.log("NOPE.");
+        console.log(sendStatus);
+        console.log(err);
+        return false;
     }
-
-    console.log((new Date), "Sent campaign: "+subjectLine);
-    return sendStatus.success;
 }
 
 
