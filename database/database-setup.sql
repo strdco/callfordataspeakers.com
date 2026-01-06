@@ -92,12 +92,25 @@ WHERE Token=@Token
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_CfsClose
     @Token          uniqueidentifier,
-    @Cfs_Closes     datetime2(0)
+    @Cfs_Closes     datetime2(0),
+    @Lat            numeric(8, 5)=NULL,
+    @Long           numeric(8, 5)=NULL
 AS
 
 UPDATE CallForDataSpeakers.Campaigns
-SET Cfs_Closes=@Cfs_Closes
+SET Cfs_Closes=@Cfs_Closes,
+    Lat=ISNULL(Lat, @Lat),
+    [Long]=ISNULL(@Long, [Long])
 WHERE Token=@Token;
+
+GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Hide_Event
+    @Token      uniqueidentifier
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET [Sent]=NULL, Information='**Sessionize URL no longer valid**'
+WHERE Token=@Token AND [Sent] IS NOT NULL;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_LatLong

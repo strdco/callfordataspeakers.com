@@ -1057,15 +1057,28 @@ async function updateCfsCloseDates(res) {
         '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -14, SYSDATETIME());', [],
         function(recordset) {
             recordset.data.forEach(async function(record) {
-                var cfs=await fetchSessionizeEvent(record.URL)
-                var formattedUtcTime=cfs.cfpDates.endUtc.replace('T', ' ');
+                console.log(record.URL);
+                const cfs=await fetchSessionizeEvent(record.URL);
+                if (cfs.error==="Not found") {
+                    // If the Sessionize URL no longer exists, "un-send" the event (hide it from the list)
+                    cannedSql.sqlQuery(connectionString,
+                        'EXECUTE CallForDataSpeakers.Hide_Event @Token=@Token;',
+                        [   { "name": 'Token',      "type": Types.NVarChar, "value": record.Token }],
+                        function(recordset) {});
+                } else {
+                    const formattedUtcTime=cfs.cfpDates.endUtc.replace('T', ' ');
+                    const coords=(cfs.location ? cfs.location.coordinates.split(",") : []);
 
-                cannedSql.sqlQuery(connectionString,
-                    'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes;',
-                    [   { "name": 'Token',      "type": Types.NVarChar, "value": record.Token },
-                        { "name": 'Cfs_Closes', "type": Types.NVarChar, "value": formattedUtcTime }],
-
-                    function(recordset) {});
+                    // Update Cfs closing time and, if available, the lat/long from Sessionize:
+                    cannedSql.sqlQuery(connectionString,
+                        'EXECUTE CallForDataSpeakers.Update_CfsClose @Token=@Token, @Cfs_Closes=@Cfs_Closes, @Lat=@Lat, @Long=@Long;',
+                        [   { "name": 'Token',      "type": Types.NVarChar, "value": record.Token },
+                            { "name": 'Cfs_Closes', "type": Types.NVarChar, "value": formattedUtcTime },
+                            { "name": 'Lat',        "type": Types.Numeric, "value": (coords ? coords[0] : null) },
+                            { "name": 'Long',       "type": Types.Numeric, "value": (coords ? coords[1] : null) }
+                        ],
+                        function(recordset) {});
+                }
 
             });
     });
