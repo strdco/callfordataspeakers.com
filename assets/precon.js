@@ -107,14 +107,14 @@ window.onload = function yeahyeah() {
             var matched=true;
             var searchCriteria=searchInput.value.toLowerCase().replace(/ /g, '').split(',');
 
-            Array.from(tbody.getElementsByTagName('tr')).forEach(tr => {
+            for (tr of tbody.getElementsByTagName('tr')) {
                 matched=(searchInput.value=='' ? true : false);
 
                 if(tr.children[0].tagName.toLowerCase()=='td') {
                     if (searchCriteria.find(c => tr.innerText.toLowerCase().replace(/ /g, '').indexOf(c.trim())>=0)) { matched=true; }
                     tr.style.display=(matched ? 'table-row' : 'none');
                 };
-            });
+            }
         }
 
         // Reset the timer to 500 ms. When the timer reaches 0, refresh the search.

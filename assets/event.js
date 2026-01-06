@@ -12,9 +12,9 @@ document.querySelector('form#event-form').addEventListener("submit", postFormEve
 // Add a click event to each region checkbox on the event page,
 // to make sure the organizer doesn't select more than two
 // regions:
-Array.from(document.querySelectorAll(".max-two input[type='checkbox']")).forEach(input => {
+for (input of document.querySelectorAll(".max-two input[type='checkbox']")) {
     input.addEventListener('click', regionCheckboxClicked);
-});
+}
 
 
 // Make sure the event organizer doesn't check more than two regions.
