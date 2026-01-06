@@ -1057,7 +1057,6 @@ async function updateCfsCloseDates(res) {
         '  AND ISNULL(Cfs_Closes, {d \'2099-12-31\'})>DATEADD(day, -14, SYSDATETIME());', [],
         function(recordset) {
             recordset.data.forEach(async function(record) {
-                console.log(record.URL);
                 const cfs=await fetchSessionizeEvent(record.URL);
                 if (cfs.error==="Not found") {
                     // If the Sessionize URL no longer exists, "un-send" the event (hide it from the list)
