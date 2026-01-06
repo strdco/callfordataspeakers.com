@@ -65,7 +65,7 @@
 }
 
 .field-group input.mismatches-sessionize {
-    background-color: rgba(255, 255, 0, 0.5)
+    background-color: rgba(255, 255, 0, 0.75)
 }
 
 .field-group input[type='email'] {
