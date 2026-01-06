@@ -73,48 +73,61 @@ function validateForm(formObject) {
     const values=formValues(formObject);
     const allInputs = document.querySelectorAll("input");
     var invalidInput;
-
+console.log(values);
     for (const input of allInputs) {
         input.classList.remove("invalid");
     }
 
-    for (const input of allInputs) {
+    if (!invalidInput) {
+        for (const input of allInputs) {
 
-        if (input.type==="checkbox" && input.classList.contains("required") && !values[input.name]) {
-            invalidInput=input;
-            valid=false;
-        } else if (input.type==="url" && !/^(http|https):\/\/.{1,}\..{1,}/.test(input.value)) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if (input.type==="email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if (input.min && input.value!=="" && parseInt(input.value)<parseInt(input.min)) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if (input.max && input.value!=="" && parseInt(input.value)>parseInt(input.max)) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if (input.type!=="checkbox" && input.required && input.value.trim()==="") {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if ( input.placeholder==="YYYY" && input.value!=="" && parseInt(input.value)<(new Date).getFullYear() ) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if ( input.placeholder==="YYYY" && input.value!=="" && parseInt(input.value)>(new Date).getFullYear()+1 ) {
-            invalidInput=input;
-            valid=false;
-            break;
-        } else if ( input.placeholder==="DD" && input.value!=="" && !isValidIsoDate(values[input.name.split("[")[0]]) ) {
-            invalidInput=input;
-            valid=false;
-            break;
+            if (input.type==="checkbox" && input.classList.contains("required") && !values[input.name]) {
+                invalidInput=input;
+                valid=false;
+            } else if (input.type==="url" && !/^(http|https):\/\/.{1,}\..{1,}/.test(input.value)) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if (input.type==="email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if (input.min && input.value!=="" && parseInt(input.value)<parseInt(input.min)) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if (input.max && input.value!=="" && parseInt(input.value)>parseInt(input.max)) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if (input.type!=="checkbox" && input.required && input.value.trim()==="") {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if ( input.placeholder==="YYYY" && input.value!=="" && parseInt(input.value)<(new Date).getFullYear() ) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if ( input.placeholder==="YYYY" && input.value!=="" && parseInt(input.value)>(new Date).getFullYear()+1 ) {
+                invalidInput=input;
+                valid=false;
+                break;
+            } else if ( input.placeholder==="DD" && input.value!=="" && !isValidIsoDate(values[input.name.split("[")[0]]) ) {
+                invalidInput=input;
+                valid=false;
+                break;
+            }
+        }
+    }
+
+    // Check for end date that precedes the start date:
+    if (!invalidInput && values["event-end-date"]!=="" && values["event-date"]>values["event-end-date"]) {
+        if (values["event-date"].substring(0, 4)>values["event-end-date"].substring(0, 4)) {
+            invalidInput=document.querySelector("input#event-end-date-year");
+        } else if (values["event-date"].substring(5, 7)>values["event-end-date"].substring(5, 7)) {
+            invalidInput=document.querySelector("input#event-end-date-month");
+        } else if (values["event-date"].substring(8, 10)>values["event-end-date"].substring(8, 10)) {
+            invalidInput=document.querySelector("input#event-end-date-day");
         }
     }
 
@@ -149,10 +162,12 @@ function formValues(formObject) {
 
     for (entry of Object.entries(values).filter(e => e[0].match(/\[year\]/))) {
         const variable = entry[0].replace("\[year\]", "");
-        values[variable]=
-            values[variable+"[year]"]+"-"+
-            values[variable+"[month]"]+"-"+
-            values[variable+"[day]"];
+        if (values[variable+"[year]"] && values[variable+"[month]"] && values[variable+"[day]"]) {
+            values[variable]=
+                values[variable+"[year]"]+"-"+
+                values[variable+"[month]"]+"-"+
+                values[variable+"[day]"];
+        }
     }
 
     for (entry of Object.entries(values).filter(e => e[0].match(/\[(year|month|day)\]/))) {
