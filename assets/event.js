@@ -111,7 +111,7 @@ document.querySelector('form input[type="url"]').addEventListener("change", asyn
     }
 
     // Have we already published this URL?
-    else if (eventList.find(event => event.URL.toLowerCase() === url)) {
+    else if (eventList.find(event => event.URL.toLowerCase().split("/").join("") === url.split("/").join(""))) {
         window.alert('This event URL has already been published in a call for speakers. Under the terms of this service, you can only announce each event once.');
         e.target.value='';
     }
