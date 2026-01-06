@@ -123,7 +123,13 @@ window.onload = function yeahyeah() {
                 if (toDate-new Date(0)==0) { toDate=fromDate; }
 
                 if (toDate-fromDate==0) {
-                    td1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    const span1=document.createElement("span");
+                    span1.classList.add("information-field");
+                    span1.innerText = fromDate.toLocaleDateString("en-US", { weekday: 'short', timeZone: 'UTC' })+", ";
+                    const span2=document.createElement("span");
+                    span2.innerText = innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                    td1.appendChild(span1);
+                    td1.appendChild(span2);
                 }
                 else {
                     // Same year, same month:
@@ -137,13 +143,13 @@ window.onload = function yeahyeah() {
                     }
                     // Same year, spans multiple months:
                     else if (toDate.getFullYear()==fromDate.getFullYear()) {
-                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '').replace(' '+fromDate.getUTCDate(), '')+' - '+
-                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).replace(' '+toDate.getUTCDate(), '');
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).replace(', '+fromDate.getFullYear(), '').replace(' '+fromDate.getUTCDate(), '')+' - '+
+                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }).replace(' '+toDate.getUTCDate(), '');
                     }
                     // Not even same year:
                     else {
-                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })+' - '+
-                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+                        td1.innerText = fromDate.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })+' - '+
+                                        toDate.toLocaleDateString("en-US", { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
                     }
                 }
 

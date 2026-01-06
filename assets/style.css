@@ -259,6 +259,14 @@ input#search {
 
 /* Events/Precon table */
 
+.information-field {
+    opacity: 0.5;
+}
+
+table.responsive tr:hover .information-field {
+    opacity: 1.0;
+}
+
 table {
     font-size: 10pt;
     text-align: left;
