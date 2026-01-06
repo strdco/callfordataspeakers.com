@@ -422,12 +422,21 @@ table .cfs-closes-in {
     background-color: var(--green);
     color: light-dark(#ffffff, #40e040);
     font-size: 90%;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 1px;
 }
 
 table .cfs-closes-in.soon {
     background-color: var(--yellow);
     color: #000000;
+    animation: blinking 2s step-end infinite;
 }
+
+@keyframes blinking { 75% {
+    border-color: rgba(0, 0, 0, 0.25);
+    background-color: transparent;
+}}
 
 table .cfs-closes-in.closed {
     background-color: var(--red);
