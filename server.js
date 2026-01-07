@@ -179,16 +179,21 @@ async function modifySubscriptionPage(req, res, next) {
         headers: senderApiHeaders
     }).then(response => response.json());
 
+    if (!subscriber.success) {
+        res.status(401).send("Subscriber does not exist or hash key does not match.");
+        return;
+    }
+
     httpHeaders(res);
 
     if(!subscriber.data.columns.find(col => col.title==="sha256")) {
-        res.status(401).send("Subscriber does not have a hash key.");
+        res.status(401).send("Subscriber does not exist or hash key does not match.");
         return;
     }
 
     // Check that the key in the URL matches the hash on the subscriber record.
     if(subscriber.data.columns.find(col => col.title==="sha256").value !== queryParams.key) {
-        res.status(401).send("Subscriber key does not match.");
+        res.status(401).send("Subscriber does not exist or hash key does not match.");
         return;
     };
 
