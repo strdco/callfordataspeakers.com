@@ -476,9 +476,9 @@ table .cfs-closes-in.soon {
     animation: blinking 2s step-end infinite;
 }
 
-@keyframes blinking { 75% {
-    border-color: rgba(0, 0, 0, 0.25);
-    background-color: transparent;
+@keyframes blinking { 70% {
+    border-color: var(--yellow); /*var(--dark);*/
+    background-color: var(--yellow-translucent);
 }}
 
 table .cfs-closes-in.closed {
