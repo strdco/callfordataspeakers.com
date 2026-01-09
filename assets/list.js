@@ -198,7 +198,19 @@ window.onload = function yeahyeah() {
                     a.classList.add('uncategorized');
                 }
 
+                if (row.EventType==="External") {
+                    a.classList.add("warning");
+                }
+
                 td2.appendChild(a);
+
+                if (row.EventType==="External") {
+                    const floatyWarning = document.createElement("div");
+                    floatyWarning.classList.add("floaty-warning");
+                    floatyWarning.innerText="This event was not added to callfordataspeakers.com by the organiser. It was sourced from "+row.Source+".";
+                    td2.appendChild(floatyWarning);
+                }
+
                 tr.appendChild(td2);
 
                 var td3=document.createElement('td');
