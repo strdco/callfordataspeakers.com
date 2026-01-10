@@ -1032,7 +1032,9 @@ async function getSessionizeDetails(req, res, next) {
             "Date": details.eventDates.start,
             "EndDate": details.eventDates.end,
             "Venue": (details.location ? details.location.full : ''),
-            "Cfs_Closes": (new Date(details.cfpDates.endUtc+"Z")).getTime().toString()
+            "Cfs_Closes": (new Date(details.cfpDates.endUtc+"Z")).getTime().toString(),
+            "Lat": (details.location ? details.location.coordinates.split(",")[0] : ''),
+            "Long": (details.location ? details.location.coordinates.split(",")[1] : '')
         }));
     } catch(e) {
         res.status(404).send('');
