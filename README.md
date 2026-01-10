@@ -18,32 +18,22 @@ organizers to send a one-time Call for Speakers mailing to those speakers.
 
 The frontend is built on Node.js, hosted as an Azure WebApp behind a Cloudflare CDN.
 
-## Mailchimp
+## Email backend
 
-The mailing list is stored in Mailchimp, in a single list ("list"). There's a "Region"
-group, where speakers belong to zero or more groups, indicating region(s) where they
-would be available to speak.
+The service uses Sender.net to run the actual mailing list.
 
-Moderators are in a list called "Organizers" and are members of an "Organizer" group. Even
-though, at the time of writing, moderation emails have only a single recipient, we're
-still using the Mailchimp "Marketing" API, rather than the "Transactional" API (which in
-practice is the Mandrill app) because they're essentially two different products, with
-two different Node APIs, subscriptions, and pricing.
+Users are assigned to "Groups", one for each region they subscribe to. There's also
+a group called "Procrastinators" and one called "Moderators". Members of the "Moderators"
+group will receive event requests to moderate.
 
-Mail templates are manually coded to allow for `mc:edit` tags inline with the message.
+Email templates are stored as local HTML template files in the /assets folder, rather
+than on the server (which was the case for Mailchimp), which means that campaigns are
+sent as complete HTML documents, rather than just specifying a template and values for
+that template.
 
-Recipients are asked to double opt-in, and they get a welcome message upon signing up.
-All those features are handled in the Mailchimp GUI.
-
-### Mailchimp embedded forms
-
-Subscribing as a speaker is done in an embedded Mailchimp subscription form. This allows
-us to use Mailchimp's validation logic, and if we want to add or change any field in the
-future, we can copy-paste the new embed code directly into the registration page.
-
-Event requests do not pass through Mailchimp as such, but we've designed the forms to use
-the same elements and CSS classes, so we can still use the Mailchimp validation logic
-before the form is posted.
+All actions are performed using the API: subscribing, modifying subscriptions,
+and sending campaigns (including sending out event requests for moderation). There
+is no longer an embedded signup form.
 
 ## Database
 

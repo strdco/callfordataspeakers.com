@@ -29,7 +29,18 @@ IF (OBJECT_ID('CallForDataSpeakers.Campaigns') IS NULL)
         CONSTRAINT UQ_Campaigns UNIQUE CLUSTERED (EventName, Token)
     );
 
-
+IF (OBJECT_ID('CallForDataSpeakers.Scraped_Events') IS NULL)
+    CREATE TABLE CallForDataSpeakers.Scraped_Events (
+        EventName       nvarchar(400) NOT NULL,
+        Regions         nvarchar(200) NOT NULL,
+        Venue           nvarchar(1000) NOT NULL,
+        [Date]          date NOT NULL,
+        EndDate         date NULL,
+        [URL]           varchar(500) NOT NULL,
+        Created         datetime2(3) NOT NULL,
+        [Source]        varchar(100) NOT NULL,
+        CONSTRAINT PK_Scraped_Events PRIMARY KEY NONCLUSTERED ([URL])
+    );
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Insert_Campaign
@@ -92,12 +103,25 @@ WHERE Token=@Token
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_CfsClose
     @Token          uniqueidentifier,
-    @Cfs_Closes     datetime2(0)
+    @Cfs_Closes     datetime2(0),
+    @Lat            numeric(8, 5)=NULL,
+    @Long           numeric(8, 5)=NULL
 AS
 
 UPDATE CallForDataSpeakers.Campaigns
-SET Cfs_Closes=@Cfs_Closes
+SET Cfs_Closes=@Cfs_Closes,
+    Lat=ISNULL(Lat, @Lat),
+    [Long]=ISNULL(@Long, [Long])
 WHERE Token=@Token;
+
+GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Hide_Event
+    @Token      uniqueidentifier
+AS
+
+UPDATE CallForDataSpeakers.Campaigns
+SET [Sent]=NULL, Information='**Sessionize URL no longer valid**'
+WHERE Token=@Token AND [Sent] IS NOT NULL;
 
 GO
 CREATE OR ALTER PROCEDURE CallForDataSpeakers.Update_LatLong
@@ -111,12 +135,61 @@ SET Lat=@Lat, Long=@Long
 WHERE Token=@Token;
 
 GO
+CREATE OR ALTER PROCEDURE CallForDataSpeakers.Set_Scraped_Event
+    @EventName          nvarchar(400),
+    @Regions            nvarchar(200),
+    @Venue              nvarchar(1000),
+    @Date               date,
+    @EndDate            date,
+    @URL                varchar(500),
+    @Source             varchar(100)
+AS
+
+IF (NULLIF(TRIM(@URL), '') IS NULL)
+    RETURN;
+
+SET @URL=LEFT(@URL, CHARINDEX('?', @URL+'?')-1);
+IF (RIGHT(@URL, 1)='/') SET @URL=LEFT(@URL, LEN(@URL)-1);
+
+IF (EXISTS (SELECT NULL FROM CallForDataSpeakers.Campaigns WHERE [URL]=@URL)) BEGIN;
+    DELETE FROM CallForDataSpeakers.Scraped_Events
+    WHERE [URL]=@URL;
+
+    RETURN;
+END;
+
+MERGE INTO CallForDataSpeakers.Scraped_Events AS dest
+USING (SELECT @URL AS [URL]) AS x ON x.[URL]=dest.[URL]
+
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (EventName, Regions, Venue, [Date], EndDate, [URL], [Source], Created)
+    VALUES (@EventName, @Regions, @Venue, @Date, @EndDate, @URL, @Source, SYSDATETIME())
+
+WHEN MATCHED AND EXISTS (
+        SELECT dest.EventName, dest.Regions, dest.Venue, dest.[Date], dest.EndDate
+        EXCEPT
+        SELECT @EventName, @Regions, @Venue, @Date, @EndDate) THEN
+    UPDATE
+    SET dest.EventName=@EventName,
+        dest.Regions=@Regions,
+        dest.Venue=@Venue,
+        dest.[Date]=@Date,
+        dest.EndDate=@EndDate,
+        dest.[Source]=@Source;
+
+GO
 CREATE OR ALTER VIEW CallForDataSpeakers.Feed
 AS
 
-SELECT EventName, EventType, Regions, Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], Information, Created, Cfs_Closes, Lat, Long
+SELECT EventName, EventType, Regions, Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], Information, Created, Cfs_Closes, Lat, Long, CAST(NULL AS varchar(100)) AS [Source]
 FROM CallForDataSpeakers.Campaigns
 WHERE ISNULL(EndDate, [Date])>DATEADD(day, -90, SYSDATETIME())
-  AND [Sent] IS NOT NULL;
+  AND [Sent] IS NOT NULL
+
+UNION ALL
+
+SELECT EventName, 'External' AS EventType, Regions, NULL AS Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], NULL AS Information, NULL AS Created, NULL AS Cfs_Closes, NULL AS Lat, NULL AS Long, [Source]
+FROM CallForDataSpeakers.Scraped_Events
+WHERE [URL] NOT IN (SELECT CAST([URL] AS varchar(500)) FROM CallForDataSpeakers.Campaigns WHERE [Sent] IS NOT NULL);
 
 GO

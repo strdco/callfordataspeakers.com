@@ -18,9 +18,14 @@ body {
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
 
+    --in-person-badge: rgba(160, 64, 0, 1);
+    --hybrid-badge: rgba(128, 0, 220, 1);
+    --virtual-badge: rgba(0, 160, 192, 1);
+
     --dark: rgba(0, 0, 0, 0.5);
     --bright: rgba(255, 255, 255, 0.9);
 
+    --warning-background: light-dark(rgb(255, 255, 255), rgb(64, 64, 64));
     --logo-size: 60px;
 
     background-image:
@@ -78,6 +83,7 @@ h1.callfordataspeakers {
     justify-content: center;
     margin-bottom: calc(0.75 * var(--logo-size));
     text-transform: lowercase;
+    box-shadow: 0 0px 40px 1px rgba(255, 255, 255, 0.5);
 }
 
 /* Shouty logo icon: */
@@ -127,19 +133,21 @@ h1.callfordataspeakers a:hover {
     border-color: var(--black);
     background-color: var(--yellow);
     border-bottom-color: var(--yellow);
-    box-shadow: 0 0px 30px 1px var(--yellow-footer);
+    box-shadow: 0 0px 40px 1px var(--yellow-footer);
     z-index: 100;
 }
 
 .menu-item a {
     display: inline-block;
     color: var(--yellow);
+    box-shadow: inset 0 20px 0 rgba(255, 255, 255, 0.1);
     text-decoration: none;
     padding: 1rem 2rem 0.5rem 2rem;
 }
 
 .menu-item.menu-item-selected a {
     color: #000000;
+    box-shadow: inset 0 20px 0 rgba(255, 255, 255, 0.25);
 }
 
 .menu-item a:hover {
@@ -260,6 +268,14 @@ table {
     padding-bottom: 2em;
 }
 
+table.responsive .information-field {
+    opacity: 0.5;
+}
+
+table.responsive tr:hover .information-field {
+    opacity: 1.0;
+}
+
 table.responsive tr:hover td {
     background-color: var(--yellow) !important;
     color: #000000;
@@ -269,8 +285,49 @@ table.responsive tr:hover td a {
     color: #000000;
 }
 
+table.responsive td a.warning + .floaty-warning {
+    margin-top: 10px;
+    margin-left: 50px;
+    background-color: var(--warning-background);
+    position: absolute;
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    min-width: 60px;
+    max-width: 350px;
+    min-height: 30px;
+    padding: 5px 10px 5px 50px;
+    display: none;
+    white-space: initial;
+    overflow-x: visible;
+    filter: drop-shadow(0 0 10px rgb(0, 0, 0, 0.5));
+}
+
+table.responsive td a.warning:hover + .floaty-warning {
+    display: block;
+}
+
+table.responsive td a.warning:hover + .floaty-warning:before {
+    position: absolute;
+    display: block;
+    text-align: center;
+    font-size: 26px;
+    color: var(--black);
+    padding: 0;
+    font-weight: bold;
+    content: "!";
+    margin-left: -45px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--yellow);
+    box-shadow: inset 0 15px 0 rgba(255, 255, 255, 0.25);
+    border-style: solid;
+    border-width: 1px;
+}
+
 table td a.sqlsaturday::before,
-table td a.datasaturday::before {
+table td a.datasaturday::before,
+table td a.uncategorized::before {
     content: "";
     display: inline-block;
     width: 16px;
@@ -342,6 +399,25 @@ table tr:hover span.badge {
     border-color: light-dark(rgba(0, 0, 0, 0.25), #000000);
 }
 
+.badge.event-type {
+    text-transform: uppercase;
+    border-left-width: 8px;
+    font-size: 80%;
+    cursor: default;
+}
+
+.badge.event-type.in-person {
+    border-left-color: var(--in-person-badge);
+}
+
+.badge.event-type.virtual {
+    border-left-color: var(--virtual-badge);
+}
+
+.badge.event-type.hybrid {
+    border-left-color: var(--hybrid-badge);
+}
+
 table span.badge:hover {
     background-color: rgba(255, 255, 255, 0.5);
     color: #000000;
@@ -389,12 +465,21 @@ table .cfs-closes-in {
     background-color: var(--green);
     color: light-dark(#ffffff, #40e040);
     font-size: 90%;
+    border-style: solid;
+    border-color: transparent;
+    border-width: 1px;
 }
 
 table .cfs-closes-in.soon {
     background-color: var(--yellow);
     color: #000000;
+    animation: blinking 2s step-end infinite;
 }
+
+@keyframes blinking { 70% {
+    border-color: var(--yellow); /*var(--dark);*/
+    background-color: var(--yellow-translucent);
+}}
 
 table .cfs-closes-in.closed {
     background-color: var(--red);
@@ -470,6 +555,7 @@ table .cfs-closes-in.closed {
         display: block;
         max-width: 100%;
         overflow-x: hidden;
+        padding-bottom: 0.75rem;
     }
 
     table.responsive td {
@@ -478,7 +564,7 @@ table .cfs-closes-in.closed {
         width: 100%;
         max-width: unset;
         overflow-x: hidden;
-        }
+    }
 
     table.responsive tr:nth-child(odd) td {
         background-color: rgb(255, 255, 255, 0.1);
@@ -511,6 +597,10 @@ table .cfs-closes-in.closed {
 
     table.responsive#precontbl td:first-of-type {
         padding-left: 0.25em;
+    }
+
+    table td a.uncategorized::before {
+        display: none;
     }
 }
 
