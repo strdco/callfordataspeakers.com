@@ -1447,6 +1447,8 @@ async function fetchSessionizeEvent(sessionizeUrl) {
   -----------------------------------------------------------------------------*/
 
 function emailHash(email) {
+    const parts=email.toLowerCase().split("\@");
+    email=parts[0].split("+")[0]+"@"+parts[1];
     return crypto.createHash("sha256").update(email+":"+process.env.email_hash_salt).digest("hex");
 }
 
