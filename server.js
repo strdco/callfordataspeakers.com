@@ -894,7 +894,6 @@ async function getRssFeed(req, res, next) {
                 recordset.data.forEach(item => {
 
                     var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });   
-console.log(item.Created);         
 
                     items+='<item>\n'+
                             '<title>'+encodeHtml(item.EventName)+'</title>\n'+
