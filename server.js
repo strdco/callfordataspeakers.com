@@ -908,7 +908,7 @@ async function getRssFeed(req, res, next) {
                                 'The <a href="'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
                             '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
-                                '<media:title type="html">dhmacher</media:title>\n'+
+                                '<media:title type="html">'+encodeHtml(item.EventName)+'</media:title>\n'+
                             '</media:content>\n'+
                         '</item>\n\n'
                 });
