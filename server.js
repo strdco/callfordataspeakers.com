@@ -893,13 +893,14 @@ async function getRssFeed(req, res, next) {
 
                 recordset.data.forEach(item => {
 
-                    var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });            
+                    var eventDate=item.Date.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });   
+console.log(item.Created);         
 
                     items+='<item>\n'+
                             '<title>'+encodeHtml(item.EventName)+'</title>\n'+
                             '<link>'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'</link>\n'+
                             '<dc:creator>Call for Data Speakers</dc:creator>\n'+
-                            '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n'+
+                            (item.Created ? '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n' : '')+
                             '<category>Call for Speakers</category>\n'+
                             '<guid isPermaLink="false">'+item.uid+'</guid>\n'+
                             '<description><![CDATA['+encodeHtml(item.EventName)+']]></description>\n'+
