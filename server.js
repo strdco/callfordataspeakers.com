@@ -897,7 +897,7 @@ async function getRssFeed(req, res, next) {
 
                     items+='<item>\n'+
                             '<title>'+encodeHtml(item.EventName)+'</title>\n'+
-                            '<link>'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'</link>\n'+
+                            '<link>'+encodeHtml(item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : ''))+'</link>\n'+
                             '<dc:creator>Call for Data Speakers</dc:creator>\n'+
                             (item.Created ? '<pubDate>' + item.Created.toUTCString() + '</pubDate>\n' : '')+
                             '<category>Call for Speakers</category>\n'+
@@ -908,7 +908,7 @@ async function getRssFeed(req, res, next) {
                                 'The <a href="'+item.URL+(item.URL.toLowerCase().indexOf('utm_source')==-1 ? (item.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=rss-feed' : '')+'">call for speakers</a> is open.\n'+
                                 ']]></content:encoded>\n'+
                             '<media:content url="https://'+req.hostname+'/assets/callfordataspeakers-logo.png" medium="image">\n'+
-                                '<media:title type="html">dhmacher</media:title>\n'+
+                                '<media:title type="html">'+encodeHtml(item.EventName)+'</media:title>\n'+
                             '</media:content>\n'+
                         '</item>\n\n'
                 });
