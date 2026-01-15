@@ -73,7 +73,7 @@ function validateForm(formObject) {
     const values=formValues(formObject);
     const allInputs = document.querySelectorAll("input");
     var invalidInput;
-console.log(values);
+
     for (const input of allInputs) {
         input.classList.remove("invalid");
     }

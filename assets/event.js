@@ -98,7 +98,7 @@ document.querySelector('form input[type="url"]').addEventListener("change", asyn
     const form=document.querySelector("form");
     var url=e.target.value.toLowerCase();
 
-    // Is this URL already found in the event list?
+    // Is this a private URL (like, for the admin dashboard or something)?
     if (url.includes('sessionize.com/app/')) {
         window.alert('That looks a lot like a private URL. Please revise the Cfs URL.');
         e.target.value='';
@@ -111,7 +111,7 @@ document.querySelector('form input[type="url"]').addEventListener("change", asyn
     }
 
     // Have we already published this URL?
-    else if (eventList.find(event => event.URL.toLowerCase().split("/").join("") === url.split("/").join(""))) {
+    else if (eventList.find(event => event.EventType!=="External" && event.URL.toLowerCase().split("?")[0].split("/").join("") === url.split("?")[0].split("/").join(""))) {
         window.alert('This event URL has already been published in a call for speakers. Under the terms of this service, you can only announce each event once.');
         e.target.value='';
     }
