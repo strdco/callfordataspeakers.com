@@ -17,6 +17,7 @@ body {
     --green: #1E6B53;
     --yellow-footer: rgba(198, 214, 51, 0.75);
     --yellow-translucent: rgba(198, 214, 51, 0.25);
+    --today: red;
 
     --in-person-badge: rgba(160, 64, 0, 1);
     --hybrid-badge: rgba(128, 0, 220, 1);
@@ -270,6 +271,25 @@ table {
 
 table.responsive .information-field {
     opacity: 0.5;
+}
+
+table.responsive tr.today td {
+    border-top-style: dashed;
+    border-top-width: 1px;
+    border-top-color: var(--today);
+}
+
+table.responsive tr.today td:first-of-type:before {
+    position: absolute;
+    display: block;
+    content: "";
+    width: 0;
+    height: 0;
+    margin-left: -12px;
+    margin-top: -12px;
+    border-style: solid;
+    border-width: 10px;
+    border-color: transparent transparent transparent var(--today);
 }
 
 table.responsive tr:hover .information-field {
@@ -556,6 +576,14 @@ table .cfs-closes-in.closed {
         max-width: 100%;
         overflow-x: hidden;
         padding-bottom: 0.75rem;
+    }
+
+    table.responsive tr.today td {
+        border-top-style: none;
+    }
+
+    table.responsive tr.today td:first-of-type:before {
+        display: none;
     }
 
     table.responsive td {
