@@ -105,6 +105,9 @@ window.onload = function yeahyeah() {
                 tbody.removeChild(tbody.firstChild);
             }
 
+            var renderedTodayRow=false;
+            var today=new Date();
+
             listOfEvents.filter(r =>
                     // Search criteria:
                     new Date(r.EndDate || r.Date)>=rangeFrom &&
@@ -121,6 +124,10 @@ window.onload = function yeahyeah() {
                 var fromDate=new Date(row.Date);
                 var toDate=new Date(row.EndDate);
                 if (toDate-new Date(0)==0) { toDate=fromDate; }
+                if (!renderedTodayRow && fromDate>=today) {
+                    tr.classList.add("today");
+                    renderedTodayRow=true;
+                }
 
                 if (toDate-fromDate==0) {
                     const span1=document.createElement("span");
