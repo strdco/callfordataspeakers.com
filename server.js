@@ -179,7 +179,7 @@ async function modifySubscriptionPage(req, res, next) {
         headers: senderApiHeaders
     }).then(response => response.json());
 
-    if (!subscriber.success) {
+    if (!subscriber.data) {
         res.status(401).send("Subscriber does not exist or hash key does not match.");
         return;
     }
