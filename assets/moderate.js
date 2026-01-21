@@ -82,7 +82,7 @@ fetch("/api/event/"+token).then(async response => {
                 form.querySelector('input#review-cfs').value='WARNING: Event is in test mode!';
                 form.querySelector('input#review-cfs').classList.add('mismatches-sessionize');
             } else {
-                form.querySelector('input#review-cte').value='UTC '+eventDetails.Sessionize.cfpDates.startUtc.replace('T', ' ').substring(0, 16)+' -> '+eventDetails.Sessionize.cfpDates.endUtc.replace('T', ' ').substring(0, 16);
+                form.querySelector('input#review-cfs').value='UTC '+eventDetails.Sessionize.cfpDates.startUtc.replace('T', ' ').substring(0, 16)+' -> '+eventDetails.Sessionize.cfpDates.endUtc.replace('T', ' ').substring(0, 16);
                 if (Date.parse(eventDetails.Sessionize.cfpDates.startUtc)<=Date.now() && Date.parse(eventDetails.Sessionize.cfpDates.endUtc)>=Date.now()) {
                     form.querySelector('input#review-cfs').classList.add('matches-sessionize');
                 } else {
