@@ -1000,9 +1000,24 @@ async function getCampaignCount() {
     var campaignCount=parseInt(process.env.legacy_campaign_count) || 0;
     var emailCount=parseInt(process.env.legacy_email_count) || 0;
 
+    // Collect a list of groups
+    const groups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
+    if (groups.sucess===false) {
+        throw 'Could not fetch groups: '+groups.message;
+    }
+
+    const moderatorGroupId = groups.data.find(grp => grp.title.toLowerCase()==="moderators").id;
+    const testGroupId = groups.data.find(grp => grp.title.toLowerCase()==="test").id;
+    const digestGroupId = groups.data.find(grp => grp.title.toLowerCase()==="procrastinators").id;
+
     while (!done) {
         const campaigns = await fetch('https://api.sender.net/v2/campaigns?limit='+pageSize+'&status=SENT&page='+page, { headers: senderApiHeaders }).then(response => response.json());
-        const cfsCampaigns = campaigns.data.filter(c => /^Call for speakers: /.test(c.subject) && !/closing soon/.test(c.subject));
+        const allCampaigns = campaigns.data.filter(c => /^Call for speakers: /.test(c.subject) && !/closing soon/.test(c.subject));
+
+        // Of all the campaigns, exclude those sent to moderators, the TEST group, or the procrastinator's digest.
+        const cfsCampaigns = allCampaigns
+            .filter(campaign => !campaign.campaign_groups
+                .some(id => [moderatorGroupId, testGroupId, digestGroupId].includes(id)));
 
         campaignCount += cfsCampaigns.length;
         emailCount    += cfsCampaigns.reduce((accumulator, campaign) => accumulator + campaign.sent_count, 0);
