@@ -190,6 +190,6 @@ UNION ALL
 
 SELECT EventName, 'External' AS EventType, Regions, NULL AS Email, Venue, [Date], NULLIF(EndDate, [Date]) AS EndDate, [URL], NULL AS Information, NULL AS Created, NULL AS Cfs_Closes, NULL AS Lat, NULL AS Long, [Source]
 FROM CallForDataSpeakers.Scraped_Events
-WHERE [URL] NOT IN (SELECT CAST([URL] AS varchar(500)) FROM CallForDataSpeakers.Campaigns WHERE [Sent] IS NOT NULL);
+WHERE REPLACE([URL], '/', '') NOT IN (SELECT CAST(REPLACE([URL], '/', '') AS varchar(500)) FROM CallForDataSpeakers.Campaigns WHERE [Sent] IS NOT NULL);
 
 GO
