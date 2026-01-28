@@ -15,7 +15,7 @@
         <atom:link href="https://callfordataspeakers.com/feed" rel="self" type="application/rss+xml" />
         <link>https://callfordataspeakers.com</link>
         <description>Calls for Speakers for upcoming data platform conferences.</description>
-        <lastBuildDate><%=lastBuildDate%></lastBuildDate>
+        <lastBuildDate>{{ lastBuildDate }}/lastBuildDate>
         <language>en</language>
         <sy:updatePeriod>hourly</sy:updatePeriod>
         <sy:updateFrequency>24</sy:updateFrequency>
@@ -25,7 +25,7 @@
             <link>https://callfordataspeakers.com/</link>
         </image>
 
-<%=items%>
+{{ items }}
 
     </channel>
 </rss>

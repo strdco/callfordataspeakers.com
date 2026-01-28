@@ -1,0 +1,24 @@
+			<p>
+				Dear {{ firstname | default: "speaker" }},
+			</p>
+			<p>
+				<b>{{ event-name }} is coming to you on {{ event-date }}!</b>
+			</p>
+			<p>
+				Please consider submitting a session abstract using the Call for Speakers button in this email.
+			</p>
+			<p>
+				<span style="display: inline-block; font-size: 75%; text-transform:uppercase; font-weight:bold; background-color: #1E6B53; color:#ffffff; padding: 0px 5px; border-radius: 3px; margin-right: 2px; margin-top: 1px;">Type of event</span> {{ event-type }}
+			</p>
+			<p>
+				<span style="display: inline-block; font-size: 75%; text-transform:uppercase; font-weight:bold; background-color: #1E6B53; color:#ffffff; padding: 0px 5px; border-radius: 3px; margin-right: 2px; margin-top: 1px;">Venue</span> {{ event-venue }}. {{ event-virtual }}
+			</p>
+			<p>
+				<span style="display: inline-block; font-size: 75%; text-transform:uppercase; font-weight:bold; background-color: #1E6B53; color:#ffffff; padding: 0px 5px; border-radius: 3px; margin-right: 2px; margin-top: 1px;">Information</span> {{ event-information }}
+				If you have any questions about the event, please see the event homepage, or contact the organizer at {{ organizer-email }}.
+			</p>
+			<p>
+			    You're receiving this email because you signed up as a data platform speaker at
+			    <a href="https://callfordataspeakers.com/">callfordataspeakers.com</a>. You can
+			    update your preferences or unsubscribe at any time using the link in the email footer.
+			</p>
