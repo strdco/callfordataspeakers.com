@@ -159,7 +159,7 @@ function speakerPage(req, res, next) {
     httpHeaders(res);
 
     // Serve up assets/speaker.html:
-    res.status(200).send(createHTML('speaker.html', {}));
+    res.status(200).send(createHTML('./assets/speaker.html', {}));
 }
 
 
@@ -198,7 +198,7 @@ async function modifySubscriptionPage(req, res, next) {
     };
 
     // Serve up assets/speaker.html:
-    res.status(200).send(createHTML('speaker.html', {
+    res.status(200).send(createHTML('./assets/speaker.html', {
         "email": subscriber.data.email,
         "first-name": subscriber.data.firstname,
         "last-name": subscriber.data.lastname,
@@ -251,7 +251,7 @@ function eventPage(req, res, next) {
     httpHeaders(res);
 
     // Serve up assets/event.html:
-    res.status(200).send(createHTML('event.html', map));
+    res.status(200).send(createHTML('./assets/event.html', map));
 }
 
 
@@ -269,7 +269,7 @@ function moderationPage(req, res, next) {
     httpHeaders(res);
 
     // Serve up assets/moderate.html:
-    res.status(200).send(createHTML('moderate.html', {}));
+    res.status(200).send(createHTML('./assets/moderate.html', {}));
 }
 
 
@@ -369,13 +369,14 @@ function doEventRequest(req, res, next) {
                             "event-date": formEventDate + (formEventEndDate ? ' -> ' + formEventEndDate : ''),
                             "event-url": formEventURL,
                             "event-information": encodeHtml(formEventInfo),
-                            "review-url": "https://"+req.hostname+"/moderate/"+recordset.data[0].Token
+                            "button-url": "https://"+req.hostname+"/moderate/"+recordset.data[0].Token,
+                            "button-text": "Review request"
                         };
 
                         // Here's where we send the campaign:
                         if (sendCampaign(
                                     'Moderators',                                                       // "Regions"
-                                    "email-campaign-request.html",                                      // Template name
+                                    "campaign-request.html",                                            // Template name
                                     templateSections,                                                   // Values template fields
                                     'New campaign request',                                             // Subject line
                                     'There\'s a new request for a call for speakers email to review.')) // Preview
@@ -425,7 +426,7 @@ async function doSubscribe(req, res, next) {
     }
 
     const senderGroups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
-    if (senderGroups.sucess===false) {
+    if (senderGroups.success===false) {
         throw 'Could not fetch groups: '+senderGroups.message;
     }
 
@@ -656,9 +657,12 @@ function doApproveRequest(req, res, next) {
 
                     var cfsURL = recordset.data[0].URL;
 
-                    var calendarLink='';
+                    var calendarLinkUrl="";
+                    var calendarLinkText="";
+
                     if (cfsURL.toLowerCase().indexOf('sessionize.com/')>0) {
-                        calendarLink='<a href="'+cfsURL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/')+'" style="text-decoration: underline; color: #000000;">Add to my calendar</a>';
+                        calendarLinkUrl=cfsURL.replace('sessionize.com/', 'sessionize.com/add-to-calendar/cfs/');
+                        calendarLinkText="Add to my calendar";
                     }
 
                     // These are the values that we want to fill into our template:
@@ -671,14 +675,16 @@ function doApproveRequest(req, res, next) {
                         "name": encodeHtml(recordset.data[0].Name),
                         "organizer-email": encodeHtml(recordset.data[0].Email),
                         "event-information": encodeHtml(eventInfoString),
-                        "cfs-url": cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=speaker-email' : ''),
-                        "calendar-url": calendarLink
+                        "button-url": cfsURL+(cfsURL.toLowerCase().indexOf('utm_source')==-1 ? (cfsURL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=speaker-email' : ''),
+                        "button-text": "View the Call for Speakers",
+                        "link-url": calendarLinkUrl,
+                        "link-text": calendarLinkText
                     };
 
                     // Send the email campaign to all our subscribers:
                     if (await sendCampaign(
                                 recordset.data[0].Regions,      // Region group members
-                                "email-call-for-speakers.html", // Template name
+                                "call-for-speakers.html",       // Template name
                                 templateSections,               // Values to template fields
                                 'Call for speakers: '+recordset.data[0].EventName,   // Subject line
                                 recordset.data[0].EventName+' is coming to you on '+eventDateString+'. The call for speakers is open!')) // Preview
@@ -750,15 +756,20 @@ function sendDigestCampaign(req, res, next) {
                     if (recordset.data.length>0) {
                         const htmlList = recordset.data.map(row => {
                             const url = row.URL+(row.URL.toLowerCase().indexOf('utm_source')==-1 ? (row.URL.indexOf('?')==-1 ? '?' : '&')+'utm_source=callfordataspeakers&utm_campaign=digest' : '');
-                            const regions = row.Regions.split(",").map(r => " <div class=\"tag\">"+encodeHtml(r)+"</div>").join(" ");
+                            const regions = row.Regions.split(",").map(r =>
+                                " <span style=\"display: inline-block; font-size: 75%; text-transform:uppercase; font-weight:bold; background-color: #1E6B53; color:#ffffff; padding: 0px 5px; border-radius: 3px; margin-left: 2px; margin-top: 1px;\">"+encodeHtml(r)+"</span>").join(" ");
                             return '<li><a href=\"'+encodeHtml(url)+'">'+encodeHtml(row.EventName)+"</a>"+regions+"</li>";
                         }).join("\n");
 
                         // Send the campaign to all our subscribers:
                         if (await sendCampaign(
                                     "Procrastinators",                              // Region group members
-                                    "email-procrastinators-digest.html",            // Template name
-                                    { "html-list": htmlList },                      // Values to template fields
+                                    "procrastinators-digest.html",                  // Template name
+                                    {
+                                        "html-list": htmlList,
+                                        "button-url": "https://callfordataspeakers.com/list",
+                                        "button-text": "All events"
+                                    },                                              // Values to template fields
                                     'Call for Data Speakers: Events closing soon',  // Subject line
                                     "Your Procrastinator\'s Digest: these events are closing their calls for speakers in the next few days.")) // Preview
                         {
@@ -851,7 +862,7 @@ function listPage(req, res, next) {
 
     httpHeaders(res);
 
-    res.status(200).send(createHTML('list.html', {}));
+    res.status(200).send(createHTML('./assets/list.html', {}));
     return;
 
 }
@@ -864,7 +875,7 @@ function preconPage(req, res, next) {
 
     httpHeaders(res);
 
-    res.status(200).send(createHTML('precon.html', {}));
+    res.status(200).send(createHTML('./assets/precon.html', {}));
     return;
 
 }
@@ -914,7 +925,7 @@ async function getRssFeed(req, res, next) {
                 });
 
                 res.type('application/rss+xml; charset=UTF-8');
-                res.status(200).send(createHTML('rss.xml', {
+                res.status(200).send(createHTML('./assets/rss.xml', {
                         "lastBuildDate": lastBuildDate.toUTCString(),
                         "items": items
                     }));
@@ -1002,7 +1013,7 @@ async function getCampaignCount() {
 
     // Collect a list of groups
     const groups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
-    if (groups.sucess===false) {
+    if (groups.success===false) {
         throw 'Could not fetch groups: '+groups.message;
     }
 
@@ -1150,36 +1161,37 @@ function getAsset(req, res, next) {
   -----------------------------------------------------------------------------*/
 
 function createHTML(templateFile, values) {
-    var rn=Math.random();
-
     // Read the template file:
-    var htmlTemplate = fs.readFileSync(path.resolve(__dirname, './assets/'+templateFile), 'utf8').toString();
+    var htmlTemplate = fs.readFileSync(path.resolve(__dirname, templateFile), 'utf8').toString();
 
     // Apparently, tabs mess with some HTML renderers, who knew...
     htmlTemplate=htmlTemplate.split("\t").join(" ");
 
     // Loop through the JSON blob given as the argument to this function,
-    // replace all occurrences of <%=param%> in the template with their
+    // replace all occurrences of {{param}} in the template with their
     // respective values.
+    var hasValues=false;
     for (var param in values) {
         if (values.hasOwnProperty(param)) {
             const value=values[param];
+            hasValues=true;
             if (typeof value==="string") {
-                htmlTemplate = htmlTemplate.split("\<\%\="+param+"\%\>").join(value);
+                const rx = new RegExp("{{( *)("+param+")( *)}}", "g");
+                htmlTemplate = htmlTemplate.replace(rx, value);
             } else {
                 for (key of value) {
-                    htmlTemplate = htmlTemplate.split("\<\%\="+param+":"+key+"\%\>").join(" checked");
+                    const rx = new RegExp("{{( *)("+param+":"+key+")( *)}}", "g");
+                    htmlTemplate = htmlTemplate.replace(rx, " checked");
                 }
             }
         }
     }
 
-    // Special parameter that contains a random number (for caching reasons):
-    htmlTemplate = htmlTemplate.split('\<\%\=rand\%\>').join(rn);
-
     // Clean up any remaining parameters in the template
     // that we haven't replaced with values from the JSON argument:
-    htmlTemplate = htmlTemplate.replace(/<%=([\s\S]*?)%>/g, "");
+    if (!hasValues) {
+        htmlTemplate = htmlTemplate.replace(/{{.*?}}/g, "");
+    }
 
     // DONE.
     return(htmlTemplate);
@@ -1197,7 +1209,7 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
 
     // Fetch groups for each of the regions
     const groups = await fetch('https://api.sender.net/v2/groups?limit=100', { headers: senderApiHeaders }).then(response => response.json());
-    if (groups.sucess===false) {
+    if (groups.success===false) {
         throw 'Could not fetch groups: '+groups.message;
     }
 
@@ -1227,7 +1239,10 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
 
     // Populate the email template
     templateSections.subject=subjectLine;
-    const htmlContent=createHTML(templateName, templateSections);
+    const contents=createHTML("./email-templates/"+templateName, templateSections);
+
+    templateSections.contents = contents;
+    const masterTemplate=createHTML("./email-templates/master-template.html", templateSections);
 
     // Construct the API call and create the campaign
     data = {
@@ -1240,7 +1255,7 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
         "google_analytics": 0,
         "auto_followup_active": false,
         "groups": groupIds,
-        "content": htmlContent
+        "content": masterTemplate
     };
 
     const campaign = await fetch("https://api.sender.net/v2/campaigns", {
@@ -1249,7 +1264,8 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
         body: JSON.stringify(data)
     }).then(response => response.json());
 
-    if (campaign.sucess===false) {
+    if (campaign.success===false) {
+        console.log(campaign.message);
         throw 'Could not create campaign: '+campaign.message;
     }
 
@@ -1262,9 +1278,8 @@ async function sendCampaign(regions, templateName, templateSections, subjectLine
     });
 
     try {
-        const sendResponse = sendStatus.json();
-
-        if (sendResponse.sucess===false) {
+        const sendResponse = await sendStatus.json();
+        if (sendResponse.success===false) {
             console.log(sendResponse);
             return false;
         }

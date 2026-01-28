@@ -55,38 +55,38 @@
 
         <!--- Intentionally setting the wrong method to confuse bots --->
         <form id="subscribe-form" action="/api/subscribe" method="get">
-            <input type="hidden" name="key" value="<%=key%>">
+            <input type="hidden" name="key" value="{{ key }}">
 
             <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
 
             <div class="field-group">
                 <label for="email">Email Address <span class="asterisk">*</span></label>
-                <input type="email" name="email" class="required email" id="email" required="" value="<%=email%>"<%=email-locked%>>
+                <input type="email" name="email" class="required email" id="email" required="" value="{{ email }}"{{ email-locked }} test>
             </div>
 
             <div class="field-group">
                 <label for="firstname">First Name</label>
-                <input type="text" name="firstname" class=" text" id="firstname" value="<%=first-name%>">
+                <input type="text" name="firstname" class=" text" id="firstname" value="{{ first-name }}">
             </div>
 
             <div class="field-group">
                 <label for="lastname">Last Name</label>
-                <input type="text" name="lastname" class=" text" id="lastname" value="<%=last-name%>">
+                <input type="text" name="lastname" class=" text" id="lastname" value="{{ last-name }}">
             </div>
 
             <div class="field-group input-group">
                 <strong>Region </strong>
                 <ul>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_1"  <%=groups:Virtual%> value="Virtual"><label for="groups_1">Virtual</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_2"  <%=groups:Europe%> value="Europe"><label for="groups_2">Europe</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_3"  <%=groups:Middle-East%> value="Middle-East"><label for="groups_3">Middle-East</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_4"  <%=groups:Africa%> value="Africa"><label for="groups_4">Africa</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_5"  <%=groups:South Asia%> value="South Asia"><label for="groups_5">South Asia</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_6"  <%=groups:South-East Asia%> value="South-East Asia"><label for="groups_6">South-East Asia</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_7"  <%=groups:East Asia%> value="East Asia"><label for="groups_7">East Asia</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_8"  <%=groups:Oceania%> value="Oceania"><label for="groups_8">Oceania</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_9"  <%=groups:North America%> value="North America"><label for="groups_9">North America</label></li>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_10" <%=groups:South America%> value="South America"><label for="groups_10">South America</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_1"  {{ groups:Virtual }} value="Virtual"><label for="groups_1">Virtual</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_2"  {{ groups:Europe }} value="Europe"><label for="groups_2">Europe</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_3"  {{ groups:Middle-East }} value="Middle-East"><label for="groups_3">Middle-East</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_4"  {{ groups:Africa }} value="Africa"><label for="groups_4">Africa</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_5"  {{ groups:South Asia }} value="South Asia"><label for="groups_5">South Asia</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_6"  {{ groups:South-East Asia }} value="South-East Asia"><label for="groups_6">South-East Asia</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_7"  {{ groups:East Asia }} value="East Asia"><label for="groups_7">East Asia</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_8"  {{ groups:Oceania }} value="Oceania"><label for="groups_8">Oceania</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_9"  {{ groups:North America }} value="North America"><label for="groups_9">North America</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_10" {{ groups:South America }} value="South America"><label for="groups_10">South America</label></li>
                 </ul>
             </div>
 
@@ -94,7 +94,7 @@
                 <strong>Weekly digest </strong><br/>
                 You can also choose to subscribe to a weekly summary of calls for speakers with only a few days left to submit:
                 <ul>
-                    <li><input type="checkbox" class="required" name="groups" id="groups_11" <%=groups:Procrastinators%> value="Procrastinators"><label for="groups_11">Procrastinator's Digest</label></li>
+                    <li><input type="checkbox" class="required" name="groups" id="groups_11" {{ groups:Procrastinators }} value="Procrastinators"><label for="groups_11">Procrastinator's Digest</label></li>
                 </ul>
             </div>
 

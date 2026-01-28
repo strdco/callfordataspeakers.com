@@ -57,41 +57,41 @@
 
             <div class="field-group">
                 <label for="url">Call for Speakers URL  <span class="asterisk">*</span></label>
-                <input type="url" required value="<%=url%>" name="url" class="required url" id="url">
+                <input type="url" required value="{{ url }}" name="url" class="required url" id="url">
             </div>
 
             <div class="field-group">
                 <label for="email">Email Address  <span class="asterisk">*</span></label>
-                <input type="email" required value="<%=email%>" name="email" class="required email" id="email">
+                <input type="email" required value="{{ email }}" name="email" class="required email" id="email">
             </div>
 
             <div class="field-group">
                 <label for="first-name">First Name  <span class="asterisk">*</span></label>
-                <input type="text" required value="<%=fname%>" name="first-name" class="required" id="first-name">
+                <input type="text" required value="{{ fname }}" name="first-name" class="required" id="first-name">
             </div>
 
             <div class="field-group">
                 <label for="last-name">Last Name  <span class="asterisk">*</span></label>
-                <input type="text" required value="<%=lname%>" name="last-name" class="required" id="last-name">
+                <input type="text" required value="{{ lname }}" name="last-name" class="required" id="last-name">
             </div>
 
             <div class="field-group">
                 <label for="event">Event name  <span class="asterisk">*</span></label>
-                <input type="text" required value="<%=eventname%>" name="event" class="required" id="event">
+                <input type="text" required value="{{ eventname }}" name="event" class="required" id="event">
             </div>
 
             <div class="field-group">
                 <label for="venue">Venue  <span class="asterisk">*</span></label>
-                <input type="text" required value="<%=venue%>" name="venue" class="required" id="venue">
+                <input type="text" required value="{{ venue }}" name="venue" class="required" id="venue">
             </div>
 
             <div class="field-group size1of2">
                 <label for="event-date-year">Event start date  <span class="asterisk">*</span></label>
                 <div class="datefield">
                     <span class="small-meta nowrap"></span>
-                    <span class="subfield yearfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="<%=year%>" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-date[year]" id="event-date-year"></span> -
-                    <span class="subfield monthfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="<%=month%>" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-date[month]" id="event-date-month"></span> -
-                    <span class="subfield dayfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="<%=day%>" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-date[day]" id="event-date-day"></span>
+                    <span class="subfield yearfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="{{ year }}" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-date[year]" id="event-date-year"></span> -
+                    <span class="subfield monthfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="{{ month }}" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-date[month]" id="event-date-month"></span> -
+                    <span class="subfield dayfield"><input required class="datepart required" type="text" pattern="[0-9]*" value="{{ day }}" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-date[day]" id="event-date-day"></span>
                     <span class="small-meta nowrap"></span>
                 </div>
             </div>
@@ -100,9 +100,9 @@
                 <label for="event-end-date-year">Event end date (if later)</label>
                 <div class="datefield">
                     <span class="small-meta nowrap"></span>
-                    <span class="subfield yearfield"><input class="datepart" type="text" pattern="[0-9]*" value="<%=endyear%>" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-end-date[year]" id="event-end-date-year"></span> -
-                    <span class="subfield monthfield"><input class="datepart" type="text" pattern="[0-9]*" value="<%=endmonth%>" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-end-date[month]" id="event-end-date-month"></span> -
-                    <span class="subfield dayfield"><input class="datepart" type="text" pattern="[0-9]*" value="<%=endday%>" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-end-date[day]" id="event-end-date-day"></span>
+                    <span class="subfield yearfield"><input class="datepart" type="text" pattern="[0-9]*" value="{{ endyear }}" placeholder="YYYY" size="4" maxlength="4" min="2020" max="2099" name="event-end-date[year]" id="event-end-date-year"></span> -
+                    <span class="subfield monthfield"><input class="datepart" type="text" pattern="[0-9]*" value="{{ endmonth }}" placeholder="MM" size="2" maxlength="2" min="01" max="12" name="event-end-date[month]" id="event-end-date-month"></span> -
+                    <span class="subfield dayfield"><input class="datepart" type="text" pattern="[0-9]*" value="{{ endday }}" placeholder="DD" size="2" maxlength="2" min="01" max="31" name="event-end-date[day]" id="event-end-date-day"></span>
                     <span class="small-meta nowrap"></span>
                 </div>
             </div>
@@ -115,17 +115,17 @@
             <div class="field-group input-group event-type">
                 <strong>Is this a...</strong>
                 <ul>
-                    <li><input type="checkbox" class="required" <%=conference_check%> value="Conference" name="types" id="types_8"><label for="types_8">Conference</label></li>
-                    <li><input type="checkbox" class="required" <%=precon_check%> value="Precon" name="types" id="types_9"><label for="types_9">Precon</label></li>
-                    <li><input type="checkbox" class="required" <%=usergroup_check%> value="Usergroup" name="types" id="types_10"><label for="types_10">User group meetup</label></li>
-                    <li><input type="checkbox" class="required" <%=paid_check%> value="Paid" name="types" id="types_11"><label for="types_11">Paid engagement</label></li>
+                    <li><input type="checkbox" class="required" {{ conference_check }} value="Conference" name="types" id="types_8"><label for="types_8">Conference</label></li>
+                    <li><input type="checkbox" class="required" {{ precon_check }} value="Precon" name="types" id="types_9"><label for="types_9">Precon</label></li>
+                    <li><input type="checkbox" class="required" {{ usergroup_check }} value="Usergroup" name="types" id="types_10"><label for="types_10">User group meetup</label></li>
+                    <li><input type="checkbox" class="required" {{ paid_check }} value="Paid" name="types" id="types_11"><label for="types_11">Paid engagement</label></li>
                 </ul>
             </div>
 
             <div class="field-group input-group max-two">
                 <strong>Is this event online?</strong>
                 <ul>
-                    <li><input type="checkbox" class="required" <%=virtual_check%> value="Virtual" name="groups" id="groups_0"><label for="groups_0">Virtual</label></li>
+                    <li><input type="checkbox" class="required" {{ virtual_check }} value="Virtual" name="groups" id="groups_0"><label for="groups_0">Virtual</label></li>
                 </ul>
 
                 <strong>Region (for in-person events)</strong>
