@@ -9,10 +9,10 @@ document.querySelector('form#approve-form').addEventListener("submit", (e) => {
 });
 
 // Clicking the "Approve" button
-document.querySelector('form#approve-form input[name=approve]').addEventListener("click", (e) => {
+document.querySelector('form#approve-form input[name=approve]').addEventListener("click", async (e) => {
     form=document.querySelector("form#approve-form");
     form.action="/api/approve/"+token;
-    if (postForm(form, e.target)) {
+    if (await postForm(form, e.target)) {
         document.location.pathname="/list";
     } else {
         window.alert("There was a problem posting this event.");
@@ -21,11 +21,11 @@ document.querySelector('form#approve-form input[name=approve]').addEventListener
 });
 
 // Clicking the "Save" button
-document.querySelector('form#approve-form input[name=save]').addEventListener("click", (e) => {
+document.querySelector('form#approve-form input[name=save]').addEventListener("click", async (e) => {
     form=document.querySelector("form#approve-form");
     form.action="/api/update/"+token;
 
-    const res=postForm(form, e.target);
+    const res=await postForm(form, e.target);
     if (res) { form.querySelector("input[name='approve']").disabled=false; }
     e.target.classList.remove("loading");
 });
